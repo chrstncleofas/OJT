@@ -5,12 +5,11 @@ from decouple import config, Csv
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-by9wp^9(*5@s77^3w38yc#s4ypo(7==u_3j%fzfwm8@8bimeg#'
+SECRET_KEY = config('SECRET_KEY', default='django-insecure-by9wp^9(*5@s77^3w38yc#s4ypo(7==u_3j%fzfwm8@8bimeg#')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=True, cast=bool)
@@ -18,6 +17,7 @@ DEBUG = config('DEBUG', default=True, cast=bool)
 # ALLOWED_HOSTS = ['*']
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='*', cast=Csv())
 
+# EMAIL
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
@@ -25,9 +25,7 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'ojtmanagementsystem2024@gmail.com'
 EMAIL_HOST_PASSWORD = 'uklgxtdbbxjdwgda'
 
-
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -44,6 +42,7 @@ INSTALLED_APPS = [
     'whitenoise.runserver_nostatic',
 ]
 
+# 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
@@ -56,6 +55,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+# 
 CORS_ALLOW_ALL_ORIGINS = True
 ROOT_URLCONF = 'main.urls'
 
