@@ -1,0 +1,14 @@
+Welcome to OJT Management System, {{ first_name }} {{ last_name }}!
+
+Dear {{ first_name }},
+
+Thank you for registering. Your registration has been successful and is pending admin approval.
+
+Here are your details:
+- Email: {{ email }}
+- Username: {{ username }}
+
+We will notify you once your account has been approved.
+
+Best regards,
+OJT Management System Team

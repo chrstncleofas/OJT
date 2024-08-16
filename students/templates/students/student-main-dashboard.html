@@ -46,7 +46,7 @@
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="{% url 'students:home' %}">
+        <a class="navbar-brand" href="{% url 'students:studentPage' %}">
             <img src="{% static 'img/Logo.png' %}" alt="Logo" style="width:50px; height: 50px; margin-left: 15px;">
             <p>OJT Management System</p>
         </a>
@@ -56,14 +56,40 @@
         <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ml-auto">
             <li class="nav-item">
-                <a class="btn btn-dark mr-1" href="{% url 'students:login' %}">Login</a>
+                <a class="nav-link text-color-dark" href="{% url 'students:Dashboard' %}">Dashboard</a>
             </li>
             <li class="nav-item">
-                <a class="btn btn-outline-secondary" href="{% url 'students:register' %}">Register</a>
+                <a class="nav-link text-color-dark" href="{% url 'students:announcement' %}">Announcement</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-color-dark" href="">Requirements</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-color-dark" href="#" data-toggle="modal" data-target="#logout">Logout</a>
             </li>
         </ul>
         </div>
     </nav>
+    <div class="modal fade" id="logout" tabindex="-1" role="dialog" aria-labelledby="loginModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="loginModalLabel">Logout</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure do want to leave this page</p>
+                </div>
+                <div class="modal-footer">
+                    <form>
+                        <a href="{% url 'students:logout' %}" class="btn btn-primary">Logout</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
     <!--Card  -->
     <div class="container mt-5">
         <div class="outer-container">

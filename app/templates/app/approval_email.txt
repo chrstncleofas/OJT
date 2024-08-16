@@ -1,0 +1,10 @@
+OJT Management System Account Has Been Approved
+
+Dear {{ first_name }} {{ last_name }},
+
+Congratulations! Your account has been approved.
+
+You can now log in and start using the OJT Management System.
+
+Best regards,
+OJT Management System Team

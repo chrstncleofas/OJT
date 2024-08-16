@@ -1,0 +1,204 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static 'css/main-dashboard.css' %}">
+    <link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon">
+    <title>Admin - OJT Management System Dashboard</title>
+    <style>
+        .preview-box {
+            border: 2px dashed #ccc;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 216px;
+            margin-bottom: 20px;
+            position: relative;
+            cursor: pointer;
+            overflow: hidden;
+            background-color: #f8f9fa;
+        }
+        .preview-box input[type="file"] {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+        .preview-box img {
+            max-width: 100%;
+            max-height: 100%;
+        }
+        .preview-box::before {
+            color: #888;
+            font-size: 16px;
+            position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+        }
+        .upload-box {
+            border: 2px dashed #ccc;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 216px;
+            margin-bottom: 20px;
+            position: relative;
+            cursor: pointer;
+            overflow: hidden;
+            background-color: #f8f9fa;
+        }
+        .upload-box input[type="file"] {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+        .upload-box img {
+            max-width: 100%;
+            max-height: 100%;
+            display: none;
+        }
+        .upload-box::before {
+            content: 'Choose File';
+            color: #888;
+            font-size: 16px;
+            position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="d-flex" id="wrapper">
+        <!-- Sidebar -->
+        <div class="bg-light border-right vh-100" id="sidebar-wrapper">
+            <a href="{% url 'dashboard' %}" style="text-decoration: none !important; color: black !important;"><div class="sidebar-heading">OJT Management System</div></a>
+            <div class="list-group list-group-flush">
+                <a href="{% url 'mainDashboard' %}" class="list-group-item list-group-item-action bg-light">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+                <a href="{% url 'listOfAnnouncement' %}" class="list-group-item list-group-item-action bg-light">
+                    <i class="fas fa-bullhorn"></i> Announcement
+                </a>
+                <a href="{% url 'studentManagement' %}" class="list-group-item list-group-item-action bg-light">
+                    <i class="fas fa-user-graduate"></i> Manage Student
+                </a>
+                <a href="{% url 'timeSheet' %}" class="list-group-item list-group-item-action bg-light">
+                    <i class="fas fa-clock"></i> Time Sheet
+                </a>
+                <a href="{% url 'set_rendering_hours' %}" class="list-group-item list-group-item-action bg-light">
+                    <i class="fas fa-cogs"></i> Settings
+                </a>
+                <a href="{% url 'logout' %}" class="list-group-item list-group-item-action bg-light">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+        </div>
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav ml-auto mt-2 mt-lg-0">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-user mr-2"></i>{{ firstName }} {{ lastName }}
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                <a class="dropdown-item" href="{% url 'profile' %}">Profile</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="{% url 'changePass' %}">Change Password</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+            <!-- Card -->
+            <div class="container-fluid">
+                <h3 class="mt-4"> Add Announcement</h3>
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="Title">Title</label>
+                        {{ form.Title }}
+                    </div>
+                    <div class="form-group">
+                        <label for="Image" style="font-size: 12px;">Preview Image (recommended dimension: 1280 x 400)</label><br>
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
+                            <div id="image-preview" class="preview-box">
+                                {% if announcement.Image %}
+                                    <img src="{{ announcement.Image.url }}" alt="Current Image" style="max-width: 200px;" id="current-image"><br>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <div class="upload-box">
+                                    {{ form.Image }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="Description">Description</label>
+                        {{ form.Description }}
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label for="Status">Status</label>
+                            {{ form.Status }}
+                        </div>
+                        <div class="col-md-4">
+                            <label for="Date">Date</label>
+                            {{ form.Date }}
+                        </div>
+                        <div class="col-md-4">
+                            <label for="Category">Category</label>
+                            {{ form.Category }}
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary mb-3">Add Announcement</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script> 
+    <script>
+        $(".navbar-toggler").click(function(e) {
+            e.preventDefault();
+            $("#wrapper").toggleClass("toggled");
+        });
+
+        // Image preview functionality
+        $(document).ready(function() {
+            $("input[type='file']").change(function(e) {
+                let reader = new FileReader();
+                reader.onload = function(e) {
+                    $('#image-preview').html('<img src="' + e.target.result + '" style="max-width: 500px;" alt="New Image Preview">');
+                }
+                reader.readAsDataURL(this.files[0]);
+            });
+        });
+    </script>
+</body>
+</html>

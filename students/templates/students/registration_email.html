@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon">
+    <title>Registration Successful</title>
+</head>
+<body>
+    <h1>Welcome to OJT Management System, {{ first_name }} {{ last_name }}!</h1>
+    <p>Dear {{ first_name }},</p>
+    <p>Thank you for registering. Your registration has been successful and is pending admin approval.</p>
+    <p>Here are your details:</p>
+    <ul>
+        <li>Email: {{ email }}</li>
+        <li>Username: {{ username }}</li>
+    </ul>
+    <p>We will notify you once your account has been approved.</p>
+    <p>Best regards,</p>
+    <p>OJT Management System Team</p>
+</body>
+</html>

@@ -1,0 +1,158 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon">
+    <link rel="stylesheet" href="{% static 'css/main-dashboard.css' %}">
+    <title>Super Admin - OJT Management System Dashboard</title>
+</head>
+<body>
+    <div class="d-flex" id="wrapper">
+        <!-- Sidebar -->
+        <div class="bg-light border-right vh-100" id="sidebar-wrapper">
+            <a href="{% url 'superapp:superAdminDashboard' %}" style="text-decoration: none !important; color: black !important;"><div class="sidebar-heading">OJT Management System</div></a>
+            <div class="list-group list-group-flush">
+                <a href="{% url 'superapp:mainDashboard' %}" class="list-group-item list-group-item-action bg-light">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+                <a href="" class="list-group-item list-group-item-action bg-light">
+                    <i class="fas fa-bullhorn"></i> Announcement
+                </a>
+                <a href="" class="list-group-item list-group-item-action bg-light">
+                    <i class="fas fa-user-graduate"></i> Manage Student
+                </a>
+                <a href="{% url 'superapp:getActivityLogs' %}" class="list-group-item list-group-item-action bg-light">
+                    <i class="fas fa-clock"></i> Activity Logs
+                </a>
+                <a href="{% url 'superapp:getAllTheUserAccount' %}" class="list-group-item list-group-item-action bg-light">
+                    <i class="fa-solid fa-user"></i> Users
+                </a>
+                <a href="#" class="list-group-item list-group-item-action bg-light">
+                    <i class="fas fa-cogs"></i> Settings
+                </a>
+                <a href="{% url 'superapp:loggingOut' %}" class="list-group-item list-group-item-action bg-light">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+        </div>
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav ml-auto mt-2 mt-lg-0">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-user mr-2"></i>{{ firstName }} {{ lastName }}
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                <a class="dropdown-item" href="{% url 'superapp:editUserProfile' %}">Profile</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="">Change Password</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="{% url 'superapp:loggingOut' %}">Logout</a>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+            <!-- Card -->
+            <div class="container-fluid">
+                <div class="row mb-4">
+                    <div class="col-lg-12">
+                        <p class="mt-3 mb-1">Home / Dashboard</p>
+                        <h3 class="mt-2 mb-2">Dashboard</h3>
+                    </div>
+                    <!-- Date Filter -->
+                    <div class="col-lg-12 d-flex justify-content-end align-items-center mb-3">
+                        <!-- Date Filter Buttons -->
+                        <div class="btn-group btn-group-toggle mr-3" data-toggle="buttons">
+                            <label class="btn btn-light border rounded mr-1">
+                                <input type="radio" name="dateFilter" id="today" autocomplete="off"> Today
+                            </label>
+                            <label class="btn btn-light border rounded mr-1">
+                                <input type="radio" name="dateFilter" id="yesterday" autocomplete="off"> Yesterday
+                            </label>
+                            <label class="btn btn-light border rounded mr-1">
+                                <input type="radio" name="dateFilter" id="week" autocomplete="off"> Week
+                            </label>
+                            <label class="btn btn-light border rounded mr-1">
+                                <input type="radio" name="dateFilter" id="month" autocomplete="off"> Month
+                            </label>
+                        </div>
+                        <!-- Start Date and End Date Inputs -->
+                        <div class="form-inline">
+                            <div class="form-group mr-1">
+                                <label for="start-date" class="sr-only">Start Date</label>
+                                <input type="date" class="form-control" id="start-date" placeholder="Start Date">
+                            </div>
+                            <div class="form-group mr-1">
+                                <label for="end-date" class="sr-only">End Date</label>
+                                <input type="date" class="form-control" id="end-date" placeholder="End Date">
+                            </div>
+                            <button type="button" class="btn btn-primary">Filter</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-4">
+                        <div class="card text-white bg-success">
+                            <div class="card-body">
+                                <i class="fas fa-check-circle icon"></i>
+                                <div>
+                                    <div class="count">{{ approve_count }}</div>
+                                    <div>Approved</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <a href="" style="text-decoration: none;">
+                            <div class="card text-white bg-warning">
+                                <div class="card-body">
+                                    <i class="fas fa-hourglass-half icon"></i>
+                                    <div>
+                                        <div class="count">{{ pending_count }}</div>
+                                        <div>Pending Registration</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-lg-4">
+                        <a href="" style="text-decoration: none;">
+                            <div class="card text-white bg-danger">
+                                <div class="card-body">
+                                    <i class="fas fa-close icon"></i>
+                                    <div>
+                                        <div class="count">{{ reject_count }}</div>
+                                        <div>Disapprove Registration</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script> 
+    <script>
+        $(".navbar-toggler").click(function(e) {
+            e.preventDefault();
+            $("#wrapper").toggleClass("toggled");
+        });
+    </script>
+</body>
+</html>

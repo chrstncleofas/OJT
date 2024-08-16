@@ -1,0 +1,144 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <title>Student - OJT Management System</title>
+    <style>
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+        }
+        .navbar-brand img {
+            width: 50px;
+            height: 50px;
+            margin-right: 15px;
+        }
+        .navbar-brand p {
+            margin: 0;
+            margin-left: -10px;
+            color: darkblue;
+            font-size: 1.15rem;
+        }
+        .footer {
+            background-color: #f8f9fa;
+            padding: 20px 0;
+            text-align: center;
+            margin-top: 26px;
+        }
+        .footer p {
+            margin: 0;
+            color: #6c757d;
+        }
+        .outer-container {
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            margin-top: 10px;
+            border-radius: 6px;
+        }
+        span.category-class{
+            padding: 5px;
+            border-radius: 51px;           
+            background-color: red;
+            color: #fff;
+            font-size: 10px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="{% url 'students:studentPage' %}">
+            <img src="{% static 'img/Logo.png' %}" alt="Logo" style="width:50px; height: 50px; margin-left: 15px;">
+            <p>OJT Management System</p>
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+                <a class="nav-link text-color-dark" href="{% url 'students:Dashboard' %}">Dashboard</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-color-dark" href="">Announcement</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-color-dark" href="">Requirements</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-color-dark" href="#" data-toggle="modal" data-target="#logout">Logout</a>
+            </li>
+        </ul>
+        </div>
+    </nav>
+    <div class="modal fade" id="logout" tabindex="-1" role="dialog" aria-labelledby="loginModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="loginModalLabel">Logout</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure do want to leave this page</p>
+                </div>
+                <div class="modal-footer">
+                    <form>
+                        <a href="{% url 'students:logout' %}" class="btn btn-primary">Logout</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--Card  -->
+    <div class="container mt-5">
+        <div class="outer-container">
+            <h3 class="mb-2">Announcement</h3>
+            <p>List of latest announcement</p>
+            <!-- Dito design ng announcement naka card -->
+            <div class="row">
+                {% for announcement in announcements %}
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100">
+                            {% if announcement.Image %}
+                                <img src="{{ announcement.Image.url }}" class="card-img-top mb-0" alt="{{ announcement.Title }}">
+                            {% endif %}
+                            <div class="card-body">
+                                <p class="card-text mb-3" style="font-size: 10px; font-weight: bold; color: gray;">{{ announcement.Date }}</p>
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <h5 style="font-size: 15px;" class="card-title">{{ announcement.Title }}</h5>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <span class="float-right category-class">{{ announcement.Category }}</span>
+                                    </div>
+                                </div>
+                                <p class="card-text" style="text-align: justify;">{{ announcement.Description }}</p>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; <span id="currentYear"></span> OJT Management System. All Rights Reserved.</p>
+        </div>
+    </footer>
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+    </script>
+</body>
+</html>

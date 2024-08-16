@@ -1,0 +1,280 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static 'css/main-dashboard.css' %}">
+    <link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon">
+    <title>Student - OJT Management System Dashboard</title>
+    <style>
+        .card-container {
+            display: flex;
+            justify-content: center;
+            padding: 0;
+            gap: 11px;
+        }
+        .card {
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 6px;
+            background-color: #fff;
+            flex: 1;
+        }
+        .card.fixed-height {
+            max-height: 400px; /* Set your desired height here */
+            overflow-y: auto;
+        }
+        .upload-box {
+            border: 2px dashed #ccc;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 216px;
+            margin-bottom: 20px;
+            position: relative;
+            cursor: pointer;
+            overflow: hidden;
+            background-color: #f8f9fa;
+        }
+        .upload-box input[type="file"] {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+        .upload-box img {
+            max-width: 100%;
+            max-height: 100%;
+            display: none;
+        }
+        .upload-box::before {
+            content: 'Choose File';
+            color: #888;
+            font-size: 16px;
+            position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+        }
+        a {
+            color: white;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: none;
+        }
+        .time-info {
+            font-weight: bold;
+        }
+        .log-card {
+            margin-bottom: 15px;
+        }
+        .log-card img {
+            width: 100%;
+            height: auto;
+        }
+        .log-card .card-body {
+            text-align: center;
+        }
+        .flex{
+            display: flex;
+            justify-content: space-between;
+        }
+        .flex p{
+            margin-top: 5px;
+        }
+        .card .row.no-gutters {
+            display: flex;
+            align-items: stretch;
+        }
+        
+        .card .col-md-4 {
+            flex: 1;
+            display: flex;
+            align-items: stretch;
+        }
+        
+        .card .card-img {
+            width: 100%;
+            height: 96%;
+        }
+    </style>
+</head>
+<body>
+    <div class="d-flex" id="wrapper">
+        <!-- Sidebar -->
+        <div class="bg-light border-right vh-100" id="sidebar-wrapper">
+            <a href="{% url 'students:studentPage' %}" style="text-decoration: none !important; color: black !important;"><div class="sidebar-heading">OJT Management System</div></a>
+            <div class="list-group list-group-flush">
+                <a href="{% url 'students:Dashboard' %}" class="list-group-item list-group-item-action bg-light">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+                <a href="{% url 'students:TimeInAndTimeOut' %}" class="list-group-item list-group-item-action bg-light">
+                    <i class="fas fa-clock"></i> Clock In
+                </a>
+                <a href="#" class="list-group-item list-group-item-action bg-light">
+                    <i class="fas fa-chart-line"></i> Progress Report
+                </a>
+                <a href="#" class="list-group-item list-group-item-action bg-light">
+                    <i class="fas fa-cogs"></i> Settings
+                </a>
+                <a href="{% url 'students:logout' %}" class="list-group-item list-group-item-action bg-light">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+        </div>
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav ml-auto mt-2 mt-lg-0">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-user mr-2"></i>{{ firstName }} {{ lastName }}
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                <a class="dropdown-item" href="{% url 'students:profile' %}">Profile</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="{% url 'students:changePassword' %}">Change Password</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="{% url 'students:logout' %}">Logout</a>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+            <!-- Card -->
+            <div class="container mt-3">
+                <div class="row p-3">
+                    <div class="card col-md-3">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="card-title mb-0">Schedule</h5>
+                        </div>
+                        {% if full_schedule %}
+                            <ul class="list-group list-group-flush">
+                                {% for s in full_schedule %}
+                                    <li class="list-group-item d-flex justify-content-between align-items-center mt-2">
+                                        <span>{{ s.day }}</span>
+                                        <span class="text-muted">{{ s.start_time }} - {{ s.end_time }}</span>
+                                    </li>
+                                 {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p class="text-center text-muted mt-3">No schedule available.</p>
+                        {% endif %}
+                    </div>
+                    <div class="card col-md-5 ml-2">
+                        <div class="mt-2">
+                            <form method="POST" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <div class="upload-box" id="uploadBox">
+                                    {{ form.image }}
+                                    <img id="preview" src="#" alt="Preview Image">
+                                </div>
+                                {{ form.action }}
+                                {% if time_logs %}
+                                    {% if time_logs.0.action == 'IN' %}
+                                        <p style="margin-bottom: 2px;">Current login time was</p>
+                                        <p class="time-info" style="margin-bottom: 2px; font-weight: bold;">{{ time_logs.0.timestamp|date:"g:i:s A" }}</p>
+                                        <p>on <span style="font-weight: bold;">{{ time_logs.0.timestamp|date:"l, n/j" }}</span></p>
+                                    {% else %}
+                                        <p style="margin-bottom: 2px;">Current logging out at</p>
+                                        <p style="margin-bottom: 2px; font-weight: bold;" class="time-info">{{ current_time|date:"g:i:s A" }}</p>
+                                        <p>on <span style="font-weight: bold;">{{ current_time|date:"l, n/j" }}</span></p>
+                                    {% endif %}
+                                {% endif %}
+                                <div class="form-group" style="display: flex; justify-content: space-between;">
+                                    <button type="submit" id="timeInBtn" class="btn btn-success" onclick="document.getElementById('id_action').value='IN'" disabled>Time In</button>
+                                    <button type="submit" id="timeOutBtn" class="btn btn-danger" onclick="document.getElementById('id_action').value='OUT'" disabled>Time Out</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="card fixed-height col-md-6 ml-2">
+                        <h3>Time Card</h3>
+                        <div class="row">
+                            {% for log in time_logs %}
+                            <div class="col-md-12 log-card">
+                                <div class="card">
+                                    <div class="row no-gutters">
+                                        <div class="col-md-4">
+                                            {% if log.image %}
+                                            <img src="{{ log.image.url }}" alt="Time {{ log.action }} Image" class="card-img img-fluid">
+                                            {% else %}
+                                            <img src="{% static 'path/to/default-image.jpg' %}" alt="No Image" class="card-img img-fluid">
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-md-8">
+                                            <div class="card-body text-left">
+                                                <div class="row">
+                                                    <div class="col-12 mb-1">
+                                                        <p class="card-text" style="font-weight: bold; font-size: 13px;">TIME {{ log.action }}</p>
+                                                    </div>
+                                                    <div class="col-12 mb-1">
+                                                        <p class="card-text">
+                                                            <span style="font-weight: 400; font-size: 15px;">{{ log.timestamp|date:"g:i:s A" }}</span>
+                                                        </p>
+                                                    </div>
+                                                    <div class="col-12 mb-1">
+                                                        <p class="card-text">{{ log.timestamp|date:"l" }}</p>
+                                                    </div>
+                                                    <div class="col-12">
+                                                        <p class="card-text">{{ log.timestamp|date:"F j, Y" }}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>               
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script> 
+    <script>
+        $(".navbar-toggler").click(function(e) {
+            e.preventDefault();
+            $("#wrapper").toggleClass("toggled");
+        });
+
+        document.getElementById('id_image').addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                document.getElementById('timeInBtn').disabled = false;
+                document.getElementById('timeOutBtn').disabled = false;
+            }
+        });
+        // 
+        function previewImage(event) {
+            var preview = document.getElementById('preview');
+            var file = document.getElementById('id_image').files[0];
+            var reader = new FileReader();
+            reader.onload = function() {
+                preview.src = reader.result;
+                preview.style.display = 'block';
+            }
+            if (file) {
+                reader.readAsDataURL(file);
+            }
+        }
+        document.getElementById('id_image').addEventListener('change', previewImage);
+    </script>
+</body>
+</html>
