@@ -5,7 +5,7 @@ set -e
 GIT_REPO_URL="https://github.com/chrstncleofas/OJT.git"
 
 # If using Private Repo
-#GIT_REPO_URL="https://<your_username>:<your_PAT>@github.com/codewithmuh/django-aws-ec2-autoscaling.git"
+#GIT_REPO_URL="https://<your_username>:<your_PAT>@github.com/chrstncleofas/OJT.git"
 
 # Replace {YOUR_PROJECT_MAIN_DIR_NAME} with your actual project directory name
 PROJECT_MAIN_DIR_NAME="OJT"
