@@ -12,7 +12,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-by9wp^9(*5@s77^3w38yc#s4ypo(7==u_3j%fzfwm8@8bimeg#')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config('DEBUG', default=False, cast=bool)
+DEBUG = config('DEBUG', default=True, cast=bool)
 
 # ALLOWED_HOSTS = ['*']
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='*', cast=Csv())
