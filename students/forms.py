@@ -88,17 +88,12 @@ class StudentRegistrationForm(forms.ModelForm):
         required=False
     )
 
-    Middlename = forms.CharField(
-        max_length=100,
-        widget=forms.Select(attrs={'class': 'form-control'}),
-        required=False
-    )
-
     class Meta:
         model = DataTableStudents
         fields = ['StudentID', 'Firstname', 'Middlename', 'Lastname', 'Prefix', 'Address', 'Number' ,'Course', 'Year']
         widgets = {
             'Firstname': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter First Name'}),
+            'Middlename': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Middle Name'}),
             'Lastname': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Last Name'}),
             'Address': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Full Address'}),
         }
@@ -106,7 +101,7 @@ class StudentRegistrationForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(StudentRegistrationForm, self).__init__(*args, **kwargs)
         self.fields['Firstname'].required = True
-        self.fields['Middlename'].required = True
+        self.fields['Middlename'].required = False
         self.fields['Lastname'].required = True
         self.fields['Course'].required = True
         self.fields['Year'].required = True
