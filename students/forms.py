@@ -88,12 +88,17 @@ class StudentRegistrationForm(forms.ModelForm):
         required=False
     )
 
+    Middlename = forms.ChoiceField(
+        max_length=100,
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        required=False
+    )
+
     class Meta:
         model = DataTableStudents
         fields = ['StudentID', 'Firstname', 'Middlename', 'Lastname', 'Prefix', 'Address', 'Number' ,'Course', 'Year']
         widgets = {
             'Firstname': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter First Name'}),
-            'Middlename': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Middle Name'}),
             'Lastname': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Last Name'}),
             'Address': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Full Address'}),
         }
