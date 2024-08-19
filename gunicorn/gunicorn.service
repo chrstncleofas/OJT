@@ -11,6 +11,6 @@ ExecStart=/home/ubuntu/OJT/venv/bin/gunicorn \
           --access-logfile - \
           --workers 3 \
           --bind unix:/run/gunicorn.sock \
-          core.wsgi:application
+          main.wsgi:application
 [Install]
 WantedBy=multi-user.target
