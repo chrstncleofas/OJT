@@ -88,7 +88,7 @@ class StudentRegistrationForm(forms.ModelForm):
         required=False
     )
 
-    Middlename = forms.ChoiceField(
+    Middlename = forms.CharField(
         max_length=100,
         widget=forms.Select(attrs={'class': 'form-control'}),
         required=False
