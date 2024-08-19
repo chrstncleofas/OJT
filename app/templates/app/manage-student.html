@@ -152,6 +152,14 @@
                 </ul>
                 <div class="tab-content" id="myTabContent">
                     <div class="tab-pane fade show active" id="approved-students" role="tabpanel" aria-labelledby="approved-students-tab">
+                        <div class="d-flex justify-content-end mb-3 mt-3">
+                            <label for="courseFilter" class="form-label mr-2 align-self-center">Filter by Course:</label>
+                            <select id="courseFilter" class="form-control w-auto">
+                                <option value="all">All</option>
+                                <option value="BS Information Technology">BS Information Technology</option>
+                                <option value="BS Computer Science">BS Computer Science</option>
+                            </select>
+                        </div>
                         <table class="table">
                             <thead>
                                 <tr>
@@ -164,9 +172,9 @@
                                     <th>Action</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody id="studentTableBody">
                                 {% for student in getListOfApproveStudent %}
-                                <tr>
+                                <tr data-course="{{ student.Course }}">
                                     <td>{{ student.StudentID }}</td>
                                     <td style="text-transform: uppercase;">{{ student.Firstname }}</td>
                                     <td style="text-transform: uppercase;">{{ student.Lastname }}</td>
@@ -205,8 +213,7 @@
                                 {% endfor %}
                             </tbody>
                         </table>
-                    </div>
-                                       
+                    </div>                      
                     <div class="tab-pane fade" id="pending-application" role="tabpanel" aria-labelledby="pending-application-tab">
                         <table class="table">
                             <thead>
@@ -346,6 +353,18 @@
                 }
             });
         }
+
+        document.getElementById('courseFilter').addEventListener('change', function() {
+            var selectedCourse = this.value;
+            var rows = document.querySelectorAll('#studentTableBody tr');
+            rows.forEach(function(row) {
+                if (selectedCourse === 'all' || row.getAttribute('data-course') === selectedCourse) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
     </script>
 </body>
 </html>
