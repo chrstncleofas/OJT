@@ -123,6 +123,7 @@ def studentManagement(request):
     # 
     archive = DataTableStudents.objects.filter(archivedStudents='Archive')
 
+    active_tab = request.GET.get('tab', 'approved-students')  # Default to 'approved-students' tab
     return render(
         request,
         MANAGEMENT_STUDENT,
@@ -132,7 +133,8 @@ def studentManagement(request):
             'getAllRejectedApplication': rejected,
             'getListOfArchivedStudents': archive,
             'firstName': firstName,
-            'lastName': lastName
+            'lastName': lastName,
+            'active_tab': active_tab,
         }
     )
 
@@ -273,6 +275,10 @@ def viewTimeLogs(request, student_id):
     student = get_object_or_404(DataTableStudents, id=student_id)
     firstName = admin.first_name
     lastName = admin.last_name
+
+    studentFirstname = student.Firstname
+    studentLastname = student.Lastname
+
     selected_student = get_object_or_404(DataTableStudents, id=student_id)
     time_logs = TimeLog.objects.filter(student=selected_student).order_by('timestamp')
     total_work_seconds = 0
@@ -309,6 +315,8 @@ def viewTimeLogs(request, student_id):
         'remaining_hours_time': format_seconds(remaining_hours_seconds),
         'firstName': firstName,
         'lastName': lastName,
+        'studentFirstname': studentFirstname,
+        'studentLastname': studentLastname,
         'full_schedule': full_schedule,
     }
     return render(request, 'app/TimeLogs.html', context)
@@ -460,41 +468,40 @@ def setSchedule(request, id):
     lastName = admin.last_name
 
     student = get_object_or_404(DataTableStudents, id=id)
-    current_day = datetime.now().strftime('%A')
-    
     if request.method == 'POST':
         form = ScheduleSettingForm(request.POST)
         if form.is_valid():
-            day = form.cleaned_data['day']
-            start_time = form.cleaned_data['start_time']
-            end_time = form.cleaned_data['end_time']
-            
-            Schedule.objects.create(
-                student=student,
-                day=day,
-                start_time=start_time,
-                end_time=end_time
-            )
+            # Clearing existing schedule for the student
+            Schedule.objects.filter(student=student).delete()
+
+            days_times = {
+                'Monday': ('monday_start', 'monday_end'),
+                'Tuesday': ('tuesday_start', 'tuesday_end'),
+                'Wednesday': ('wednesday_start', 'wednesday_end'),
+                'Thursday': ('thursday_start', 'thursday_end'),
+                'Friday': ('friday_start', 'friday_end'),
+            }
+
+            for day, (start_field, end_field) in days_times.items():
+                start_time = form.cleaned_data[start_field]
+                end_time = form.cleaned_data[end_field]
+                if start_time and end_time:
+                    Schedule.objects.create(
+                        student=student,
+                        day=day,
+                        start_time=start_time,
+                        end_time=end_time
+                    )
+
             return redirect('editStudentDetails', id=id)
     else:
         form = ScheduleSettingForm()
-    
-    schedule = Schedule.objects.filter(student=student).order_by('day')
-    next_schedule = []
-    day_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-    
-    start_index = day_order.index(current_day)
-    for i in range(start_index + 1, len(day_order)):
-        next_schedule.extend(schedule.filter(day=day_order[i]))
-    for i in range(0, start_index + 1):
-        next_schedule.extend(schedule.filter(day=day_order[i]))
 
     return render(request, 'app/set-schedule.html', {
         'form': form,
         'student': student,
         'firstName': firstName,
         'lastName': lastName,
-        'schedule': next_schedule,
     })
 
 def editStudentDetails(request, id):

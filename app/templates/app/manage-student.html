@@ -138,20 +138,20 @@
                 </div>
                 <ul class="nav nav-tabs" id="myTab" role="tablist">
                     <li class="nav-item">
-                        <a class="nav-link active" id="approved-students-tab" data-toggle="tab" href="#approved-students" role="tab" aria-controls="approved-students" aria-selected="true">Approved Students</a>
+                        <a class="nav-link {% if active_tab == 'approved-students' %}active{% endif %}" id="approved-students-tab" data-toggle="tab" href="#approved-students" role="tab" aria-controls="approved-students" aria-selected="true">Approved Students</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" id="pending-application-tab" data-toggle="tab" href="#pending-application" role="tab" aria-controls="pending-application" aria-selected="false">Pending Application</a>
+                        <a class="nav-link {% if active_tab == 'pending-application' %}active{% endif %}" id="pending-application-tab" data-toggle="tab" href="#pending-application" role="tab" aria-controls="pending-application" aria-selected="false">Pending Application</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" id="rejected-application-tab" data-toggle="tab" href="#rejected-application" role="tab" aria-controls="rejected-application" aria-selected="false">Rejected Application</a>
+                        <a class="nav-link {% if active_tab == 'rejected-application' %}active{% endif %}" id="rejected-application-tab" data-toggle="tab" href="#rejected-application" role="tab" aria-controls="rejected-application" aria-selected="false">Rejected Application</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" id="archive-tab" data-toggle="tab" href="#archive" role="tab" aria-controls="archive" aria-selected="false">Archive Students</a>
+                        <a class="nav-link {% if active_tab == 'archive' %}active{% endif %}" id="archive-tab" data-toggle="tab" href="#archive" role="tab" aria-controls="archive" aria-selected="false">Archive Students</a>
                     </li>
                 </ul>
                 <div class="tab-content" id="myTabContent">
-                    <div class="tab-pane fade show active" id="approved-students" role="tabpanel" aria-labelledby="approved-students-tab">
+                    <div class="tab-pane fade show {% if active_tab == 'approved-students' %}show active{% endif %}" id="approved-students" role="tabpanel" aria-labelledby="approved-students-tab">
                         <div class="d-flex justify-content-end mb-3 mt-3">
                             <label for="courseFilter" class="form-label mr-2 align-self-center">Filter by Course:</label>
                             <select id="courseFilter" class="form-control w-auto">
@@ -214,7 +214,15 @@
                             </tbody>
                         </table>
                     </div>                      
-                    <div class="tab-pane fade" id="pending-application" role="tabpanel" aria-labelledby="pending-application-tab">
+                    <div class="tab-pane fade {% if active_tab == 'pending-application' %}show active{% endif %}" id="pending-application" role="tabpanel" aria-labelledby="pending-application-tab">
+                        <div class="d-flex justify-content-end mb-3 mt-3">
+                            <label for="courseFilter" class="form-label mr-2 align-self-center">Filter by Course:</label>
+                            <select id="courseFilter" class="form-control w-auto">
+                                <option value="all">All</option>
+                                <option value="BS Information Technology">BS Information Technology</option>
+                                <option value="BS Computer Science">BS Computer Science</option>
+                            </select>
+                        </div>
                         <table class="table">
                             <thead>
                                 <tr>
@@ -244,7 +252,15 @@
                             </tbody>
                         </table>
                     </div>         
-                    <div class="tab-pane fade" id="rejected-application" role="tabpanel" aria-labelledby="rejected-application-tab">
+                    <div class="tab-pane fade {% if active_tab == 'rejected-application' %}show active{% endif %}" id="rejected-application" role="tabpanel" aria-labelledby="rejected-application-tab">
+                        <div class="d-flex justify-content-end mb-3 mt-3">
+                            <label for="courseFilter" class="form-label mr-2 align-self-center">Filter by Course:</label>
+                            <select id="courseFilter" class="form-control w-auto">
+                                <option value="all">All</option>
+                                <option value="BS Information Technology">BS Information Technology</option>
+                                <option value="BS Computer Science">BS Computer Science</option>
+                            </select>
+                        </div>
                         <table class="table">
                             <thead>
                                 <tr>
@@ -274,7 +290,15 @@
                             </tbody>
                         </table>
                     </div>
-                    <div class="tab-pane fade" id="archive" role="tabpanel" aria-labelledby="archive-tab">
+                    <div class="tab-pane fade {% if active_tab == 'archive' %}show active{% endif %}" id="archive" role="tabpanel" aria-labelledby="archive-tab">
+                        <div class="d-flex justify-content-end mb-3 mt-3">
+                            <label for="courseFilter" class="form-label mr-2 align-self-center">Filter by Course:</label>
+                            <select id="courseFilter" class="form-control w-auto">
+                                <option value="all">All</option>
+                                <option value="BS Information Technology">BS Information Technology</option>
+                                <option value="BS Computer Science">BS Computer Science</option>
+                            </select>
+                        </div>
                         <table class="table">
                             <thead>
                                 <tr>

@@ -54,6 +54,35 @@
             transform: translateX(-50%);
             margin-top: 25px;
         }
+        #clock {
+            font-family: 'Arial', sans-serif;
+            color: #343a40;
+            font-size: 48px;
+            font-weight: bold;
+        }
+    
+        .calendar {
+            font-family: 'Arial', sans-serif;
+        }
+    
+        .calendar th {
+            background-color: #f8f9fa;
+            color: #6c757d;
+        }
+    
+        .calendar td {
+            padding: 10px;
+            width: 40px;
+            height: 40px;
+        }
+    
+        .bg-primary {
+            background-color: #007bff !important;
+        }
+    
+        .text-white {
+            color: #fff !important;
+        }
     </style>
 </head>
 <body>
@@ -104,41 +133,17 @@
                 </div>
             </nav>
             <div class="container-fluid">
-                <h3 class="mt-4">Student Details</h3>
-                <div class="row">
-                    <!-- Image Upload Box -->
-                    <div class="col-md-3 mt-3">
-                        <div id="image-preview" class="preview-box">
-                            {% if student.Image %}
-                                <img src="{{ student.Image.url }}" alt="Profile Image" style="max-width: 100%;" id="current-image">
-                            {% endif %}
-                        </div>
-                        <a href="{% url 'students:profile' %}" class="btn btn-primary mt-0 edit-btn">Edit Profile</a>
+                <div class="row mt-4">
+                    <!-- Clock -->
+                    <div class="col-md-12 text-center">
+                        <div id="clock" class="display-4"></div>
                     </div>
-                    <!-- Student Information -->
-                    <div class="col-md-8">
-                        <div class="card">
-                            <ul class="list-group list-group-flush">
-                                <li class="list-group-item">
-                                    <span class="font-weight-bold">Student No:</span> {{ studentID }}
-                                </li>
-                                <li class="list-group-item">
-                                    <span class="font-weight-bold">Full Name:</span> {{ firstName }} {{ lastName }}
-                                </li>
-                                <li class="list-group-item">
-                                    <span class="font-weight-bold">Email:</span> {{ email }}
-                                </li>
-                                <li class="list-group-item">
-                                    <span class="font-weight-bold">Course:</span> {{ course }}
-                                </li>
-                                <li class="list-group-item">
-                                    <span class="font-weight-bold">Year:</span> {{ year }}
-                                </li>
-                            </ul>
-                        </div>
+                    <!-- Calendar -->
+                    <div class="col-md-12 text-center mt-4">
+                        <div id="calendar" class="calendar"></div>
                     </div>
                 </div>
-            </div>
+            </div>                
         </div>
     </div>
     <!-- Scripts -->
@@ -171,6 +176,65 @@
                 reader.readAsDataURL(this.files[0]);
             });
         });
+
+        // Clock Script with 12-Hour Format
+        function updateClock() {
+            const now = new Date();
+            let hours = now.getHours();
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours ? hours : 12; // The hour '0' should be '12'
+            const timeString = `${hours}:${minutes}:${seconds} ${ampm}`;
+            document.getElementById('clock').innerText = timeString;
+        }
+
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // Calendar Script
+        function generateCalendar() {
+            const now = new Date();
+            const currentMonth = now.getMonth();
+            const currentYear = now.getFullYear();
+            const currentDate = now.getDate();
+
+            const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            const months = [
+                'January', 'February', 'March', 'April', 'May', 'June',
+                'July', 'August', 'September', 'October', 'November', 'December'
+            ];
+
+            const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+            const lastDate = new Date(currentYear, currentMonth + 1, 0).getDate();
+
+            let calendarHTML = `<table class="table table-bordered"><thead><tr><th colspan="7" class="text-center">${months[currentMonth]} ${currentYear}</th></tr><tr>`;
+            daysOfWeek.forEach(day => {
+                calendarHTML += `<th class="text-center">${day}</th>`;
+            });
+            calendarHTML += `</tr></thead><tbody><tr>`;
+
+            for (let i = 0; i < firstDay; i++) {
+                calendarHTML += `<td></td>`;
+            }
+
+            for (let day = 1; day <= lastDate; day++) {
+                if ((day + firstDay - 1) % 7 === 0) {
+                    calendarHTML += `</tr><tr>`;
+                }
+                if (day === currentDate) {
+                    calendarHTML += `<td class="bg-primary text-white text-center"><strong>${day}</strong></td>`;
+                } else {
+                    calendarHTML += `<td class="text-center">${day}</td>`;
+                }
+            }
+
+            calendarHTML += `</tr></tbody></table>`;
+            document.getElementById('calendar').innerHTML = calendarHTML;
+        }
+
+        generateCalendar();
     </script>
 </body>
 </html>

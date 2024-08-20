@@ -102,18 +102,20 @@
                 <!-- Cards -->
                 <div class="row">
                     <div class="col-lg-4">
-                        <div class="card text-white bg-success">
-                            <div class="card-body">
-                                <i class="fas fa-check-circle icon"></i>
-                                <div>
-                                    <div class="count">{{ approve_count }}</div>
-                                    <div>Approved</div>
+                        <a href="{% url 'studentManagement' %}?tab=approved-students" style="text-decoration: none;">
+                            <div class="card text-white bg-success">
+                                <div class="card-body">
+                                    <i class="fas fa-check-circle icon"></i>
+                                    <div>
+                                        <div class="count">{{ approve_count }}</div>
+                                        <div>Approved</div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        </a>
                     </div>
                     <div class="col-lg-4">
-                        <a href="{% url 'studentManagement' %}" style="text-decoration: none;">
+                        <a href="{% url 'studentManagement' %}?tab=pending-application" style="text-decoration: none;">
                             <div class="card text-white bg-warning">
                                 <div class="card-body">
                                     <i class="fas fa-hourglass-half icon"></i>
@@ -126,7 +128,7 @@
                         </a>
                     </div>
                     <div class="col-lg-4">
-                        <a href="{% url 'studentManagement' %}" style="text-decoration: none;">
+                        <a href="{% url 'studentManagement' %}?tab=rejected-application" style="text-decoration: none;">
                             <div class="card text-white bg-danger">
                                 <div class="card-body">
                                     <i class="fas fa-close icon"></i>
