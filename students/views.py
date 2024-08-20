@@ -74,7 +74,6 @@ def mainPageForDashboard(request) -> HttpResponse:
 def TimeInAndTimeOut(request):
     user = request.user
     student = get_object_or_404(DataTableStudents, user=user)
-
     if request.method == 'POST':
         form = TimeLogForm(request.POST, request.FILES)
         if form.is_valid():
@@ -83,20 +82,16 @@ def TimeInAndTimeOut(request):
             time_log.duration = 0
             time_log.timestamp = timezone.now()
             time_log.save()
-            messages.success(request, f'Time {time_log.action} recorded successfully with image.')
             return redirect('students:TimeInAndTimeOut')
         else:
             messages.error(request, 'Failed to record time. Please ensure the form is filled out correctly.')
     else:
         form = TimeLogForm()
-
     current_time = now()
-
     firstName = student.Firstname
     lastName = student.Lastname
     time_logs = TimeLog.objects.filter(student=student).order_by('-timestamp')
     full_schedule = Schedule.objects.filter(student=student, day__in=['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']).order_by('id')
-
     return render(
         request,
         'students/timeIn-timeOut.html',

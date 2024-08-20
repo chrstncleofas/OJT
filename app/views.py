@@ -147,7 +147,7 @@ def userLoginFunction(request):
             if user.is_staff and not user.is_superuser:
                 login(request, user)
                 request.session['admin_password'] = user.password
-                return render(request, 'app/loginSuccess.html', {'message': 'Login successful!'})
+                return redirect('dashboard')
             else:
                 messages.error(request, 'You do not have the necessary permissions to access this site.')
         else:
