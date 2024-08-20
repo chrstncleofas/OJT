@@ -18,6 +18,7 @@ urlpatterns = [
     path('getAllTheUserAccount/', views.getAllTheUserAccount, name='getAllTheUserAccount'),
     path('getActivityLogs/', views.getActivityLogs, name='getActivityLogs'),
     path('studentManagement/', views.studentManagement, name='studentManagement'),
+    path('set_rendering_hours/', views.set_rendering_hours, name='set_rendering_hours'),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)

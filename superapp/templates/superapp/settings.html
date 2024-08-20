@@ -68,22 +68,25 @@
         <div class="bg-light border-right vh-100" id="sidebar-wrapper">
             <div class="sidebar-heading">OJT Management System</div>
             <div class="list-group list-group-flush">
-                <a href="{% url 'mainDashboard' %}" class="list-group-item list-group-item-action bg-light">
+                <a href="{% url 'superapp:mainDashboard' %}" class="list-group-item list-group-item-action bg-light">
                     <i class="fas fa-tachometer-alt"></i> Dashboard
                 </a>
-                <a href="{% url 'listOfAnnouncement' %}" class="list-group-item list-group-item-action bg-light">
+                <a href="" class="list-group-item list-group-item-action bg-light">
                     <i class="fas fa-bullhorn"></i> Announcement
                 </a>
-                <a href="{% url 'studentManagement' %}" class="list-group-item list-group-item-action bg-light">
+                <a href="{% url 'superapp:studentManagement' %}" class="list-group-item list-group-item-action bg-light">
                     <i class="fas fa-user-graduate"></i> Manage Student
                 </a>
-                <a href="{% url 'timeSheet' %}" class="list-group-item list-group-item-action bg-light">
-                    <i class="fas fa-clock"></i> Time Sheet
+                <a href="{% url 'superapp:getActivityLogs' %}" class="list-group-item list-group-item-action bg-light">
+                    <i class="fas fa-clock"></i> Activity Logs
                 </a>
-                <a href="#" class="list-group-item list-group-item-action bg-light">
+                <a href="{% url 'superapp:getAllTheUserAccount' %}" class="list-group-item list-group-item-action bg-light">
+                    <i class="fa-solid fa-user"></i> Users
+                </a>
+                <a href="" class="list-group-item list-group-item-action bg-light">
                     <i class="fas fa-cogs"></i> Settings
                 </a>
-                <a href="{% url 'logout' %}" class="list-group-item list-group-item-action bg-light">
+                <a href="{% url 'superapp:loggingOut' %}" class="list-group-item list-group-item-action bg-light">
                     <i class="fas fa-sign-out-alt"></i> Logout
                 </a>
             </div>

@@ -6,12 +6,15 @@ from app.models import CustomUser
 from django.contrib import messages
 from django.shortcuts import redirect
 from django.core.mail import send_mail
+from app.models import RenderingHoursTable
 from superapp.forms import EditUsersForm
 from app.forms import EditUsersDetailsForm
 from app.forms import CustomUserCreationForm
+from app.forms import SetRenderingHoursForm
 from django.shortcuts import render, redirect
 from django.shortcuts import get_object_or_404
 from students.models import DataTableStudents, TimeLog
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponsePermanentRedirect
 
@@ -218,3 +221,68 @@ def superAdminLogin(request):
 def loggingOut(request) -> HttpResponseRedirect:
     logout(request)
     return redirect('superapp:superHome')
+
+@login_required
+def set_rendering_hours(request):
+    user = request.user
+    admin = get_object_or_404(CustomUser, id=user.id)
+    firstName = admin.first_name
+    lastName = admin.last_name
+
+    if request.method == 'POST':
+        form = SetRenderingHoursForm(request.POST)
+        if form.is_valid():
+            bsit_hours = form.cleaned_data.get('bsit_hours')
+            bscs_hours = form.cleaned_data.get('bscs_hours')
+            RenderingHoursTable.objects.update_or_create(
+                course='BS Information Technology',
+                defaults={'required_hours': bsit_hours}
+            )
+            RenderingHoursTable.objects.update_or_create(
+                course='BS Computer Science',
+                defaults={'required_hours': bscs_hours}
+            )
+            return redirect('superapp:set_rendering_hours')
+    else:
+        try:
+            bsit_hours = RenderingHoursTable.objects.get(course='BS Information Technology').required_hours
+        except RenderingHoursTable.DoesNotExist:
+            bsit_hours = None
+
+        try:
+            bscs_hours = RenderingHoursTable.objects.get(course='BS Computer Science').required_hours
+        except RenderingHoursTable.DoesNotExist:
+            bscs_hours = None
+
+        form = SetRenderingHoursForm(initial={
+            'bsit_hours': bsit_hours,
+            'bscs_hours': bscs_hours,
+        })
+
+    return render(request, 'superapp/settings.html', {
+        'form': form,
+        'firstName': firstName,
+        'lastName': lastName
+    })
+
+def editRenderHours(request):
+    if request.method == 'POST':
+        form = SetRenderingHoursForm(request.POST)
+        if form.is_valid():
+            bsit_hours = form.cleaned_data.get('bsit_hours')
+            bscs_hours = form.cleaned_data.get('bscs_hours')
+            RenderingHoursTable.objects.update_or_create(
+                course='BS Information Technology',
+                defaults={'required_hours': bsit_hours}
+            )
+            RenderingHoursTable.objects.update_or_create(
+                course='BS Computer Science',
+                defaults={'required_hours': bscs_hours}
+            )
+            return redirect('superapp:set_rendering_hours')
+    else:
+        form = SetRenderingHoursForm()
+
+    return render(request, 'superapp/settings.html', {
+        'form': form,
+    })
