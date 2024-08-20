@@ -101,68 +101,68 @@
             </nav>
             <div class="container">
                 <h3 class="mb-4 mt-4">Set Schedule for {{ student.Firstname }} {{ student.Lastname }}</h3>
-    <form method="post">
-        {% csrf_token %}
-        <div class="row">
-            <div class="col-md-6">
-                <h5>Monday</h5>
-                <div class="form-group">
-                    <label for="monday_start">Start Time:</label>
-                    {{ form.monday_start }}
-                </div>
-                <div class="form-group">
-                    <label for="monday_end">End Time:</label>
-                    {{ form.monday_end }}
-                </div>
-            </div>
-            <div class="col-md-6">
-                <h5>Tuesday</h5>
-                <div class="form-group">
-                    <label for="tuesday_start">Start Time:</label>
-                    {{ form.tuesday_start }}
-                </div>
-                <div class="form-group">
-                    <label for="tuesday_end">End Time:</label>
-                    {{ form.tuesday_end }}
-                </div>
-            </div>
-            <div class="col-md-6">
-                <h5>Wednesday</h5>
-                <div class="form-group">
-                    <label for="wednesday_start">Start Time:</label>
-                    {{ form.wednesday_start }}
-                </div>
-                <div class="form-group">
-                    <label for="wednesday_end">End Time:</label>
-                    {{ form.wednesday_end }}
-                </div>
-            </div>
-            <div class="col-md-6">
-                <h5>Thursday</h5>
-                <div class="form-group">
-                    <label for="thursday_start">Start Time:</label>
-                    {{ form.thursday_start }}
-                </div>
-                <div class="form-group">
-                    <label for="thursday_end">End Time:</label>
-                    {{ form.thursday_end }}
-                </div>
-            </div>
-            <div class="col-md-6">
-                <h5>Friday</h5>
-                <div class="form-group">
-                    <label for="friday_start">Start Time:</label>
-                    {{ form.friday_start }}
-                </div>
-                <div class="form-group">
-                    <label for="friday_end">End Time:</label>
-                    {{ form.friday_end }}
-                </div>
-            </div>
-        </div>
-        <button type="submit" class="btn btn-primary mb-3">Save Schedule</button>
-        <a href="{% url 'editStudentDetails' student.id %}" class="btn btn-secondary mb-3">Back to Edit</a>
-    </form>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>Monday</h5>
+                            <div class="form-group">
+                                <label for="monday_start">Start Time:</label>
+                                {{ form.monday_start }}
+                            </div>
+                            <div class="form-group">
+                                <label for="monday_end">End Time:</label>
+                                {{ form.monday_end }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Tuesday</h5>
+                            <div class="form-group">
+                                <label for="tuesday_start">Start Time:</label>
+                                {{ form.tuesday_start }}
+                            </div>
+                            <div class="form-group">
+                                <label for="tuesday_end">End Time:</label>
+                                {{ form.tuesday_end }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Wednesday</h5>
+                            <div class="form-group">
+                                <label for="wednesday_start">Start Time:</label>
+                                {{ form.wednesday_start }}
+                            </div>
+                            <div class="form-group">
+                                <label for="wednesday_end">End Time:</label>
+                                {{ form.wednesday_end }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Thursday</h5>
+                            <div class="form-group">
+                                <label for="thursday_start">Start Time:</label>
+                                {{ form.thursday_start }}
+                            </div>
+                            <div class="form-group">
+                                <label for="thursday_end">End Time:</label>
+                                {{ form.thursday_end }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Friday</h5>
+                            <div class="form-group">
+                                <label for="friday_start">Start Time:</label>
+                                {{ form.friday_start }}
+                            </div>
+                            <div class="form-group">
+                                <label for="friday_end">End Time:</label>
+                                {{ form.friday_end }}
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary mb-3">Save Schedule</button>
+                    <a href="{% url 'editStudentDetails' student.id %}" class="btn btn-secondary mb-3">Back to Edit</a>
+                </form>
             </div>                 
         </div>
     </div>

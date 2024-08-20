@@ -1,0 +1,379 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static 'css/main-dashboard.css' %}">
+    <link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon"> 
+    <title>Admin - OJT Management System Dashboard</title>
+    <style>
+        .upload-box {
+            border: 2px dashed #ccc;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 216px;
+            margin-bottom: 20px;
+            position: relative;
+            cursor: pointer;
+            overflow: hidden;
+            background-color: #f8f9fa;
+        }
+        .upload-box input[type="file"] {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+        .upload-box img {
+            max-width: 100%;
+            max-height: 100%;
+            display: none;
+        }
+        .upload-box::before {
+            content: 'Choose File';
+            color: #888;
+            font-size: 16px;
+            position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="d-flex" id="wrapper">
+        <!-- Sidebar -->
+        <div class="bg-light border-right vh-100" id="sidebar-wrapper">
+            <a href="{% url 'superapp:superAdminDashboard' %}" style="text-decoration: none !important; color: black !important;"><div class="sidebar-heading">OJT Management System</div></a>
+            <div class="list-group list-group-flush">
+                <a href="{% url 'superapp:mainDashboard' %}" class="list-group-item list-group-item-action bg-light">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+                <a href="" class="list-group-item list-group-item-action bg-light">
+                    <i class="fas fa-bullhorn"></i> Announcement
+                </a>
+                <a href="" class="list-group-item list-group-item-action bg-light">
+                    <i class="fas fa-user-graduate"></i> Manage Student
+                </a>
+                <a href="{% url 'superapp:getActivityLogs' %}" class="list-group-item list-group-item-action bg-light">
+                    <i class="fas fa-clock"></i> Activity Logs
+                </a>
+                <a href="{% url 'superapp:getAllTheUserAccount' %}" class="list-group-item list-group-item-action bg-light">
+                    <i class="fa-solid fa-user"></i> Users
+                </a>
+                <a href="" class="list-group-item list-group-item-action bg-light">
+                    <i class="fas fa-cogs"></i> Settings
+                </a>
+                <a href="{% url 'superapp:loggingOut' %}" class="list-group-item list-group-item-action bg-light">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+        </div>
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav ml-auto mt-2 mt-lg-0">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-user mr-2"></i>{{ firstName }} {{ lastName }}
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                <a class="dropdown-item" href="{% url 'superapp:editUserProfile' %}">Profile</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="">Change Password</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="{% url 'superapp:loggingOut' %}">Logout</a>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+            <div class="container-fluid">
+                <div class="row mb-4">
+                    <div class="col-lg-12">
+                        <p class="mt-3 mb-1">Home / Students List</p>
+                        <h3 class="mt-2 mb-2">Students List</h3>
+                    </div>
+                    <!-- Date Filter -->
+                    <div class="col-lg-12 d-flex justify-content-end align-items-center mb-3">
+                        <!-- Date Filter Buttons -->
+                        <div class="btn-group btn-group-toggle mr-3" data-toggle="buttons">
+                            <label class="btn btn-light border rounded mr-1">
+                                <input type="radio" name="dateFilter" id="today" autocomplete="off"> Today
+                            </label>
+                            <label class="btn btn-light border rounded mr-1">
+                                <input type="radio" name="dateFilter" id="yesterday" autocomplete="off"> Yesterday
+                            </label>
+                            <label class="btn btn-light border rounded mr-1">
+                                <input type="radio" name="dateFilter" id="week" autocomplete="off"> Week
+                            </label>
+                            <label class="btn btn-light border rounded mr-1">
+                                <input type="radio" name="dateFilter" id="month" autocomplete="off"> Month
+                            </label>
+                        </div>
+                        <!-- Start Date and End Date Inputs -->
+                        <div class="form-inline">
+                            <div class="form-group mr-1">
+                                <label for="start-date" class="sr-only">Start Date</label>
+                                <input type="date" class="form-control" id="start-date" placeholder="Start Date">
+                            </div>
+                            <div class="form-group mr-1">
+                                <label for="end-date" class="sr-only">End Date</label>
+                                <input type="date" class="form-control" id="end-date" placeholder="End Date">
+                            </div>
+                            <button type="button" class="btn btn-primary">Filter</button>
+                        </div>
+                    </div>
+                </div>
+                <ul class="nav nav-tabs" id="myTab" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link {% if active_tab == 'approved-students' %}active{% endif %}" id="approved-students-tab" data-toggle="tab" href="#approved-students" role="tab" aria-controls="approved-students" aria-selected="true">Approved Students</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if active_tab == 'pending-application' %}active{% endif %}" id="pending-application-tab" data-toggle="tab" href="#pending-application" role="tab" aria-controls="pending-application" aria-selected="false">Pending Application</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if active_tab == 'rejected-application' %}active{% endif %}" id="rejected-application-tab" data-toggle="tab" href="#rejected-application" role="tab" aria-controls="rejected-application" aria-selected="false">Rejected Application</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if active_tab == 'archive' %}active{% endif %}" id="archive-tab" data-toggle="tab" href="#archive" role="tab" aria-controls="archive" aria-selected="false">Archive Students</a>
+                    </li>
+                </ul>
+                <div class="tab-content" id="myTabContent">
+                    <div class="tab-pane fade show {% if active_tab == 'approved-students' %}show active{% endif %}" id="approved-students" role="tabpanel" aria-labelledby="approved-students-tab">
+                        <div class="d-flex justify-content-end mb-3 mt-3">
+                            <label for="courseFilter" class="form-label mr-2 align-self-center">Filter by Course:</label>
+                            <select id="courseFilter" class="form-control w-auto">
+                                <option value="all">All</option>
+                                <option value="BS Information Technology">BS Information Technology</option>
+                                <option value="BS Computer Science">BS Computer Science</option>
+                            </select>
+                        </div>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Student ID</th>
+                                    <th>Firstname</th>
+                                    <th>Lastname</th>
+                                    <th>Course</th>
+                                    <th>Year</th>
+                                    <th>Status</th>
+                                    <th>Logs</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="studentTableBody">
+                                {% for student in getListOfApproveStudent %}
+                                <tr data-course="{{ student.Course }}">
+                                    <td>{{ student.StudentID }}</td>
+                                    <td style="text-transform: uppercase;">{{ student.Firstname }}</td>
+                                    <td style="text-transform: uppercase;">{{ student.Lastname }}</td>
+                                    <td style="text-transform: uppercase;">{{ student.Course }}</td>
+                                    <td style="text-transform: uppercase;">{{ student.Year }}</td>
+                                    <td>
+                                       <p style="text-transform: uppercase; font-weight: bold;" class="text-primary">Approved</p>
+                                    </td>
+                                    <td>
+                                       <p style="text-transform: uppercase; font-weight: bold;" class="text-danger">{{ student_login }}</p>
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'editStudentDetails' student.id %}" class="btn btn-primary"><i class="fa-solid fa-pen-to-square"></i></a>
+                                        <a href="{% url 'viewTimeLogs' student.id %}" class="btn btn-secondary"><i class="fas fa-eye"></i></a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>                      
+                    <div class="tab-pane fade {% if active_tab == 'pending-application' %}show active{% endif %}" id="pending-application" role="tabpanel" aria-labelledby="pending-application-tab">
+                        <div class="d-flex justify-content-end mb-3 mt-3">
+                            <label for="courseFilter" class="form-label mr-2 align-self-center">Filter by Course:</label>
+                            <select id="courseFilter" class="form-control w-auto">
+                                <option value="all">All</option>
+                                <option value="BS Information Technology">BS Information Technology</option>
+                                <option value="BS Computer Science">BS Computer Science</option>
+                            </select>
+                        </div>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Student ID</th>
+                                    <th>Firstname</th>
+                                    <th>Middlename</th>
+                                    <th>Lastname</th>
+                                    <th>Course</th>
+                                    <th>Year</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for student in getAllPendingRegister %}
+                                <tr>
+                                    <td>{{ student.StudentID }}</td>
+                                    <td>{{ student.Firstname }}</td>
+                                    <td>{{ student.Middlename }}</td>
+                                    <td>{{ student.Lastname }}</td>
+                                    <td>{{ student.Course }}</td>
+                                    <td>{{ student.Year }}</td>
+                                    <td>
+                                        <a href="{% url 'viewPendingApplication' student.id %}" class="btn btn-secondary"><i class="fas fa-eye"></i></a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>         
+                    <div class="tab-pane fade {% if active_tab == 'rejected-application' %}show active{% endif %}" id="rejected-application" role="tabpanel" aria-labelledby="rejected-application-tab">
+                        <div class="d-flex justify-content-end mb-3 mt-3">
+                            <label for="courseFilter" class="form-label mr-2 align-self-center">Filter by Course:</label>
+                            <select id="courseFilter" class="form-control w-auto">
+                                <option value="all">All</option>
+                                <option value="BS Information Technology">BS Information Technology</option>
+                                <option value="BS Computer Science">BS Computer Science</option>
+                            </select>
+                        </div>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Student ID</th>
+                                    <th>Firstname</th>
+                                    <th>Middlename</th>
+                                    <th>Lastname</th>
+                                    <th>Course</th>
+                                    <th>Year</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for student in getAllRejectedApplication %}
+                                <tr>
+                                    <td>{{ student.StudentID }}</td>
+                                    <td>{{ student.Firstname }}</td>
+                                    <td>{{ student.Middlename }}</td>
+                                    <td>{{ student.Lastname }}</td>
+                                    <td>{{ student.Course }}</td>
+                                    <td>{{ student.Year }}</td>
+                                    <td>
+                                        <p class="text-danger">Disapproved</p>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="tab-pane fade {% if active_tab == 'archive' %}show active{% endif %}" id="archive" role="tabpanel" aria-labelledby="archive-tab">
+                        <div class="d-flex justify-content-end mb-3 mt-3">
+                            <label for="courseFilter" class="form-label mr-2 align-self-center">Filter by Course:</label>
+                            <select id="courseFilter" class="form-control w-auto">
+                                <option value="all">All</option>
+                                <option value="BS Information Technology">BS Information Technology</option>
+                                <option value="BS Computer Science">BS Computer Science</option>
+                            </select>
+                        </div>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Student ID</th>
+                                    <th>Firstname</th>
+                                    <th>Middlename</th>
+                                    <th>Lastname</th>
+                                    <th>Course</th>
+                                    <th>Year</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for student in getListOfArchivedStudents %}
+                                <tr>
+                                    <td>{{ student.StudentID }}</td>
+                                    <td>{{ student.Firstname }}</td>
+                                    <td>{{ student.Middlename }}</td>
+                                    <td>{{ student.Lastname }}</td>
+                                    <td>{{ student.Course }}</td>
+                                    <td>{{ student.Year }}</td>
+                                    <td>
+                                        <p class="text-danger">Archive</p>
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'unArchivedStudent' student.id %}" class="btn btn-primary">Unarchive</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    {% comment %}  {% endcomment %}
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    {% comment %}  {% endcomment %}
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    {% comment %}  {% endcomment %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+    {% comment %}  {% endcomment %}
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    {% comment %}  {% endcomment %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    {% comment %}  {% endcomment %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    {% comment %}  {% endcomment %}
+    {% comment %}  {% endcomment %}
+    <script src="{% static 'js/adminModal.js' %}"></script>
+    {% comment %}  {% endcomment %}
+    <script>
+        function submitRejection(studentId) {
+            const reason = document.getElementById(`rejectReason${studentId}`).value;
+            if (reason.trim() === "") {
+                alert("Please provide a reason for rejection.");
+                return;
+            }
+            const url = "{% url 'reject_students' 0 %}".replace('/0/', '/' + studentId + '/');
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ reason: reason })
+            }).then(response => {
+                if (response.ok) {
+                    window.location.reload();
+                } else {
+                    alert('Failed to reject student.');
+                }
+            });
+        }
+
+        document.getElementById('courseFilter').addEventListener('change', function() {
+            var selectedCourse = this.value;
+            var rows = document.querySelectorAll('#studentTableBody tr');
+            rows.forEach(function(row) {
+                if (selectedCourse === 'all' || row.getAttribute('data-course') === selectedCourse) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

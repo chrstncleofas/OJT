@@ -23,7 +23,7 @@
                 <a href="" class="list-group-item list-group-item-action bg-light">
                     <i class="fas fa-bullhorn"></i> Announcement
                 </a>
-                <a href="" class="list-group-item list-group-item-action bg-light">
+                <a href="{% url 'superapp:studentManagement' %}" class="list-group-item list-group-item-action bg-light">
                     <i class="fas fa-user-graduate"></i> Manage Student
                 </a>
                 <a href="{% url 'superapp:getActivityLogs' %}" class="list-group-item list-group-item-action bg-light">
@@ -104,18 +104,20 @@
                 </div>
                 <div class="row">
                     <div class="col-lg-4">
-                        <div class="card text-white bg-success">
-                            <div class="card-body">
-                                <i class="fas fa-check-circle icon"></i>
-                                <div>
-                                    <div class="count">{{ approve_count }}</div>
-                                    <div>Approved</div>
+                        <a href="{% url 'superapp:studentManagement' %}?tab=approved-students" style="text-decoration: none;">
+                            <div class="card text-white bg-success">
+                                <div class="card-body">
+                                    <i class="fas fa-check-circle icon"></i>
+                                    <div>
+                                        <div class="count">{{ approve_count }}</div>
+                                        <div>Approved</div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        </a>
                     </div>
                     <div class="col-lg-4">
-                        <a href="" style="text-decoration: none;">
+                        <a href="{% url 'superapp:studentManagement' %}?tab=pending-application" style="text-decoration: none;">
                             <div class="card text-white bg-warning">
                                 <div class="card-body">
                                     <i class="fas fa-hourglass-half icon"></i>
@@ -128,7 +130,7 @@
                         </a>
                     </div>
                     <div class="col-lg-4">
-                        <a href="" style="text-decoration: none;">
+                        <a href="{% url 'superapp:studentManagement' %}?tab=rejected-application" style="text-decoration: none;">
                             <div class="card text-white bg-danger">
                                 <div class="card-body">
                                     <i class="fas fa-close icon"></i>

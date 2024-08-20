@@ -14,7 +14,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth import authenticate, login, logout
 from students.models import DataTableStudents, TimeLog, Schedule
-from students.forms import StudentRegistrationForm, UserForm, ChangePasswordForm, TimeLogForm, StudentProfileForm
+from students.forms import StudentRegistrationForm, UserForm, ChangePasswordForm, TimeLogForm, StudentProfileForm, ScheduleSettingForm
 
 def studentHome(request) -> HttpResponse:
     return render(request, 'students/student-base.html')
@@ -245,3 +245,44 @@ def loginSuccess(request):
 def studentLogout(request) -> HttpResponseRedirect:
     logout(request)
     return redirect(reverse('students:home'))
+
+
+def scheduleSettings(request):
+    user = request.user
+    student = get_object_or_404(DataTableStudents, user=user)
+    firstName = student.Firstname
+    lastName = student.Lastname
+    if request.method == 'POST':
+        form = ScheduleSettingForm(request.POST)
+        if form.is_valid():
+            # Clearing existing schedule for the student
+            Schedule.objects.filter(student=student).delete()
+
+            days_times = {
+                'Monday': ('monday_start', 'monday_end'),
+                'Tuesday': ('tuesday_start', 'tuesday_end'),
+                'Wednesday': ('wednesday_start', 'wednesday_end'),
+                'Thursday': ('thursday_start', 'thursday_end'),
+                'Friday': ('friday_start', 'friday_end'),
+            }
+
+            for day, (start_field, end_field) in days_times.items():
+                start_time = form.cleaned_data[start_field]
+                end_time = form.cleaned_data[end_field]
+                if start_time and end_time:
+                    Schedule.objects.create(
+                        student=student,
+                        day=day,
+                        start_time=start_time,
+                        end_time=end_time
+                    )
+
+            return redirect('students:scheduleSettings')
+    else:
+        form = ScheduleSettingForm()
+
+    return render(request, 'students/settings.html', {
+        'form': form,
+        'firstName' : firstName,
+        'lastName' : lastName
+    })

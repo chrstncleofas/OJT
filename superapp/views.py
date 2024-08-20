@@ -18,6 +18,7 @@ from django.http import HttpResponse, HttpResponseRedirect, HttpResponsePermanen
 DASHBOARD = 'superapp/dashboard.html'
 MAIN_DASHBOARD = 'superapp/main-dashboard.html'
 HOME_URL_PATH = 'superapp/base.html'
+MANAGEMENT_STUDENT = 'superapp/manage-student.html'
 
 def superHome(request) -> Union[HttpResponseRedirect, HttpResponsePermanentRedirect, HttpResponse]:        
     return render(request, HOME_URL_PATH)
@@ -31,13 +32,13 @@ def mainDashboard(request):
     firstName = admin.first_name
     lastName = admin.last_name
     # Approve
-    approve = DataTableStudents.objects.filter(status='approved')
+    approve = DataTableStudents.objects.filter(status='Approved', archivedStudents='NotArchive')
     approve_count = approve.count()
     # Pending
-    pending = DataTableStudents.objects.filter(status='pending')
+    pending = DataTableStudents.objects.filter(status='Pending')
     pending_count = pending.count()
     # Rejected
-    reject = DataTableStudents.objects.filter(status='rejected')
+    reject = DataTableStudents.objects.filter(status='Rejected')
     reject_count = reject.count()
 
     return render(
@@ -49,6 +50,40 @@ def mainDashboard(request):
             'reject_count': reject_count,
             'firstName': firstName,
             'lastName': lastName
+        }
+    )
+
+def studentManagement(request):
+    user = request.user
+    admin = get_object_or_404(CustomUser, id=user.id)
+    # 
+    firstName = admin.first_name
+    lastName = admin.last_name
+    # 
+    approved = DataTableStudents.objects.filter(status='Approved', archivedStudents='NotArchive')
+    # 
+    pending = DataTableStudents.objects.filter(status='Pending')
+    # 
+    rejected = DataTableStudents.objects.filter(status='Rejected')
+    # 
+    archive = DataTableStudents.objects.filter(archivedStudents='Archive')
+
+    active_tab = request.GET.get('tab', 'approved-students')
+
+    student_login = admin.last_login
+
+    return render(
+        request,
+        MANAGEMENT_STUDENT,
+        {
+            'getListOfApproveStudent': approved,
+            'getAllPendingRegister': pending,
+            'getAllRejectedApplication': rejected,
+            'getListOfArchivedStudents': archive,
+            'firstName': firstName,
+            'lastName': lastName,
+            'active_tab': active_tab,
+            'student_login' : student_login
         }
     )
 
