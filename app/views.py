@@ -425,7 +425,6 @@ def announcement(request):
         form = AnnouncementForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
-            messages.success(request, 'Announcement has been added successfully.')
             return redirect('listOfAnnouncement')
     else:
         form = AnnouncementForm()
@@ -449,7 +448,6 @@ def editAnnouncement(request, id):
         form = AnnouncementForm(request.POST, request.FILES, instance=announcement)
         if form.is_valid():
             form.save()
-            messages.success(request, 'Announcement has been updated successfully.')
             return redirect('listOfAnnouncement')
     else:
         form = AnnouncementForm(instance=announcement)
