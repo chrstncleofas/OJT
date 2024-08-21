@@ -136,7 +136,12 @@
             </nav>
             <!-- Card -->
             <div class="container-fluid">
-                <h2 class="mt-4">Edit Announcement</h2>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <p class="mt-3 mb-1"><a href="{% url 'mainDashboard' %}" style="cursor: pointer; text-decoration: none; color: black;">Home</a> / Announcement</p>
+                        <h3 class="mt-2 mb-3">Edit Announcement</h3>
+                    </div>
+                </div>
                 <form method="post" enctype="multipart/form-data">
                     {% csrf_token %}
                     <div class="form-group">
@@ -168,12 +173,12 @@
                             {{ form.Status }}
                         </div>
                         <div class="col-md-4">
-                            <label for="Date">Date</label>
-                            {{ form.Date }}
+                            <label for="StartDate">Start Date</label>
+                            {{ form.StartDate }}
                         </div>
                         <div class="col-md-4">
-                            <label for="Category">Category</label>
-                            {{ form.Category }}
+                            <label for="EndDate">End Date</label>
+                            {{ form.EndDate }}
                         </div>
                     </div>
                     <button type="submit" class="btn btn-primary mb-4">Update Announcement</button>
