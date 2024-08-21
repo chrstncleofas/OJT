@@ -174,7 +174,7 @@ def addUsers(request):
             raw_password = form.cleaned_data.get('password1')
             user = authenticate(username=username, password=raw_password)
             login(request, user)
-            return render(request, 'superapp/success.html', {'message': 'Registration successful!'})
+            return redirect('superapp:addUsers')
         else:
             for field, errors in form.errors.items():
                 for error in errors:
@@ -194,7 +194,7 @@ def createUserAdmin(request):
             raw_password = form.cleaned_data.get('password1')
             user = authenticate(username=username, password=raw_password)
             login(request, user)
-            return render(request, 'superapp/success.html', {'message': 'Registration successful!'})
+            return redirect('superapp:createUserAdmin')
         else:
             for field, errors in form.errors.items():
                 for error in errors:
