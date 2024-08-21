@@ -110,3 +110,5 @@ celerybeat-schedule.db
 .idea/
 
 staticfiles/
+
+media/
