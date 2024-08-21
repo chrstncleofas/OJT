@@ -2,7 +2,7 @@ from django.urls import reverse
 from django.conf import settings
 from django.utils import timezone
 from django.contrib import messages
-from app.models import Announcement
+from app.models import TableAnnouncement
 from django.utils.timezone import now
 from django.core.mail import send_mail
 from django.shortcuts import render, redirect
@@ -38,7 +38,7 @@ def welcomeDashboard(request) -> HttpResponse:
     )
 
 def announcement(request):
-    enabledAnnouncement = Announcement.objects.filter(Status='enable')
+    enabledAnnouncement = TableAnnouncement.objects.filter(Status='enable')
     return render(
         request, 'students/announcement.html', 
         {

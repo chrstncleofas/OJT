@@ -1,5 +1,5 @@
 from django import forms
-from app.models import Announcement
+from app.models import TableAnnouncement
 from app.models import RenderingHoursTable
 from django.contrib.auth import get_user_model
 from app.custom_widgets import CustomClearableFileInput
@@ -64,31 +64,28 @@ class CustomPasswordChangeForm(PasswordChangeForm):
         fields = ['old_password', 'new_password1', 'new_password2']
 
 class AnnouncementForm(forms.ModelForm):
-
     Status = forms.ChoiceField(
-        choices=STATUS,
-        widget=forms.Select(attrs={'class': 'form-control'})
-    )
-
-    Category = forms.ChoiceField(
-        choices=CATEGGORY_SELECTION,
+        choices=STATUS,  # Assuming STATUS is defined elsewhere
         widget=forms.Select(attrs={'class': 'form-control'})
     )
 
     class Meta:
-        model = Announcement
-        fields = ['Title', 'Image', 'Category', 'Date', 'Description', 'Status']
+        model = TableAnnouncement
+        fields = ['Title', 'Image', 'StartDate', 'EndDate', 'Description', 'Status']
         widgets = {
-            'Title': forms.TextInput(attrs={'class': 'form-control'}),
-            'Description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'Title': forms.TextInput(attrs={'class': 'form-control', 'max_length': 100}),
+            'Description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'max_length': 450}),
             'Image': CustomClearableFileInput,
-            'Date': forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control', 'type': 'date'}),
+            'StartDate': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
+            'EndDate': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
         }
 
-        def __init__(self, *args, **kwargs):
-            super(AnnouncementForm, self).__init__(*args, **kwargs)
-            self.fields['Title'].required = True
-            self.fields['Description'].required = True
+    def __init__(self, *args, **kwargs):
+        super(AnnouncementForm, self).__init__(*args, **kwargs)
+        self.fields['Title'].required = True
+        self.fields['Description'].required = True
+        self.fields['StartDate'].required = True
+        self.fields['EndDate'].required = True
 
 class EditUsersDetailsForm(forms.ModelForm):
 

@@ -101,8 +101,8 @@
     <div class="container mt-5 mb-4">
         <div class="outer-container">
             <h3 class="mb-2">Announcement</h3>
-            <p>List of latest announcement</p>
-            <!-- Dito design ng announcement naka card -->
+            <p>List of latest announcements</p>
+            <!-- Card design for announcement -->
             <div class="row">
                 {% for announcement in announcements %}
                     <div class="col-md-4 mb-4">
@@ -111,13 +111,21 @@
                                 <img src="{{ announcement.Image.url }}" class="card-img-top mb-0" alt="{{ announcement.Title }}">
                             {% endif %}
                             <div class="card-body">
-                                <p class="card-text mb-3" style="font-size: 10px; font-weight: bold; color: gray;">{{ announcement.Date }}</p>
                                 <div class="row">
-                                    <div class="col-md-8">
-                                        <h5 style="font-size: 15px;" class="card-title">{{ announcement.Title }}</h5>
+                                    <div class="col-6">
+                                        <p class="card-text mb-3" style="font-size: 10px; font-weight: bold; color: gray;">
+                                            <span style="font-weight: normal;">Start Date: </span>{{ announcement.StartDate }}
+                                        </p>
                                     </div>
-                                    <div class="col-md-4">
-                                        <span class="float-right category-class">{{ announcement.Category }}</span>
+                                    <div class="col-6 text-right">
+                                        <p class="card-text mb-3" style="font-size: 10px; font-weight: bold; color: gray;">
+                                            <span style="font-weight: normal;">End Date: </span>{{ announcement.EndDate }}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <h6 style="font-size: 17px;" class="card-title">{{ announcement.Title }}</h6>
                                     </div>
                                 </div>
                                 <p class="card-text" style="text-align: justify;">{{ announcement.Description }}</p>
@@ -127,7 +135,7 @@
                 {% endfor %}
             </div>
         </div>
-    </div>
+    </div>    
     <!-- Footer -->
     <footer class="footer mt-auto">
         <div class="container">

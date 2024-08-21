@@ -10,7 +10,7 @@ from datetime import datetime, timedelta
 from .forms import CustomPasswordChangeForm
 from django.shortcuts import render, redirect
 from django.shortcuts import get_object_or_404
-from app.models import CustomUser, Announcement
+from app.models import CustomUser, TableAnnouncement
 from django.http import HttpResponse, JsonResponse
 from django.template.loader import render_to_string
 from django.views.decorators.csrf import csrf_exempt
@@ -409,7 +409,7 @@ def listOfAnnouncement(request):
     admin = get_object_or_404(CustomUser, id=user.id)
     firstName = admin.first_name
     lastName = admin.last_name
-    announcements = Announcement.objects.all()
+    announcements = TableAnnouncement.objects.all()
     return render(request, LIST_ANNOUNCEMENT, {
         'listOfAnnouncement': announcements,
         'firstName': firstName,
@@ -443,7 +443,7 @@ def editAnnouncement(request, id):
     firstName = admin.first_name
     lastName = admin.last_name
 
-    announcement = get_object_or_404(Announcement, id=id)
+    announcement = get_object_or_404(TableAnnouncement, id=id)
 
     if request.method == 'POST':
         form = AnnouncementForm(request.POST, request.FILES, instance=announcement)
@@ -529,7 +529,7 @@ def editStudentDetails(request, id):
     })
 
 def deleteAnnouncement(request, id):
-    announcement = get_object_or_404(Announcement, id=id)
+    announcement = get_object_or_404(TableAnnouncement, id=id)
     if request.method == 'POST':
         announcement.delete()
         messages.success(request, 'Announcement has been deleted successfully.')

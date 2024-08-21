@@ -16,10 +16,10 @@ class RenderingHoursTable(models.Model):
     def __str__(self):
         return f"{self.course} - {self.required_hours} hours"
 
-class Announcement(models.Model):
+class TableAnnouncement(models.Model):
     Title = models.CharField(max_length=100)
     Image = models.ImageField(upload_to='announcement/', blank=True, null=True)
-    Category = models.CharField(max_length=150, blank=True, null=True)
-    Date = models.DateField()
+    StartDate = models.DateTimeField()
+    EndDate = models.DateTimeField()
     Description = models.CharField(max_length=450)
     Status = models.CharField(max_length=100)
