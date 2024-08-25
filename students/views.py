@@ -3,6 +3,14 @@ from django.conf import settings
 from django.utils import timezone
 from django.contrib import messages
 from app.models import TableAnnouncement
+from io import BytesIO
+from django.http import JsonResponse
+from django.http import StreamingHttpResponse
+from django.core.files.base import ContentFile
+import base64
+import logging
+import cv2
+import numpy as np
 from django.utils.timezone import now
 from django.core.mail import send_mail
 from django.shortcuts import render, redirect
@@ -15,6 +23,8 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth import authenticate, login, logout
 from students.models import DataTableStudents, TimeLog, Schedule
 from students.forms import StudentRegistrationForm, UserForm, ChangePasswordForm, TimeLogForm, StudentProfileForm, ScheduleSettingForm
+
+logger = logging.getLogger(__name__)
 
 def studentHome(request) -> HttpResponse:
     return render(request, 'students/student-base.html')
@@ -71,39 +81,120 @@ def mainPageForDashboard(request) -> HttpResponse:
         }
     )
 
+def video_stream():
+    cap = cv2.VideoCapture(0)
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            break
+
+        # Convert the frame to JPEG format
+        ret, jpeg = cv2.imencode('.jpg', frame)
+        if ret:
+            frame = jpeg.tobytes()
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
+
+def live_camera_feed(request):
+    return StreamingHttpResponse(video_stream(),
+                                 content_type='multipart/x-mixed-replace; boundary=frame')
+
+logger = logging.getLogger(__name__)
+
+def capture_image(request):
+    if request.method == 'POST':
+        try:
+            # Initialize the camera
+            cap = cv2.VideoCapture(0)
+            ret, frame = cap.read()
+            cap.release()
+
+            if not ret:
+                raise Exception('Failed to capture image')
+
+            # Convert image to PNG format
+            is_success, buffer = cv2.imencode(".png", frame)
+            io_buf = BytesIO(buffer)
+            image_data = io_buf.getvalue()
+
+            # Create an in-memory file
+            image_file = ContentFile(image_data, 'captured_image.png')
+
+            # Get the current user
+            user = request.user
+            student = DataTableStudents.objects.get(user=user)
+
+            # Save image to TimeLog
+            time_log = TimeLog(student=student, image=image_file)
+            time_log.save()
+            image_url = time_log.image.url
+
+            return JsonResponse({'image_url': image_url})
+        except Exception as e:
+            logger.error(f"Error capturing image: {e}")
+            return JsonResponse({'error': str(e)}, status=500)
+    return JsonResponse({'error': 'Invalid request method'}, status=400)
+
 def TimeInAndTimeOut(request):
     user = request.user
     student = get_object_or_404(DataTableStudents, user=user)
+    time_logs = TimeLog.objects.filter(student=student).order_by('-timestamp')
+    full_schedule = Schedule.objects.filter(student=student).order_by('day')
+
     if request.method == 'POST':
+        action = request.POST.get('action')
         form = TimeLogForm(request.POST, request.FILES)
+        
         if form.is_valid():
+            timestamp = timezone.now()
             time_log = form.save(commit=False)
             time_log.student = student
-            time_log.duration = 0
-            time_log.timestamp = timezone.now()
-            time_log.save()
+            time_log.timestamp = timestamp
+
+            if action == 'IN':
+                last_time_in = TimeLog.objects.filter(student=student, action='IN').order_by('-timestamp').first()
+                last_time_out = TimeLog.objects.filter(student=student, action='OUT').order_by('-timestamp').first()
+
+                if last_time_in and (not last_time_out or last_time_in.timestamp > last_time_out.timestamp):
+                    messages.error(request, 'You have already timed in and not timed out yet.')
+                    return redirect('students:TimeInAndTimeOut')
+
+                time_log.save()
+                messages.success(request, 'Time In recorded successfully.')
+
+            elif action == 'OUT':
+                last_time_in = TimeLog.objects.filter(student=student, action='IN').order_by('-timestamp').first()
+
+                if not last_time_in:
+                    messages.error(request, 'No corresponding Time In found. Please Time In first.')
+                    return redirect('students:TimeInAndTimeOut')
+
+                if time_logs and time_logs.first().action == 'OUT':
+                    messages.error(request, 'You have already timed out. Please Time In first.')
+                    return redirect('students:TimeInAndTimeOut')
+
+                # Calculate duration
+                time_diff = timestamp - last_time_in.timestamp
+                duration_hours = round(time_diff.total_seconds() / 3600, 2)
+                time_log.duration = duration_hours
+                time_log.save()
+                messages.success(request, 'Time Out recorded successfully.')
+
             return redirect('students:TimeInAndTimeOut')
         else:
-            messages.error(request, 'Failed to record time. Please ensure the form is filled out correctly.')
+            messages.error(request, 'Invalid form submission. Please try again.')
+            return redirect('students:TimeInAndTimeOut')
     else:
         form = TimeLogForm()
-    current_time = now()
-    firstName = student.Firstname
-    lastName = student.Lastname
-    time_logs = TimeLog.objects.filter(student=student).order_by('-timestamp')
-    full_schedule = Schedule.objects.filter(student=student, day__in=['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']).order_by('id')
-    return render(
-        request,
-        'students/timeIn-timeOut.html',
-        {
-            'firstName': firstName,
-            'lastName': lastName,
-            'time_logs': time_logs,
-            'current_time': current_time,
-            'form': form,
-            'full_schedule': full_schedule
-        }
-    )
+
+    context = {
+        'form': form,
+        'time_logs': time_logs,
+        'full_schedule': full_schedule,
+    }
+    return render(request, 'students/timeIn-timeOut.html', context)
+
+
 
 def studentProfile(request):
     user = request.user
@@ -240,7 +331,6 @@ def loginSuccess(request):
 def studentLogout(request) -> HttpResponseRedirect:
     logout(request)
     return redirect(reverse('students:home'))
-
 
 def scheduleSettings(request):
     user = request.user

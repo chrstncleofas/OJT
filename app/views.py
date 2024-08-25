@@ -195,8 +195,6 @@ def approveStudent(request, id):
     })
     recipient_list = [student.Email]
     send_mail(subject, message, settings.EMAIL_HOST_USER, recipient_list, fail_silently=False)
-
-    messages.success(request, f'{student.Firstname} {student.Lastname} has been approved.')
     return redirect(reverse('studentManagement'))
 
 @csrf_exempt

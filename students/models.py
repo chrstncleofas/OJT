@@ -1,4 +1,8 @@
+import uuid
+import base64
 from django.db import models
+from django.utils import timezone
+from django.core.files.base import ContentFile
 from app.models import CustomUser, RenderingHoursTable
 
 class DataTableStudents(models.Model):
@@ -45,10 +49,11 @@ class TimeLog(models.Model):
     action = models.CharField(max_length=10, choices=[('IN', 'Time In'), ('OUT', 'Time Out')])
     timestamp = models.DateTimeField(auto_now_add=True)
     image = models.ImageField(upload_to='time_logs/', blank=True, null=True)
-    duration = models.DecimalField(max_digits=5, decimal_places=2)
+    duration = models.DecimalField(max_digits=5, decimal_places=2, default=0)
 
     def __str__(self):
         return f"{self.student} - {self.action} at {self.timestamp}"
+    
 
 class Schedule(models.Model):
     DAYS_OF_WEEK = [

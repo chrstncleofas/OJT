@@ -39,6 +39,8 @@ kombu==5.3.7
 MarkupSafe==2.1.5
 more-itertools==10.2.0
 msgpack==1.0.8
+numpy==2.1.0
+opencv-python==4.10.0.84
 packaging==24.0
 pexpect==4.9.0
 pillow==10.3.0

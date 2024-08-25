@@ -2,6 +2,9 @@ from django import forms
 from app.models import CustomUser
 from students.models import DataTableStudents, TimeLog, Schedule
 from students.custom_widgets import CustomClearableFileInput
+import base64
+import uuid
+from django.core.files.base import ContentFile
 
 COURSE_CHOICES = [
     ('', '--- Select Course ---'),
@@ -141,6 +144,7 @@ class ChangePasswordForm(forms.Form):
 
         return cleaned_data
 
+
 class TimeLogForm(forms.ModelForm):
     class Meta:
         model = TimeLog
@@ -149,8 +153,32 @@ class TimeLogForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(TimeLogForm, self).__init__(*args, **kwargs)
         self.fields['image'].required = True
-        self.fields['image'].widget.attrs.update({'accept': 'image/*'})
+        self.fields['image'].widget.attrs.update({
+            'id': 'image_field',
+            'accept': 'image/*'
+        })
         self.fields['action'].widget = forms.HiddenInput()
+
+    def clean_image(self):
+        image = self.cleaned_data.get('image')
+        if image is None:
+            raise forms.ValidationError("Image is required.")
+        return image
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        image_data = self.cleaned_data.get('image')
+
+        if image_data:
+            format, imgstr = image_data.split(';base64,')
+            ext = format.split('/')[-1]
+            image_name = f"{uuid.uuid4()}.{ext}"
+            image_file = ContentFile(base64.b64decode(imgstr), name=image_name)
+            instance.image = image_file
+
+        if commit:
+            instance.save()
+        return instance
 
 class EditStudentForm(forms.ModelForm):
     class Meta:
