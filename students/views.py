@@ -3,10 +3,10 @@ from django.conf import settings
 from django.utils import timezone
 from django.contrib import messages
 from app.models import TableAnnouncement
-from io import BytesIO
 from django.http import JsonResponse
 from django.http import StreamingHttpResponse
 from django.core.files.base import ContentFile
+from io import BytesIO
 import base64
 import logging
 import cv2
@@ -123,78 +123,77 @@ def capture_image(request):
             # Get the current user
             user = request.user
             student = DataTableStudents.objects.get(user=user)
+            timestamp = timezone.now()
 
-            # Save image to TimeLog
-            time_log = TimeLog(student=student, image=image_file)
-            time_log.save()
-            image_url = time_log.image.url
+            # Determine if the user is currently timed in
+            last_time_in = TimeLog.objects.filter(student=student, action='IN').order_by('-timestamp').first()
 
-            return JsonResponse({'image_url': image_url})
+            if last_time_in and not TimeLog.objects.filter(student=student, action='OUT').order_by('-timestamp').first():
+                # Time Out
+                time_log = TimeLog(student=student, action='OUT', timestamp=timestamp, image=image_file)
+                time_diff = timestamp - last_time_in.timestamp
+                duration_hours = round(time_diff.total_seconds() / 3600, 2)
+                time_log.duration = duration_hours
+                time_log.save()
+                image_url = time_log.image.url
+                return JsonResponse({'image_url': image_url, 'action': 'OUT'})
+            else:
+                # Time In
+                time_log = TimeLog(student=student, action='IN', timestamp=timestamp, image=image_file)
+                time_log.save() 
+                image_url = time_log.image.url
+                return JsonResponse({'image_url': image_url, 'action': 'IN'})
+
         except Exception as e:
             logger.error(f"Error capturing image: {e}")
             return JsonResponse({'error': str(e)}, status=500)
+
     return JsonResponse({'error': 'Invalid request method'}, status=400)
 
 def TimeInAndTimeOut(request):
     user = request.user
     student = get_object_or_404(DataTableStudents, user=user)
-    time_logs = TimeLog.objects.filter(student=student).order_by('-timestamp')
-    full_schedule = Schedule.objects.filter(student=student).order_by('day')
-
     if request.method == 'POST':
-        action = request.POST.get('action')
         form = TimeLogForm(request.POST, request.FILES)
-        
         if form.is_valid():
-            timestamp = timezone.now()
             time_log = form.save(commit=False)
             time_log.student = student
-            time_log.timestamp = timestamp
-
-            if action == 'IN':
-                last_time_in = TimeLog.objects.filter(student=student, action='IN').order_by('-timestamp').first()
-                last_time_out = TimeLog.objects.filter(student=student, action='OUT').order_by('-timestamp').first()
-
-                if last_time_in and (not last_time_out or last_time_in.timestamp > last_time_out.timestamp):
-                    messages.error(request, 'You have already timed in and not timed out yet.')
-                    return redirect('students:TimeInAndTimeOut')
-
-                time_log.save()
-                messages.success(request, 'Time In recorded successfully.')
-
-            elif action == 'OUT':
-                last_time_in = TimeLog.objects.filter(student=student, action='IN').order_by('-timestamp').first()
-
-                if not last_time_in:
-                    messages.error(request, 'No corresponding Time In found. Please Time In first.')
-                    return redirect('students:TimeInAndTimeOut')
-
-                if time_logs and time_logs.first().action == 'OUT':
-                    messages.error(request, 'You have already timed out. Please Time In first.')
-                    return redirect('students:TimeInAndTimeOut')
-
-                # Calculate duration
-                time_diff = timestamp - last_time_in.timestamp
-                duration_hours = round(time_diff.total_seconds() / 3600, 2)
-                time_log.duration = duration_hours
-                time_log.save()
-                messages.success(request, 'Time Out recorded successfully.')
-
+            time_log.duration = 0
+            time_log.timestamp = timezone.now()
+            time_log.save()
             return redirect('students:TimeInAndTimeOut')
         else:
-            messages.error(request, 'Invalid form submission. Please try again.')
-            return redirect('students:TimeInAndTimeOut')
+            messages.error(request, 'Failed to record time. Please ensure the form is filled out correctly.')
     else:
         form = TimeLogForm()
 
-    context = {
-        'form': form,
-        'time_logs': time_logs,
-        'full_schedule': full_schedule,
-    }
-    return render(request, 'students/timeIn-timeOut.html', context)
+    current_time = now()
+    firstName = student.Firstname
+    lastName = student.Lastname
+    time_logs = TimeLog.objects.filter(student=student).order_by('-timestamp')
+    full_schedule = Schedule.objects.filter(student=student, day__in=['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']).order_by('id')
 
+    # Determine button text based on the last action
+    last_time_in = TimeLog.objects.filter(student=student, action='IN').order_by('-timestamp').first()
+    last_time_out = TimeLog.objects.filter(student=student, action='OUT').order_by('-timestamp').first()
+    if last_time_in and (not last_time_out or last_time_in.timestamp > last_time_out.timestamp):
+        button_text = 'Time Out'
+    else:
+        button_text = 'Time In'
 
+    return render(
+        request,
+        'students/timeIn-timeOut.html',
+        {
+            'firstName': firstName,
+            'lastName': lastName,
+            'time_logs': time_logs,
+            'current_time': current_time,
+            'form': form,
+            'full_schedule': full_schedule,
+            'button_text': button_text
+        }
+    )
 
 def studentProfile(request):
     user = request.user
