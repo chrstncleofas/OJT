@@ -187,25 +187,16 @@
                                         {% csrf_token %}
                                         <div class="row">
                                             <!-- Video Feed -->
-                                            <video id="video_feed" width="100%" height="auto" autoplay></video>
+                                            <video id="video_feed" width="100%" height="auto" autoplay style="padding: 10px"></video>
                                             <div class="col-lg-6">
                                                 <button type="button" id="timeActionButton" class="btn btn-primary mb-3 mt-2" onclick="captureImage()">{{ button_text }}</button>
                                                 <input type="hidden" name="image" id="image_field">
-                                                {{ form.image }}
-                                            </div>
-                                        </div>
-                                        <div class="mt-3">
-                                            <div class="col-lg-6" align="center">
-                                                <div id="results">
-                                                    <!-- Display captured image here -->
-                                                </div>
                                             </div>
                                         </div>
                                         <input name="action" id="id_action" type="hidden"/>
                                     </form>
                                 </div>
                             </div>
-            
                             <!-- Time Log Display Section -->
                             <div class="card fixed-height col-md-6 ml-2">
                                 <h3>Time Card</h3>
@@ -303,12 +294,6 @@
                         if (data.error) {
                             alert(data.error);
                         } else {
-                            const img = document.createElement('img');
-                            img.src = data.image_url;
-                            img.style.width = "100%";
-                            resultsDiv.innerHTML = '';
-                            resultsDiv.appendChild(img);
-                            
                             // Update button text based on action
                             const timeActionButton = document.getElementById('timeActionButton');
                             if (data.action === 'IN') {
@@ -320,7 +305,7 @@
                             // Reload the page after a short delay
                             setTimeout(() => {
                                 location.reload();
-                            }, 200);
+                            }, 1500);
                         }
                     })
                     .catch(error => {
