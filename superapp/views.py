@@ -61,35 +61,29 @@ def mainDashboard(request):
 def studentManagement(request):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
-    # 
+    
     firstName = admin.first_name
     lastName = admin.last_name
-    # 
-    approved = DataTableStudents.objects.filter(status='Approved', archivedStudents='NotArchive')
-    # 
-    pending = DataTableStudents.objects.filter(status='Pending')
-    # 
-    rejected = DataTableStudents.objects.filter(status='Rejected')
-    # 
-    archive = DataTableStudents.objects.filter(archivedStudents='Archive')
-
-    active_tab = request.GET.get('tab', 'approved-students')
-
-    student_users = CustomUser.objects.filter(is_staff=False, is_superuser=False)
     
-    # Format last_login for student users
-    formatted_student_logins = []
-    for user in student_users:
-        last_login = user.last_login
+    approved = DataTableStudents.objects.filter(status='Approved', archivedStudents='NotArchive')
+    pending = DataTableStudents.objects.filter(status='Pending')
+    rejected = DataTableStudents.objects.filter(status='Rejected')
+    archive = DataTableStudents.objects.filter(archivedStudents='Archive')
+    
+    active_tab = request.GET.get('tab', 'approved-students')
+    
+    student_data = []
+    for student in approved:
+        last_login = student.user.last_login
         if last_login:
             last_login_formatted = last_login.strftime('%b. %d, %Y, %I:%M %p')
-            formatted_student_logins.append(last_login_formatted)
         else:
-            formatted_student_logins.append('No login recorded')
-    
-    # Join list into a single string with line breaks
-    formatted_student_logins_str = '<br>'.join(formatted_student_logins)
-
+            last_login_formatted = 'No login recorded'
+        
+        student_data.append({
+            'name': f"{student.Firstname} {student.Lastname}",
+            'last_login': last_login_formatted
+        })
     
     return render(
         request,
@@ -102,7 +96,7 @@ def studentManagement(request):
             'firstName': firstName,
             'lastName': lastName,
             'active_tab': active_tab,
-            'student_login' : formatted_student_logins_str
+            'student_data': student_data
         }
     )
 
