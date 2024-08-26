@@ -54,7 +54,6 @@ class TimeLog(models.Model):
     def __str__(self):
         return f"{self.student} - {self.action} at {self.timestamp}"
     
-
 class Schedule(models.Model):
     DAYS_OF_WEEK = [
         ('Monday', 'Monday'),
