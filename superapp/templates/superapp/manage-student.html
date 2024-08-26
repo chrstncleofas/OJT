@@ -189,7 +189,7 @@
                                     </td>
                                     <td>
                                     {% for studentLog in student_data %}
-                                       <p style="text-transform: uppercase; font-weight: bold;" class="text-danger">{{ studentLog.last_login  }}</p>
+                                       <p style="text-transform: uppercase; font-weight: bold;" class="text-danger">{{ studentLog.name }}: {{ studentLog.last_login }}</p>
                                     {% endfor %}
                                     </td>
                                     <td>
