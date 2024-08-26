@@ -73,7 +73,7 @@ def studentManagement(request):
 
     active_tab = request.GET.get('tab', 'approved-students')
 
-    student_login = admin.last_login
+    student_login = DataTableStudents.objects.values('username', 'last_login')
 
     return render(
         request,
