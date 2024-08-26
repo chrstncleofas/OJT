@@ -179,38 +179,33 @@
                                     <p class="text-center text-muted mt-3">No schedule available.</p>
                                 {% endif %}
                             </div>
-                            <!-- Time In / Out Section with Webcam -->
+            
+                            <!-- Time In/Out Section with Webcam -->
                             <div class="card col-md-5 ml-2">
                                 <div class="mt-2">
                                     <form method="POST" id="timeForm" enctype="multipart/form-data">
                                         {% csrf_token %}
                                         <div class="row">
                                             <!-- Video Feed -->
-                                            <img id="video_feed" src="{% url 'students:live_camera_feed' %}" style="width: 90%; height: auto; margin: auto;" />
+                                            <img id="video_feed" src="{% url 'students:live_camera_feed' %}" style="width: 100%; height: auto; padding: 20px;" />
                                             <div class="col-lg-6">
-                                                <button type="button" id="timeActionButton" class="btn btn-primary mb-1 mt-3" onclick="captureImage()">{{ button_text }}</button>
+                                                <button type="button" id="timeActionButton" class="btn btn-primary mb-3 mt-2" onclick="captureImage()">{{ button_text }}</button>
                                                 <input type="hidden" name="image" id="image_field">
-                                                {% comment %} {{ form.image }} {% endcomment %}
+                                                {{ form.image }}
                                             </div>
                                         </div>
-                                        <div class="mt-1 mb-1">
-                                            {{ form.action }}
-                                            {% if time_logs %}
-                                                {% if time_logs.0.action == 'IN' %}
-                                                    <p style="margin-bottom: 2px;">Current login time was</p>
-                                                    <p class="time-info" style="margin-bottom: 2px; font-weight: bold;">{{ time_logs.0.timestamp|date:"g:i:s A" }}</p>
-                                                    <p>on <span style="font-weight: bold;">{{ time_logs.0.timestamp|date:"l, n/j" }}</span></p>
-                                                {% else %}
-                                                    <p style="margin-bottom: 2px;">Current logging out at</p>
-                                                    <p style="margin-bottom: 2px; font-weight: bold;" class="time-info">{{ current_time|date:"g:i:s A" }}</p>
-                                                    <p>on <span style="font-weight: bold;">{{ current_time|date:"l, n/j" }}</span></p>
-                                                {% endif %}
-                                            {% endif %}
+                                        <div class="mt-3">
+                                            <div class="col-lg-6" align="center">
+                                                <div id="results">
+                                                    <!-- Display captured image here -->
+                                                </div>
+                                            </div>
                                         </div>
                                         <input name="action" id="id_action" type="hidden"/>
                                     </form>
                                 </div>
                             </div>
+            
                             <!-- Time Log Display Section -->
                             <div class="card fixed-height col-md-6 ml-2">
                                 <h3>Time Card</h3>
@@ -255,7 +250,8 @@
                         </div>
                     </div>
                 </div>
-            </div>     
+            </div>
+            
         </div>
     </div>
     <!-- Scripts -->
@@ -281,50 +277,58 @@
         
             // Convert Base64 to binary
             fetch(dataURL)
-            .then(res => res.blob())
-            .then(blob => {
-                const file = new File([blob], "captured_image.png", { type: 'image/png' });
-    
-                // Create a FormData object to append the file
-                const formData = new FormData();
-                formData.append('image', file);
-    
-                // Use FormData to send the image file via an AJAX request
-                fetch("{% url 'students:capture_image' %}", {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-                    }
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Failed to capture image');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.error) {
-                        alert(data.error);
-                    } else {
-                        // Update button text based on action
-                        const timeActionButton = document.getElementById('timeActionButton');
-                        if (data.action === 'IN') {
-                            timeActionButton.textContent = 'Time Out';
-                        } else {
-                            timeActionButton.textContent = 'Time In';
+                .then(res => res.blob())
+                .then(blob => {
+                    const file = new File([blob], "captured_image.png", { type: 'image/png' });
+        
+                    // Create a FormData object to append the file
+                    const formData = new FormData();
+                    formData.append('image', file);
+        
+                    // Use FormData to send the image file via an AJAX request
+                    fetch("{% url 'students:capture_image' %}", {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
                         }
-                        // Reload the page after a short delay
-                        setTimeout(() => {
-                            location.reload();
-                        }, 200);
-                    }
-                })
-                .catch(error => {
-                    alert('Error capturing image: ' + error.message);
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Failed to capture image');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        const resultsDiv = document.getElementById('results');
+                        if (data.error) {
+                            alert(data.error);
+                        } else {
+                            const img = document.createElement('img');
+                            img.src = data.image_url;
+                            img.style.width = "100%";
+                            resultsDiv.innerHTML = '';
+                            resultsDiv.appendChild(img);
+        
+                            // Update button text based on action
+                            const timeActionButton = document.getElementById('timeActionButton');
+                            if (data.action === 'IN') {
+                                timeActionButton.textContent = 'Time Out';
+                            } else {
+                                timeActionButton.textContent = 'Time In';
+                            }
+        
+                            // Reload the page after a short delay
+                            setTimeout(() => {
+                                location.reload();
+                            }, 1500);
+                        }
+                    })
+                    .catch(error => {
+                        alert('Error capturing image: ' + error.message);
+                    });
                 });
-            });
-        }
+        }        
     </script>
 </body>
 </html>
