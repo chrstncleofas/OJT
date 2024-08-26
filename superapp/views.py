@@ -72,13 +72,16 @@ def studentManagement(request):
     
     active_tab = request.GET.get('tab', 'approved-students')
     
-    # Include last_login in the student data
+    # Include last_login in the student data with timezone conversion
     for student in approved:
         last_login = student.user.last_login
         if last_login:
-            student.last_login_formatted = last_login.strftime('%b. %d, %Y, %I:%M %p')
+            local_last_login = timezone.localtime(last_login)  # Convert to local timezone
+            last_login_formatted = local_last_login.strftime('%b. %d, %Y, %I:%M %p')
         else:
-            student.last_login_formatted = 'No login recorded'
+            last_login_formatted = 'No login recorded'
+        
+        student.last_login_formatted = last_login_formatted
     
     return render(
         request,
