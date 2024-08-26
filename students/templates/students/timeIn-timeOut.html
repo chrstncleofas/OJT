@@ -263,7 +263,7 @@
             e.preventDefault();
             $("#wrapper").toggleClass("toggled");
         });
-        async function captureImage() {
+        function captureImage() {
             const video = document.getElementById('video_feed');
             const canvas = document.createElement('canvas');
             canvas.width = video.videoWidth;
@@ -320,14 +320,14 @@
                             // Reload the page after a short delay
                             setTimeout(() => {
                                 location.reload();
-                            }, 200);
+                            }, 1500);
                         }
                     })
                     .catch(error => {
                         alert('Error capturing image: ' + error.message);
                     });
                 });
-        } 
+        }
         async function initializeVideo() {
             const video = document.getElementById('video_feed');
             try {
@@ -336,7 +336,7 @@
             } catch (err) {
                 console.error('Error accessing webcam:', err);
             }
-        }      
+        }    
         window.onload = initializeVideo;        
     </script>
 </body>

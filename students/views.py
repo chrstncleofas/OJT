@@ -104,48 +104,33 @@ logger = logging.getLogger(__name__)
 def capture_image(request):
     if request.method == 'POST':
         try:
-            # Initialize the camera
-            cap = cv2.VideoCapture(0)
-            ret, frame = cap.read()
-            cap.release()
+            # Check if the image file is present
+            if 'image' not in request.FILES:
+                raise Exception('No image file found in request')
 
-            if not ret:
-                raise Exception('Failed to capture image')
+            image_file = request.FILES['image']
 
-            # Convert image to PNG format
-            is_success, buffer = cv2.imencode(".png", frame)
-            io_buf = BytesIO(buffer)
-            image_data = io_buf.getvalue()
-
-            # Create an in-memory file
-            image_file = ContentFile(image_data, 'captured_image.png')
-
-            # Get the current user
+            # Example of processing and saving the image
+            timestamp = timezone.now()
             user = request.user
             student = DataTableStudents.objects.get(user=user)
-            timestamp = timezone.now()
-
+            
             # Determine if the user is currently timed in
             last_time_in = TimeLog.objects.filter(student=student, action='IN').order_by('-timestamp').first()
-
+            
             if last_time_in and not TimeLog.objects.filter(student=student, action='OUT').order_by('-timestamp').first():
-                # Time Out
-                time_log = TimeLog(student=student, action='OUT', timestamp=timestamp, image=image_file)
-                time_diff = timestamp - last_time_in.timestamp
-                duration_hours = round(time_diff.total_seconds() / 3600, 2)
-                time_log.duration = duration_hours
-                time_log.save()
-                image_url = time_log.image.url
-                return JsonResponse({'image_url': image_url, 'action': 'OUT'})
+                action = 'OUT'
             else:
-                # Time In
-                time_log = TimeLog(student=student, action='IN', timestamp=timestamp, image=image_file)
-                time_log.save() 
-                image_url = time_log.image.url
-                return JsonResponse({'image_url': image_url, 'action': 'IN'})
+                action = 'IN'
+
+            time_log = TimeLog(student=student, action=action, timestamp=timestamp, image=image_file)
+            time_log.save()
+            image_url = time_log.image.url
+
+            return JsonResponse({'image_url': image_url, 'action': action})
 
         except Exception as e:
-            logger.error(f"Error capturing image: {e}")
+            logger.error(f"Error capturing image: {e}", exc_info=True)
             return JsonResponse({'error': str(e)}, status=500)
 
     return JsonResponse({'error': 'Invalid request method'}, status=400)
