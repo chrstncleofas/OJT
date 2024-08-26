@@ -188,9 +188,7 @@
                                        <p style="text-transform: uppercase; font-weight: bold;" class="text-primary">Approved</p>
                                     </td>
                                     <td>
-                                    {% for studentLog in student_data %}
-                                       <p style="text-transform: uppercase; font-weight: bold;" class="text-danger">{{ studentLog.name }}: {{ studentLog.last_login }}</p>
-                                    {% endfor %}
+                                       <p style="text-transform: uppercase; font-weight: bold;" class="text-danger">{{ student.last_login_formatted }}</p>
                                     </td>
                                     <td>
                                         <a href="" class="btn btn-secondary"><i class="fas fa-eye"></i></a>

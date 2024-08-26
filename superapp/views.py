@@ -72,18 +72,13 @@ def studentManagement(request):
     
     active_tab = request.GET.get('tab', 'approved-students')
     
-    student_data = []
+    # Include last_login in the student data
     for student in approved:
         last_login = student.user.last_login
         if last_login:
-            last_login_formatted = last_login.strftime('%b. %d, %Y, %I:%M %p')
+            student.last_login_formatted = last_login.strftime('%b. %d, %Y, %I:%M %p')
         else:
-            last_login_formatted = 'No login recorded'
-        
-        student_data.append({
-            'name': f"{student.Firstname} {student.Lastname}",
-            'last_login': last_login_formatted
-        })
+            student.last_login_formatted = 'No login recorded'
     
     return render(
         request,
@@ -95,8 +90,7 @@ def studentManagement(request):
             'getListOfArchivedStudents': archive,
             'firstName': firstName,
             'lastName': lastName,
-            'active_tab': active_tab,
-            'student_data': student_data
+            'active_tab': active_tab
         }
     )
 
