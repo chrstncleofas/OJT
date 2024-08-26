@@ -328,16 +328,25 @@
                     });
                 });
         }
-        async function initializeVideo() {
-            const video = document.getElementById('video_feed');
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-                video.srcObject = stream;
-            } catch (err) {
-                console.error('Error accessing webcam:', err);
+        function initializeVideo() {
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                navigator.mediaDevices.getUserMedia({ video: true })
+                    .then(function(stream) {
+                        var video = document.getElementById('video_feed');
+                        video.srcObject = stream;
+                        video.play();
+                    })
+                    .catch(function(error) {
+                        console.error('Error accessing webcam: ', error);
+                        alert('Unable to access the webcam. Please check your permissions.');
+                    });
+            } else {
+                console.error('getUserMedia is not supported in this browser.');
+                alert('Your browser does not support webcam access.');
             }
-        }    
-        window.onload = initializeVideo;        
+        }
+        
+        window.onload = initializeVideo;    
     </script>
 </body>
 </html>
