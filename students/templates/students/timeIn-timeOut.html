@@ -187,7 +187,7 @@
                                         {% csrf_token %}
                                         <div class="row">
                                             <!-- Video Feed -->
-                                            <img id="video_feed" src="{% url 'students:live_camera_feed' %}" style="width: 100%; height: auto; padding: 20px;" />
+                                            <video id="video_feed" width="100%" height="auto" autoplay></video>
                                             <div class="col-lg-6">
                                                 <button type="button" id="timeActionButton" class="btn btn-primary mb-3 mt-2" onclick="captureImage()">{{ button_text }}</button>
                                                 <input type="hidden" name="image" id="image_field">
@@ -250,8 +250,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
-            
+            </div>            
         </div>
     </div>
     <!-- Scripts -->
@@ -264,27 +263,27 @@
             e.preventDefault();
             $("#wrapper").toggleClass("toggled");
         });
-        function captureImage() {
+        async function captureImage() {
             const video = document.getElementById('video_feed');
             const canvas = document.createElement('canvas');
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
             const ctx = canvas.getContext('2d');
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        
+            
             // Convert canvas to Base64
             const dataURL = canvas.toDataURL('image/png');
-        
+            
             // Convert Base64 to binary
             fetch(dataURL)
                 .then(res => res.blob())
                 .then(blob => {
                     const file = new File([blob], "captured_image.png", { type: 'image/png' });
-        
+                    
                     // Create a FormData object to append the file
                     const formData = new FormData();
                     formData.append('image', file);
-        
+                    
                     // Use FormData to send the image file via an AJAX request
                     fetch("{% url 'students:capture_image' %}", {
                         method: 'POST',
@@ -309,7 +308,7 @@
                             img.style.width = "100%";
                             resultsDiv.innerHTML = '';
                             resultsDiv.appendChild(img);
-        
+                            
                             // Update button text based on action
                             const timeActionButton = document.getElementById('timeActionButton');
                             if (data.action === 'IN') {
@@ -317,18 +316,28 @@
                             } else {
                                 timeActionButton.textContent = 'Time In';
                             }
-        
+                            
                             // Reload the page after a short delay
                             setTimeout(() => {
                                 location.reload();
-                            }, 1500);
+                            }, 200);
                         }
                     })
                     .catch(error => {
                         alert('Error capturing image: ' + error.message);
                     });
                 });
-        }        
+        } 
+        async function initializeVideo() {
+            const video = document.getElementById('video_feed');
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                video.srcObject = stream;
+            } catch (err) {
+                console.error('Error accessing webcam:', err);
+            }
+        }      
+        window.onload = initializeVideo;        
     </script>
 </body>
 </html>
