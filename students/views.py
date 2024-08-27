@@ -2,17 +2,9 @@ from django.urls import reverse
 from django.conf import settings
 from django.utils import timezone
 from django.contrib import messages
-from app.models import TableAnnouncement
-from django.http import JsonResponse
-from django.http import StreamingHttpResponse
-from django.core.files.base import ContentFile
-from io import BytesIO
-import base64
-import logging
-import cv2
-import numpy as np
 from django.utils.timezone import now
 from django.core.mail import send_mail
+from app.models import TableAnnouncement
 from django.shortcuts import render, redirect
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
@@ -23,8 +15,6 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth import authenticate, login, logout
 from students.models import DataTableStudents, TimeLog, Schedule
 from students.forms import StudentRegistrationForm, UserForm, ChangePasswordForm, TimeLogForm, StudentProfileForm, ScheduleSettingForm
-
-logger = logging.getLogger(__name__)
 
 def studentHome(request) -> HttpResponse:
     return render(request, 'students/student-base.html')
@@ -96,63 +86,10 @@ def progressReport(request):
     )
     
 
-def video_stream():
-    cap = cv2.VideoCapture(0)
-    while True:
-        ret, frame = cap.read()
-        if not ret:
-            break
-
-        # Convert the frame to JPEG format
-        ret, jpeg = cv2.imencode('.jpg', frame)
-        if ret:
-            frame = jpeg.tobytes()
-            yield (b'--frame\r\n'
-                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
-
-def live_camera_feed(request):
-    return StreamingHttpResponse(video_stream(),
-                                 content_type='multipart/x-mixed-replace; boundary=frame')
-
-logger = logging.getLogger(__name__)
-
-def capture_image(request):
-    if request.method == 'POST':
-        try:
-            # Check if the image file is present
-            if 'image' not in request.FILES:
-                raise Exception('No image file found in request')
-
-            image_file = request.FILES['image']
-
-            # Example of processing and saving the image
-            timestamp = timezone.now()
-            user = request.user
-            student = DataTableStudents.objects.get(user=user)
-            
-            # Determine if the user is currently timed in
-            last_time_in = TimeLog.objects.filter(student=student, action='IN').order_by('-timestamp').first()
-            
-            if last_time_in and not TimeLog.objects.filter(student=student, action='OUT').order_by('-timestamp').first():
-                action = 'OUT'
-            else:
-                action = 'IN'
-
-            time_log = TimeLog(student=student, action=action, timestamp=timestamp, image=image_file)
-            time_log.save()
-            image_url = time_log.image.url
-
-            return JsonResponse({'image_url': image_url, 'action': action})
-
-        except Exception as e:
-            logger.error(f"Error capturing image: {e}", exc_info=True)
-            return JsonResponse({'error': str(e)}, status=500)
-
-    return JsonResponse({'error': 'Invalid request method'}, status=400)
-
 def TimeInAndTimeOut(request):
     user = request.user
     student = get_object_or_404(DataTableStudents, user=user)
+
     if request.method == 'POST':
         form = TimeLogForm(request.POST, request.FILES)
         if form.is_valid():
@@ -161,6 +98,7 @@ def TimeInAndTimeOut(request):
             time_log.duration = 0
             time_log.timestamp = timezone.now()
             time_log.save()
+            messages.success(request, f'Time {time_log.action} recorded successfully with image.')
             return redirect('students:TimeInAndTimeOut')
         else:
             messages.error(request, 'Failed to record time. Please ensure the form is filled out correctly.')
@@ -168,18 +106,11 @@ def TimeInAndTimeOut(request):
         form = TimeLogForm()
 
     current_time = now()
+
     firstName = student.Firstname
     lastName = student.Lastname
     time_logs = TimeLog.objects.filter(student=student).order_by('-timestamp')
     full_schedule = Schedule.objects.filter(student=student, day__in=['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']).order_by('id')
-
-    # Determine button text based on the last action
-    last_time_in = TimeLog.objects.filter(student=student, action='IN').order_by('-timestamp').first()
-    last_time_out = TimeLog.objects.filter(student=student, action='OUT').order_by('-timestamp').first()
-    if last_time_in and (not last_time_out or last_time_in.timestamp > last_time_out.timestamp):
-        button_text = 'Time Out'
-    else:
-        button_text = 'Time In'
 
     return render(
         request,
@@ -190,8 +121,7 @@ def TimeInAndTimeOut(request):
             'time_logs': time_logs,
             'current_time': current_time,
             'form': form,
-            'full_schedule': full_schedule,
-            'button_text': button_text
+            'full_schedule': full_schedule
         }
     )
 

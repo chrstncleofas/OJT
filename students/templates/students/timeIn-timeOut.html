@@ -158,93 +158,94 @@
                 </div>
             </nav>
             <!-- Card -->
-            <div class="container-fluid">
-                <div class="row mb-4">
-                    <div class="col-lg-12">
-                        <p class="mt-3 mb-1">Dashboard / Clock in</p>
-                        <h4 class="mt-2 mb-3">Clock In / Clock Out</h4>
-                        <div class="row p-3">
-                            <!-- Schedule Section -->
-                            <div class="card col-md-3">
-                                <div class="card-header bg-primary text-white">
-                                    <h5 class="card-title mb-0">Schedule</h5>
+            <div class="container mt-3">
+                <div class="row p-3">
+                    <div class="card col-md-3">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="card-title mb-0">Schedule</h5>
+                        </div>
+                        {% if full_schedule %}
+                            <ul class="list-group list-group-flush">
+                                {% for s in full_schedule %}
+                                    <li class="list-group-item d-flex justify-content-between align-items-center mt-2">
+                                        <span>{{ s.day }}</span>
+                                        <span class="text-muted"><span style="text-transform: uppercase; font-size: 13px">{{ s.start_time }}</span> - <span style="text-transform: uppercase; font-size: 13px">{{ s.end_time }}</span></span>
+                                    </li>
+                                 {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p class="text-center text-muted mt-3">No schedule available.</p>
+                        {% endif %}
+                    </div>
+                    <div class="card col-md-5 ml-2">
+                        <div class="mt-2">
+                            <form method="POST" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <div class="upload-box" id="uploadBox">
+                                    {{ form.image }}
+                                    <img id="preview" src="#" alt="Preview Image">
                                 </div>
-                                {% if full_schedule %}
-                                    <ul class="list-group list-group-flush">
-                                        {% for s in full_schedule %}
-                                            <li class="list-group-item d-flex justify-content-between align-items-center mt-2">
-                                                <span>{{ s.day }}</span>
-                                                <span class="text-muted">{{ s.start_time }} - {{ s.end_time }}</span>
-                                            </li>
-                                        {% endfor %}
-                                    </ul>
-                                {% else %}
-                                    <p class="text-center text-muted mt-3">No schedule available.</p>
+                                {{ form.action }}
+                                {% if time_logs %}
+                                    {% if time_logs.0.action == 'IN' %}
+                                        <p style="margin-bottom: 2px;">Current login time was</p>
+                                        <p class="time-info" style="margin-bottom: 2px; font-weight: bold;">{{ time_logs.0.timestamp|date:"g:i:s A" }}</p>
+                                        <p>on <span style="font-weight: bold;">{{ time_logs.0.timestamp|date:"l, n/j" }}</span></p>
+                                    {% else %}
+                                        <p style="margin-bottom: 2px;">Current logging out at</p>
+                                        <p style="margin-bottom: 2px; font-weight: bold;" class="time-info">{{ current_time|date:"g:i:s A" }}</p>
+                                        <p>on <span style="font-weight: bold;">{{ current_time|date:"l, n/j" }}</span></p>
+                                    {% endif %}
                                 {% endif %}
-                            </div>
-            
-                            <!-- Time In/Out Section with Webcam -->
-                            <div class="card col-md-5 ml-2">
-                                <div class="mt-2">
-                                    <form method="POST" id="timeForm" enctype="multipart/form-data">
-                                        {% csrf_token %}
-                                        <div class="row">
-                                            <!-- Video Feed -->
-                                            <video id="video_feed" width="100%" height="auto" autoplay style="padding: 10px"></video>
-                                            <div class="col-lg-6">
-                                                <button type="button" id="timeActionButton" class="btn btn-primary mb-3 mt-2" onclick="captureImage()">{{ button_text }}</button>
-                                                <input type="hidden" name="image" id="image_field">
-                                            </div>
-                                        </div>
-                                        <input name="action" id="id_action" type="hidden"/>
-                                    </form>
+                                <div class="form-group" style="display: flex; justify-content: space-between;">
+                                    <button type="submit" id="timeInBtn" class="btn btn-success" onclick="document.getElementById('id_action').value='IN'" disabled>Time In</button>
+                                    <button type="submit" id="timeOutBtn" class="btn btn-danger" onclick="document.getElementById('id_action').value='OUT'" disabled>Time Out</button>
                                 </div>
-                            </div>
-                            <!-- Time Log Display Section -->
-                            <div class="card fixed-height col-md-6 ml-2">
-                                <h3>Time Card</h3>
-                                <div class="row">
-                                    {% for log in time_logs %}
-                                    <div class="col-md-12 log-card">
-                                        <div class="card">
-                                            <div class="row no-gutters">
-                                                <div class="col-md-4">
-                                                    {% if log.image %}
-                                                    <img src="{{ log.image.url }}" alt="Time {{ log.action }} Image" class="card-img img-fluid">
-                                                    {% else %}
-                                                    <img src="{% static 'images/image_placeholder.jpg' %}" alt="No Image" class="card-img img-fluid">
-                                                    {% endif %}
-                                                </div>
-                                                <div class="col-md-8">
-                                                    <div class="card-body text-left">
-                                                        <div class="row">
-                                                            <div class="col-12 mb-1">
-                                                                <p class="card-text" style="font-weight: bold; font-size: 13px;">TIME {{ log.action }}</p>
-                                                            </div>
-                                                            <div class="col-12 mb-1">
-                                                                <p class="card-text">
-                                                                    <span style="font-weight: 400; font-size: 15px;">{{ log.timestamp|date:"g:i:s A" }}</span>
-                                                                </p>
-                                                            </div>
-                                                            <div class="col-12 mb-1">
-                                                                <p class="card-text">{{ log.timestamp|date:"l" }}</p>
-                                                            </div>
-                                                            <div class="col-12">
-                                                                <p class="card-text">{{ log.timestamp|date:"F j, Y" }}</p>
-                                                            </div>
-                                                        </div>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="card fixed-height col-md-6 ml-2">
+                        <h3>Time Card</h3>
+                        <div class="row">
+                            {% for log in time_logs %}
+                            <div class="col-md-12 log-card">
+                                <div class="card">
+                                    <div class="row no-gutters">
+                                        <div class="col-md-4">
+                                            {% if log.image %}
+                                            <img src="{{ log.image.url }}" alt="Time {{ log.action }} Image" class="card-img img-fluid">
+                                            {% else %}
+                                            <img src="{% static 'path/to/default-image.jpg' %}" alt="No Image" class="card-img img-fluid">
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-md-8">
+                                            <div class="card-body text-left">
+                                                <div class="row">
+                                                    <div class="col-12 mb-1">
+                                                        <p class="card-text" style="font-weight: bold; font-size: 13px;">TIME {{ log.action }}</p>
+                                                    </div>
+                                                    <div class="col-12 mb-1">
+                                                        <p class="card-text">
+                                                            <span style="font-weight: 400; font-size: 15px;">{{ log.timestamp|date:"g:i:s A" }}</span>
+                                                        </p>
+                                                    </div>
+                                                    <div class="col-12 mb-1">
+                                                        <p class="card-text">{{ log.timestamp|date:"l" }}</p>
+                                                    </div>
+                                                    <div class="col-12">
+                                                        <p class="card-text">{{ log.timestamp|date:"F j, Y" }}</p>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                    {% endfor %}
                                 </div>
-                            </div>               
+                            </div>
+                            {% endfor %}
                         </div>
-                    </div>
+                    </div>               
                 </div>
-            </div>            
+            </div>           
         </div>
     </div>
     <!-- Scripts -->
@@ -257,83 +258,26 @@
             e.preventDefault();
             $("#wrapper").toggleClass("toggled");
         });
-        function captureImage() {
-            const video = document.getElementById('video_feed');
-            const canvas = document.createElement('canvas');
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-            
-            // Convert canvas to Base64
-            const dataURL = canvas.toDataURL('image/png');
-            
-            // Convert Base64 to binary
-            fetch(dataURL)
-                .then(res => res.blob())
-                .then(blob => {
-                    const file = new File([blob], "captured_image.png", { type: 'image/png' });
-                    
-                    // Create a FormData object to append the file
-                    const formData = new FormData();
-                    formData.append('image', file);
-                    
-                    // Use FormData to send the image file via an AJAX request
-                    fetch("{% url 'students:capture_image' %}", {
-                        method: 'POST',
-                        body: formData,
-                        headers: {
-                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-                        }
-                    })
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Failed to capture image');
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        const resultsDiv = document.getElementById('results');
-                        if (data.error) {
-                            alert(data.error);
-                        } else {
-                            // Update button text based on action
-                            const timeActionButton = document.getElementById('timeActionButton');
-                            if (data.action === 'IN') {
-                                timeActionButton.textContent = 'Time Out';
-                            } else {
-                                timeActionButton.textContent = 'Time In';
-                            }
-                            
-                            // Reload the page after a short delay
-                            setTimeout(() => {
-                                location.reload();
-                            }, 1500);
-                        }
-                    })
-                    .catch(error => {
-                        alert('Error capturing image: ' + error.message);
-                    });
-                });
-        }
-        function initializeVideo() {
-            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-                navigator.mediaDevices.getUserMedia({ video: true })
-                    .then(function(stream) {
-                        var video = document.getElementById('video_feed');
-                        video.srcObject = stream;
-                        video.play();
-                    })
-                    .catch(function(error) {
-                        console.error('Error accessing webcam: ', error);
-                        alert('Unable to access the webcam. Please check your permissions.');
-                    });
-            } else {
-                console.error('getUserMedia is not supported in this browser.');
-                alert('Your browser does not support webcam access.');
+        document.getElementById('id_image').addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                document.getElementById('timeInBtn').disabled = false;
+                document.getElementById('timeOutBtn').disabled = false;
             }
-        }      
-        window.onload = initializeVideo;    
+        });
+        // 
+        function previewImage(event) {
+            var preview = document.getElementById('preview');
+            var file = document.getElementById('id_image').files[0];
+            var reader = new FileReader();
+            reader.onload = function() {
+                preview.src = reader.result;
+                preview.style.display = 'block';
+            }
+            if (file) {
+                reader.readAsDataURL(file);
+            }
+        }
+        document.getElementById('id_image').addEventListener('change', previewImage);  
     </script>
 </body>
 </html>
