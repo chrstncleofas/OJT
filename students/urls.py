@@ -22,6 +22,7 @@ urlpatterns = [
     path('success/', views.success, name='success'),
     path('loginSuccess/', views.loginSuccess, name='loginSuccess'),
     path('announcement/', views.announcement, name='announcement'),
+    path('progressReport', views.progressReport, name='progressReport')
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)

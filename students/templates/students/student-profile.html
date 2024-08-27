@@ -73,7 +73,7 @@
                 <a href="" class="list-group-item list-group-item-action bg-light">
                     <i class="fas fa-tasks"></i> Requirements
                 </a>
-                <a href="#" class="list-group-item list-group-item-action bg-light">
+                <a href="{% url 'students:progressReport' %}" class="list-group-item list-group-item-action bg-light">
                     <i class="fas fa-chart-line"></i> Progress Report
                 </a>
                 <a href="{% url 'students:scheduleSettings' %}" class="list-group-item list-group-item-action bg-light">
@@ -128,7 +128,7 @@
                                     </div>
                                     {{ form.Image }}
                                 </div>
-                                <div class="col-md-8">
+                                <div class="col-md-8 ml-3">
                                     {% if messages %}
                                         {% for message in messages %}
                                             <div class="alert alert-primary" role="alert">

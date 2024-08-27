@@ -81,6 +81,21 @@ def mainPageForDashboard(request) -> HttpResponse:
         }
     )
 
+def progressReport(request):
+    user = request.user
+    student = get_object_or_404(DataTableStudents, user=user)
+    firstName = student.Firstname
+    lastName = student.Lastname
+    return render(
+        request,
+        'students/progress-report.html',
+        {
+            'firstName': firstName,
+            'lastName': lastName,
+        }
+    )
+    
+
 def video_stream():
     cap = cv2.VideoCapture(0)
     while True:
