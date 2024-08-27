@@ -1,3 +1,5 @@
+import fitz
+from io import BytesIO
 from django.urls import reverse
 from django.conf import settings
 from django.utils import timezone
@@ -14,7 +16,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth import authenticate, login, logout
 from students.models import DataTableStudents, TimeLog, Schedule
-from students.forms import StudentRegistrationForm, UserForm, ChangePasswordForm, TimeLogForm, StudentProfileForm, ScheduleSettingForm
+from students.forms import StudentRegistrationForm, UserForm, ChangePasswordForm, TimeLogForm, StudentProfileForm, ScheduleSettingForm, FillUpPDFForm
 
 def studentHome(request) -> HttpResponse:
     return render(request, 'students/student-base.html')
@@ -76,16 +78,75 @@ def progressReport(request):
     student = get_object_or_404(DataTableStudents, user=user)
     firstName = student.Firstname
     lastName = student.Lastname
+
+    if request.method == 'POST':
+        form = FillUpPDFForm(request.POST)
+        if form.is_valid():
+            pdf_path = r'C:\Users\tianc\OneDrive\Desktop\OJT\media\pdf\PROGRESS-REPORT.pdf'
+            pdf_document = fitz.open(pdf_path)
+            # Use the first page; adjust as needed for multiple pages
+            page = pdf_document[0]
+            
+            # Coordinates for each field (adjust these as needed)
+            coordinates = {
+                'name_field': (170, 157),
+                'classification_local': (200, 195),
+                'classification_international': (330, 195),
+                'classification_in_campus': (220, 210),
+                'classification_off_campus': (226, 225),
+                'modality_actual': (200, 239),
+                'modality_virtual': (330, 239),
+                'virtual_wfh': (350, 255),
+                'virtual_alternative': (350, 270),
+                'hte_name': (170, 260),
+                'hte_address': (170, 275),
+                'department_division': (250, 290),
+            }
+
+            # Draw text fields
+            page.insert_text(coordinates['name_field'], form.cleaned_data['student_name'], fontsize=12, color=(0, 0, 0))
+            # Draw Internship Classification
+            if form.cleaned_data['internship_classification'] == 'local':
+                page.insert_text(coordinates['classification_local'], '✓', fontsize=75, color=(0, 0, 0))
+            elif form.cleaned_data['internship_classification'] == 'international':
+                page.insert_text(coordinates['classification_international'], '✓', fontsize=75, color=(0, 0, 0))
+            # Draw Local Condition
+            if form.cleaned_data['local_condition'] == 'inCampus':
+                page.insert_text(coordinates['classification_in_campus'], '✓', fontsize=75, color=(0, 0, 0))
+            elif form.cleaned_data['local_condition'] == 'offCampus':
+                page.insert_text(coordinates['classification_off_campus'], '✓', fontsize=75, color=(0, 0, 0))
+            # Draw Modality
+            if form.cleaned_data['internship_modality'] == 'actual':
+                page.insert_text(coordinates['modality_actual'], '✓', fontsize=75, color=(0, 0, 0))
+            elif form.cleaned_data['internship_modality'] == 'virtual':
+                page.insert_text(coordinates['modality_virtual'], '✓', fontsize=75, color=(0, 0, 0))
+            # Draw Virtual
+            if form.cleaned_data['virtual_conditions'] == 'wfh':
+                page.insert_text(coordinates['virtual_wfh'], '✓', fontsize=75, color=(0, 0, 0))
+            elif form.cleaned_data['virtual_conditions'] == 'under':
+                page.insert_text(coordinates['virtual_alternative'], '✓', fontsize=75, color=(0, 0, 0))
+            # Draw 
+            page.insert_text(coordinates['hte_name'], form.cleaned_data['hte_name'], fontsize=12, color=(0, 0, 0))
+            page.insert_text(coordinates['hte_address'], form.cleaned_data['hte_address'], fontsize=12, color=(0, 0, 0))
+            page.insert_text(coordinates['department_division'], form.cleaned_data['department_division'], fontsize=12, color=(0, 0, 0))
+            # Save the modified PDF to a buffer
+            buffer = BytesIO()
+            pdf_document.save(buffer)
+            pdf_document.close()
+            buffer.seek(0)
+            return HttpResponse(buffer, content_type='application/pdf')
+    else:
+        form = FillUpPDFForm()
     return render(
-        request,
-        'students/progress-report.html',
+        request, 
+        'students/progress-report.html', 
         {
+            'form': form,
             'firstName': firstName,
             'lastName': lastName,
         }
     )
     
-
 def TimeInAndTimeOut(request):
     user = request.user
     student = get_object_or_404(DataTableStudents, user=user)
@@ -250,12 +311,6 @@ def studentLogin(request):
         else:
             messages.error(request, 'Invalid username or password.')
     return render(request, 'students/login.html')
-
-def success(request):
-    return render(request, 'students/success.html')
-
-def loginSuccess(request):
-    return render(request, 'students/loginSuccess.html')
 
 def studentLogout(request) -> HttpResponseRedirect:
     logout(request)

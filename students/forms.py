@@ -1,10 +1,7 @@
 from django import forms
 from app.models import CustomUser
-from students.models import DataTableStudents, TimeLog, Schedule
+from students.models import DataTableStudents, TimeLog
 from students.custom_widgets import CustomClearableFileInput
-import base64
-import uuid
-from django.core.files.base import ContentFile
 
 COURSE_CHOICES = [
     ('', '--- Select Course ---'),
@@ -153,32 +150,8 @@ class TimeLogForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(TimeLogForm, self).__init__(*args, **kwargs)
         self.fields['image'].required = True
-        self.fields['image'].widget.attrs.update({
-            'id': 'image_field',
-            'accept': 'image/*'
-        })
+        self.fields['image'].widget.attrs.update({'accept': 'image/*'})
         self.fields['action'].widget = forms.HiddenInput()
-
-    def clean_image(self):
-        image = self.cleaned_data.get('image')
-        if image is None:
-            raise forms.ValidationError("Image is required.")
-        return image
-
-    def save(self, commit=True):
-        instance = super().save(commit=False)
-        image_data = self.cleaned_data.get('image')
-
-        if image_data:
-            format, imgstr = image_data.split(';base64,')
-            ext = format.split('/')[-1]
-            image_name = f"{uuid.uuid4()}.{ext}"
-            image_file = ContentFile(base64.b64decode(imgstr), name=image_name)
-            instance.image = image_file
-
-        if commit:
-            instance.save()
-        return instance
 
 class EditStudentForm(forms.ModelForm):
     class Meta:
@@ -206,3 +179,57 @@ class ScheduleSettingForm(forms.Form):
     thursday_end = forms.TimeField(widget=forms.TimeInput(attrs={'class': 'form-control', 'type': 'time'}), required=False)
     friday_start = forms.TimeField(widget=forms.TimeInput(attrs={'class': 'form-control', 'type': 'time'}), required=False)
     friday_end = forms.TimeField(widget=forms.TimeInput(attrs={'class': 'form-control', 'type': 'time'}), required=False)
+
+class FillUpPDFForm(forms.Form):
+    INTERNSHIP_CHOICE = [
+        ('local', 'Local'),
+        ('international', 'International'),
+    ]
+
+    LOCAL_CONDITION = [
+        ('inCampus', 'In Campus'),
+        ('offCampus', 'Off Campus'),
+    ]
+
+    MODALITY_CHOICES = [
+        ('actual', 'Actual Internship'),
+        ('virtual', 'Virtual Internship'),
+    ]
+
+    VIRTUAL_CHOICE = [
+        ('wfh', 'WFH Arrangement'),
+        ('under', 'Under Alternative Activities')
+    ]
+
+    student_name = forms.CharField(label='Name of Student', max_length=100, required=False)
+    internship_classification = forms.ChoiceField(
+        label='Internship Classification',
+        choices=INTERNSHIP_CHOICE,
+        widget=forms.RadioSelect,
+        required=False
+    )
+
+    local_condition = forms.ChoiceField(
+        label='Local Condition',
+        choices=LOCAL_CONDITION,
+        widget=forms.RadioSelect,
+        required=False
+    )
+    
+    internship_modality = forms.ChoiceField(
+        label='Internship Modality',
+        choices=MODALITY_CHOICES,
+        widget=forms.RadioSelect,
+        required=False
+    )
+
+    virtual_conditions = forms.ChoiceField(
+        label='Virtual Conditions',
+        choices=VIRTUAL_CHOICE,
+        widget=forms.RadioSelect,
+        required=False
+    )
+
+    hte_name = forms.CharField(label='Name of HTE', max_length=100, required=False)
+    hte_address = forms.CharField(label='Address of HTE', max_length=255, required=False)
+    department_division = forms.CharField(label='Department Division Assigned', max_length=100, required=False)
