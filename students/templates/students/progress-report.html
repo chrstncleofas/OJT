@@ -152,25 +152,25 @@
                             {% csrf_token %}
                             <div class="form-row">
                                 <div class="form-group col-md-3">
-                                    <label for="{{ form.student_name.id_for_label }}" class="form-label">Name of Student</label>
+                                    <label for="{{ form.student_name.id_for_label }}" class="form-label" style="font-weight: 500;">Name of Student</label>
                                     <input type="text" id="{{ form.student_name.id_for_label }}" name="{{ form.student_name.name }}" class="form-control" placeholder="Enter student name">
                                 </div>
                                 <div class="form-group col-md-3">
-                                   <label for="{{ form.hte_name.id_for_label }}" class="form-label">Name of HTE</label>
+                                   <label for="{{ form.hte_name.id_for_label }}" class="form-label" style="font-weight: 500;">Name of HTE</label>
                                     <input type="text" id="{{ form.hte_name.id_for_label }}" name="{{ form.hte_name.name }}"  class="form-control" placeholder="Enter HTE name">
                                 </div>
                                 <div class="form-group col-md-3">
-                                    <label for="{{ form.hte_address.id_for_label }}" class="form-label">Address of HTE</label>
+                                    <label for="{{ form.hte_address.id_for_label }}" class="form-label" style="font-weight: 500;">Address of HTE</label>
                                     <input type="text" id="{{ form.hte_address.id_for_label }}" name="{{ form.hte_address.name }}" class="form-control" placeholder="Enter HTE address">
                                 </div>
                                 <div class="form-group col-md-3">
-                                    <label for="{{ form.department_division.id_for_label }}" class="form-label">Department Division Assigned</label>
+                                    <label for="{{ form.department_division.id_for_label }}" class="form-label" style="font-weight: 500;">Department Division Assigned</label>
                                     <input type="text" id="{{ form.department_division.id_for_label }}" name="{{ form.department_division.name }}" class="form-control" placeholder="Enter department division">
                                 </div>
                             </div>
                             <div class="form-row">
                                 <div class="form-group col-md-6">
-                                    <label class="form-label">Internship Classification</label>
+                                    <label class="form-label" style="font-weight: bold;">Internship Classification</label>
                                     {% for value, label in form.internship_classification.field.choices %}
                                         <div class="form-check">
                                             <input type="radio" id="{{ value }}" name="{{ form.internship_classification.name }}" value="{{ value }}" class="form-check-input" {% if value == form.internship_classification.value %} checked {% endif %}>
@@ -179,7 +179,7 @@
                                     {% endfor %}
                                 </div>
                                 <div class="form-group col-md-6">
-                                    <label class="form-label">Local Condition</label>
+                                    <label class="form-label" style="font-weight: bold;">Local Condition</label>
                                     {% for value, label in form.local_condition.field.choices %}
                                         <div class="form-check"> 
                                             <input type="radio" id="{{ value }}" name="{{ form.local_condition.name }}" value="{{ value }}" class="form-check-input" {% if value == form.local_condition.value %} checked {% endif %}>
@@ -190,7 +190,7 @@
                             </div>
                             <div class="form-row">
                                 <div class="form-group col-md-6">
-                                    <label class="form-label">Internship Modality</label>
+                                    <label class="form-label" style="font-weight: bold;">Internship Modality</label>
                                     {% for value, label in form.internship_modality.field.choices %}
                                         <div class="form-check">
                                             <input type="radio" id="{{ value }}" name="{{ form.internship_modality.name }}" value="{{ value }}" class="form-check-input" {% if value == form.internship_modality.value %} checked {% endif %}>
@@ -199,7 +199,7 @@
                                     {% endfor %}
                                 </div>
                                 <div class="form-group col-md-6">
-                                    <label class="form-label">Virtual Conditions</label>
+                                    <label class="form-label" style="font-weight: bold;">Virtual Conditions</label>
                                     {% for value, label in form.virtual_conditions.field.choices %}
                                         <div class="form-check">
                                             <input type="radio" id="{{ value }}" name="{{ form.virtual_conditions.name }}" value="{{ value }}" class="form-check-input" {% if value == form.virtual_conditions.value %} checked {% endif %}>
