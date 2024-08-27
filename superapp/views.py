@@ -171,16 +171,16 @@ def editUserProfile(request):
     })
 
 def addUsers(request):
+    user = request.user
+    admin = get_object_or_404(CustomUser, id=user.id)
+    firstName = admin.first_name
+    lastName = admin.last_name
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             user = form.save(commit=False)
             user.is_staff = True
             user.save()
-            username = form.cleaned_data.get('username')
-            raw_password = form.cleaned_data.get('password1')
-            user = authenticate(username=username, password=raw_password)
-            login(request, user)
             return redirect('superapp:addUsers')
         else:
             for field, errors in form.errors.items():
@@ -188,8 +188,14 @@ def addUsers(request):
                     messages.error(request, f"{field}: {error}")
     else:
         form = CustomUserCreationForm()
-    return render(request, 'superapp/add-users.html', {'form': form})
-
+    return render(
+        request, 'superapp/add-users.html', 
+        {
+            'form': form,
+            'firstName' : firstName,
+            'lastName' : lastName
+        }
+    )
 def createUserAdmin(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
@@ -197,10 +203,6 @@ def createUserAdmin(request):
             user = form.save(commit=False)
             user.is_staff = True
             user.save()
-            username = form.cleaned_data.get('username')
-            raw_password = form.cleaned_data.get('password1')
-            user = authenticate(username=username, password=raw_password)
-            login(request, user)
             return redirect('superapp:createUserAdmin')
         else:
             for field, errors in form.errors.items():
