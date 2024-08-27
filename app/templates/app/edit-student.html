@@ -100,53 +100,58 @@
                 </div>
             </nav>
             <div class="container">
-                <h3 class="mb-4 mt-4">Edit Student Details</h3>
-                <form method="post" class="center-form col-md-12">
-                    {% csrf_token %}
-                    <div class="form-row">
-                        <div class="form-group col-md-3">
-                            <label for="StudentID">Student Number</label>
-                            <input type="text" class="form-control" id="StudentID" name="StudentID" value="{{ student.StudentID }}" required>
-                        </div>
-                        <div class="form-group col-md-3">
-                            <label for="Firstname">First Name</label>
-                            <input type="text" class="form-control" id="Firstname" name="Firstname" value="{{ student.Firstname }}" required>
-                        </div>
-                        <div class="form-group col-md-3">
-                            <label for="Middlename">Middle Name</label>
-                            <input type="text" class="form-control" id="Middlename" name="Middlename" value="{{ student.Middlename }}" required>
-                        </div>
-                        <div class="form-group col-md-3">
-                            <label for="Lastname">Last Name</label>
-                            <input type="text" class="form-control" id="Lastname" name="Lastname" value="{{ student.Lastname }}" required>
-                        </div>
+                <div class="row mb-4">
+                    <div class="col-lg-12">
+                        <p class="mt-3 mb-1"><a href="{% url 'mainDashboard' %}" style="cursor: pointer; text-decoration: none; color: black;">Home</a> / Edit</p>
+                        <h3 class="mt-2 mb-2">Edit Student</h3>
                     </div>
-                    <!-- Second Row -->
-                    <div class="form-row">
-                        <div class="form-group col-md-6">
-                            <label for="Email">Email</label>
-                            <input type="email" class="form-control" id="Email" name="Email" value="{{ student.Email }}" required>
+                    <form method="post" class="center-form col-md-12">
+                        {% csrf_token %}
+                        <div class="form-row">
+                            <div class="form-group col-md-3">
+                                <label for="StudentID">Student Number</label>
+                                <input type="text" class="form-control" id="StudentID" name="StudentID" value="{{ student.StudentID }}" required>
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label for="Firstname">First Name</label>
+                                <input type="text" class="form-control" id="Firstname" name="Firstname" value="{{ student.Firstname }}" required>
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label for="Middlename">Middle Name</label>
+                                <input type="text" class="form-control" id="Middlename" name="Middlename" value="{{ student.Middlename }}" required>
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label for="Lastname">Last Name</label>
+                                <input type="text" class="form-control" id="Lastname" name="Lastname" value="{{ student.Lastname }}" required>
+                            </div>
                         </div>
-                        <div class="form-group col-md-6">
-                            <label for="Number">Mobile No.</label>
-                            <input type="text" class="form-control" id="Number" name="Number" value="{{ student.Number }}" required>
+                        <!-- Second Row -->
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label for="Email">Email</label>
+                                <input type="email" class="form-control" id="Email" name="Email" value="{{ student.Email }}" required>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="Number">Mobile No.</label>
+                                <input type="text" class="form-control" id="Number" name="Number" value="{{ student.Number }}" required>
+                            </div>
                         </div>
-                    </div>
-                    <!-- Third Row -->
-                    <div class="form-row">
-                        <div class="form-group col-md-6">
-                            <label for="Course">Course</label>
-                            <input type="text" class="form-control" id="Course" name="Course" value="{{ student.Course }}" required>
+                        <!-- Third Row -->
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label for="Course">Course</label>
+                                <input type="text" class="form-control" id="Course" name="Course" value="{{ student.Course }}" required>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="Year">Year</label>
+                                <input type="text" class="form-control" id="Year" name="Year" value="{{ student.Year }}" required>
+                            </div>
                         </div>
-                        <div class="form-group col-md-6">
-                            <label for="Year">Year</label>
-                            <input type="text" class="form-control" id="Year" name="Year" value="{{ student.Year }}" required>
-                        </div>
-                    </div>
-                    <a href="{% url 'setSchedule' student.id %}" class="btn btn-secondary mb-3">Add Schedule</a>
-                    <button type="submit" class="btn btn-primary mb-3">Update Profile</button>
-                    <a href="{% url 'studentManagement' %}" class="btn btn-primary mb-3">Back</a>
-                </form>
+                        <a href="{% url 'setSchedule' student.id %}" class="btn btn-secondary mb-3">Add Schedule</a>
+                        <button type="submit" class="btn btn-primary mb-3">Update Profile</button>
+                        <a href="{% url 'studentManagement' %}" class="btn btn-primary mb-3">Back</a>
+                    </form>
+                </div>
             </div>      
         </div>
     </div>

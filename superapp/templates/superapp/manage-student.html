@@ -191,7 +191,7 @@
                                        <p style="text-transform: uppercase; font-weight: bold;" class="text-danger">{{ student.last_login_formatted }}</p>
                                     </td>
                                     <td>
-                                        <a href="" class="btn btn-secondary"><i class="fas fa-eye"></i></a>
+                                        <a href="{% url 'superapp:viewStudent' student.id %}" class="btn btn-secondary"><i class="fas fa-eye"></i></a>
                                     </td>
                                 </tr>
                                 {% endfor %}

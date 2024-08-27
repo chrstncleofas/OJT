@@ -1,0 +1,216 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <title>Super Admin - OJT Management System Dashboard</title>
+    <style>
+        #wrapper {
+            display: flex;
+            width: 100%;
+            align-items: stretch;
+        }
+
+        #sidebar-wrapper {
+            min-width: 250px;
+            max-width: 250px;
+            background-color: #f8f9fa;
+            border-right: 1px solid #dee2e6;
+        }
+
+        #page-content-wrapper {
+            width: 100%;
+        }
+
+        .sidebar-heading {
+            padding: 1rem;
+            font-size: 1.2rem;
+            text-align: center;
+        }
+
+        .list-group-item {
+            padding: 1rem;
+        }
+
+        .navbar {
+            margin-bottom: 0;
+        }
+
+        @media (max-width: 768px) {
+            #sidebar-wrapper {
+                display: none;
+            }
+
+            #wrapper.toggled #sidebar-wrapper {
+                display: block;
+                position: absolute;
+                z-index: 1000;
+                width: 100%;
+            }
+
+            .navbar-toggler {
+                display: block;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="d-flex" id="wrapper">
+        <!-- Sidebar -->
+        <div class="bg-light border-right" id="sidebar-wrapper">
+            <a href="{% url 'superapp:superAdminDashboard' %}" style="text-decoration: none !important; color: black !important;"><div class="sidebar-heading">OJT Management System</div></a>
+            <div class="list-group list-group-flush">
+                <a href="{% url 'superapp:mainDashboard' %}" class="list-group-item list-group-item-action bg-light">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+                <a href="" class="list-group-item list-group-item-action bg-light">
+                    <i class="fas fa-bullhorn"></i> Announcement
+                </a>
+                <a href="" class="list-group-item list-group-item-action bg-light">
+                    <i class="fas fa-user-graduate"></i> Manage Student
+                </a>
+                <a href="{% url 'superapp:getActivityLogs' %}" class="list-group-item list-group-item-action bg-light">
+                    <i class="fas fa-clock"></i> Activity Logs
+                </a>
+                <a href="{% url 'superapp:getAllTheUserAccount' %}" class="list-group-item list-group-item-action bg-light">
+                    <i class="fa-solid fa-user"></i> Users
+                </a>
+                <a href="{% url 'superapp:set_rendering_hours' %}" class="list-group-item list-group-item-action bg-light">
+                    <i class="fas fa-cogs"></i> Settings
+                </a>
+                <a href="{% url 'superapp:loggingOut' %}" class="list-group-item list-group-item-action bg-light">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+        </div>
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav ml-auto mt-2 mt-lg-0">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-user mr-2"></i>{{ firstName }} {{ lastName }}
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                <a class="dropdown-item" href="{% url 'superapp:editUserProfile' %}">Profile</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="">Change Password</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="{% url 'superapp:loggingOut' %}">Logout</a>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+            <div class="container-fluid">
+                <div class="row p-2">
+                    <div class="col-lg-12">
+                        <p class="mt-1 mb-1"> <a href="" style="cursor: pointer; text-decoration: none; color: black;">Home</a> / Time Logs</p>
+                        <h4 class="mt-3 mb-2"><span style="text-transform: uppercase; font-weight: 500;">{{ studentFirstname }} {{ studentLastname }}</span></h4>
+                    </div>
+                    {% if paired_logs %}
+                    <div class="col-md-9">
+                        <table class="table table-bordered mt-3">
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th>TIME IN</th>
+                                    <th>TIME OUT</th>
+                                    <th>IMAGE IN</th>
+                                    <th>IMAGE OUT</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for in_log, out_log in paired_logs %}
+                                <tr>
+                                    <td>{{ in_log.timestamp }}</td>
+                                    <td>{{ out_log.timestamp }}</td>
+                                    <td>
+                                        {% if in_log.image %}
+                                        <img src="{{ in_log.image.url }}" alt="Time IN Image" class="img-fluid" style="width: 100px; height: 100px;">
+                                        {% else %}
+                                        No Image
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if out_log.image %}
+                                        <img src="{{ out_log.image.url }}" alt="Time OUT Image" class="img-fluid" style="width: 100px; height: 100px;">
+                                        {% else %}
+                                        No Image
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="card col-md-3 mt-3">
+                        <div class="card-header bg-primary text-white p-3 mt-3">
+                            <h5 class="card-title mb-0">Schedule</h5>
+                        </div>
+                        {% if full_schedule %}
+                        <ul class="list-group list-group-flush">
+                            {% for s in full_schedule %}
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span>{{ s.day }}</span>
+                                    <span class="text-muted">{{ s.start_time }} - {{ s.end_time }}</span>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                        {% else %}
+                            <p class="text-center text-muted mt-3">No schedule available.</p>
+                        {% endif %}                    
+                    </div> 
+                </div>
+                <div class="mt-4">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card text-white bg-primary mb-3">
+                                <div class="card-header">Total Work Hours</div>
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ total_work_time }}</h5>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card text-white bg-success mb-3">
+                                <div class="card-header">Required Duration</div>
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ required_hours_time }}</h5>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card text-white bg-warning mb-3">
+                                <div class="card-header">Remaining Hours</div>
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ remaining_hours_time }}</h5>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>           
+                {% else %}
+                <p>No logs found for this student.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

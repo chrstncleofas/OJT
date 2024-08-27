@@ -1,8 +1,6 @@
 from typing import Union
-from django.utils.dateformat import DateFormat
-from datetime import timedelta
 from django.db.models import Q
-from django.urls import reverse
+from datetime import timedelta
 from django.utils import timezone
 from app.models import CustomUser
 from django.contrib import messages
@@ -15,7 +13,7 @@ from app.forms import CustomUserCreationForm
 from app.forms import SetRenderingHoursForm
 from django.shortcuts import render, redirect
 from django.shortcuts import get_object_or_404
-from students.models import DataTableStudents, TimeLog
+from students.models import DataTableStudents, TimeLog, Schedule
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponsePermanentRedirect
@@ -96,6 +94,58 @@ def studentManagement(request):
             'active_tab': active_tab
         }
     )
+
+def viewStudent(request, id):
+    user = request.user
+    admin = get_object_or_404(CustomUser, id=user.id)
+    student = get_object_or_404(DataTableStudents, id=id)
+    firstName = admin.first_name
+    lastName = admin.last_name
+
+    studentFirstname = student.Firstname
+    studentLastname = student.Lastname
+
+    selected_student = get_object_or_404(DataTableStudents, id=id)
+    time_logs = TimeLog.objects.filter(student=selected_student).order_by('timestamp')
+    total_work_seconds = 0
+    daily_total = timedelta()
+    paired_logs = []
+    i = 0
+    while i < len(time_logs):
+        if time_logs[i].action == 'IN':
+            if i + 1 < len(time_logs) and time_logs[i + 1].action == 'OUT':
+                paired_logs.append((time_logs[i], time_logs[i + 1]))
+                work_period = time_logs[i + 1].timestamp - time_logs[i].timestamp
+                if work_period > timedelta(hours=1):
+                    work_period -= timedelta(hours=1)
+                daily_total += work_period
+                i += 1
+        i += 1
+    total_work_seconds = daily_total.total_seconds()
+    required_hours_seconds = student.get_required_hours() * 3600 if student.get_required_hours() is not None else 0
+    remaining_hours_seconds = required_hours_seconds - total_work_seconds
+    full_schedule = Schedule.objects.filter(student=student, day__in=['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']).order_by('id')
+
+    def format_seconds(seconds):
+        hours, remainder = divmod(seconds, 3600)
+        minutes, seconds = divmod(remainder, 60)
+        return f"{int(hours)} hours, {int(minutes)} minutes, {int(seconds)} seconds"
+
+    context = {
+        'paired_logs': paired_logs,
+        'total_work_seconds': total_work_seconds,
+        'required_hours_seconds': required_hours_seconds,
+        'remaining_hours_seconds': remaining_hours_seconds,
+        'total_work_time': format_seconds(total_work_seconds),
+        'required_hours_time': format_seconds(required_hours_seconds),
+        'remaining_hours_time': format_seconds(remaining_hours_seconds),
+        'firstName': firstName,
+        'lastName': lastName,
+        'studentFirstname': studentFirstname,
+        'studentLastname': studentLastname,
+        'full_schedule': full_schedule,
+    }
+    return render(request, 'superapp/TimeLogs.html', context)
 
 def getAllTheUserAccount(request):
     user = request.user
