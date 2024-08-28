@@ -128,6 +128,6 @@ MEDIA_URL = '/media/'
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-PDF_ROOT = os.path.join(MEDIA_ROOT, 'pdf')
+PDF_ROOT = os.path.join(BASE_DIR, 'pdf')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

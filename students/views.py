@@ -1,3 +1,4 @@
+import os
 import fitz
 from io import BytesIO
 from django.urls import reverse
@@ -82,7 +83,7 @@ def progressReport(request):
     if request.method == 'POST':
         form = FillUpPDFForm(request.POST)
         if form.is_valid():
-            pdf_path = r'C:\Users\tianc\OneDrive\Desktop\OJT\pdf\PROGRESS-REPORT.pdf'
+            pdf_path = os.path.join(settings.PDF_ROOT, 'PROGRESS-REPORT.pdf')
             pdf_document = fitz.open(pdf_path)
             # Use the first page; adjust as needed for multiple pages
             page = pdf_document[0]
