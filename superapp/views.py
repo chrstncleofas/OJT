@@ -1,27 +1,30 @@
 from typing import Union
-from django.db.models import Q
 from datetime import timedelta
+from django.db.models import Q
 from django.utils import timezone
 from app.models import CustomUser
 from django.contrib import messages
 from django.shortcuts import redirect
 from django.core.mail import send_mail
-from app.models import RenderingHoursTable
 from superapp.forms import EditUsersForm
-from app.forms import EditUsersDetailsForm
-from app.forms import CustomUserCreationForm
+from app.models import TableAnnouncement
+from app.models import RenderingHoursTable
 from app.forms import SetRenderingHoursForm
+from app.forms import CustomUserCreationForm
 from django.shortcuts import render, redirect
 from django.shortcuts import get_object_or_404
-from students.models import DataTableStudents, TimeLog, Schedule
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
+from app.forms import EditUsersDetailsForm, AnnouncementForm
+from students.models import DataTableStudents, TimeLog, Schedule
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponsePermanentRedirect
 
 DASHBOARD = 'superapp/dashboard.html'
 MAIN_DASHBOARD = 'superapp/main-dashboard.html'
 HOME_URL_PATH = 'superapp/base.html'
 MANAGEMENT_STUDENT = 'superapp/manage-student.html'
+LIST_ANNOUNCEMENT = 'superapp/announcement.html'
+POST_ANNOUNCEMENT_PAGE = 'superapp/add-announcement.html'
 
 def superHome(request) -> Union[HttpResponseRedirect, HttpResponsePermanentRedirect, HttpResponse]:        
     return render(request, HOME_URL_PATH)
@@ -172,6 +175,76 @@ def getActivityLogs(request):
         'firstName': firstName,
         'lastName': lastName
     })
+
+def getAllTheListAnnouncement(request):
+    user = request.user
+    admin = get_object_or_404(CustomUser, id=user.id)
+    firstName = admin.first_name
+    lastName = admin.last_name
+    # 
+    listOfAnnouncementInTheTable = TableAnnouncement.objects.all()
+    return render(request, LIST_ANNOUNCEMENT, {
+        'getAllTheListAnnouncement': listOfAnnouncementInTheTable,
+        'firstName': firstName,
+        'lastName': lastName
+    })
+
+def postAnnouncement(request):
+    user = request.user
+    admin = get_object_or_404(CustomUser, id=user.id)
+    firstName = admin.first_name
+    lastName = admin.last_name
+    if request.method == 'POST':
+        form = AnnouncementForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect('listOfAnnouncement')
+    else:
+        form = AnnouncementForm()
+    return render(request, POST_ANNOUNCEMENT_PAGE,
+        {
+            'form': form,
+            'firstName': firstName,
+            'lastName': lastName
+        }
+    )
+
+def editAnnouncement(request, id):
+    user = request.user
+    admin = get_object_or_404(CustomUser, id=user.id)
+    firstName = admin.first_name
+    lastName = admin.last_name
+
+    announcement = get_object_or_404(TableAnnouncement, id=id)
+
+    if request.method == 'POST':
+        form = AnnouncementForm(request.POST, request.FILES, instance=announcement)
+        if form.is_valid():
+            form.save()
+            return redirect('superapp:getAllTheListAnnouncement')
+    else:
+        form = AnnouncementForm(instance=announcement)
+
+    return render(request, 'superapp/edit-announcement.html', {
+        'form': form,
+        'firstName': firstName,
+        'lastName': lastName,
+        'announcement': announcement,
+    })
+
+def deleteAnnouncement(request, id):
+    announcement = get_object_or_404(TableAnnouncement, id=id)
+    if request.method == 'POST':
+        announcement.delete()
+        messages.success(request, 'Announcement has been deleted successfully.')
+        return redirect('superapp:getAllTheListAnnouncement')
+    return render(
+        request, 
+        LIST_ANNOUNCEMENT, 
+        {
+            'announcement': announcement
+        }
+    )
 
 def editUsers(request, id): 
     toEditDetails = admin = get_object_or_404(CustomUser, pk=id)

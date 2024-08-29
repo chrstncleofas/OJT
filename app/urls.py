@@ -31,7 +31,7 @@ urlpatterns = [
     path('viewPendingApplication/<int:id>/', views.viewPendingApplication, name='viewPendingApplication'),
     path('setSchedule/<int:id>/', views.setSchedule, name='setSchedule'),
     # 
-    path('announcement', views.announcement, name='announcement'),
+    path('announcement', views.postAnnouncement, name='announcement'),
     path('listOfAnnouncement', views.listOfAnnouncement, name='listOfAnnouncement'),
     path('editAnnouncement/<int:id>/', views.editAnnouncement, name='editAnnouncement'),
     path('deleteAnnouncement/<int:id>/', views.deleteAnnouncement, name='deleteAnnouncement'),

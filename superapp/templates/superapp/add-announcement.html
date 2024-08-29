@@ -7,9 +7,81 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css"/>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon">
     <link rel="stylesheet" href="{% static 'css/main-dashboard.css' %}">
+    <link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon">
     <title>Super Admin - OJT Management System Dashboard</title>
+    <style>
+        .preview-box {
+            border: 2px dashed #ccc;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 216px;
+            margin-bottom: 20px;
+            position: relative;
+            cursor: pointer;
+            overflow: hidden;
+            background-color: #f8f9fa;
+        }
+        .preview-box input[type="file"] {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+        .preview-box img {
+            max-width: 100%;
+            max-height: 100%;
+        }
+        .preview-box::before {
+            color: #888;
+            font-size: 16px;
+            position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+        }
+        .upload-box {
+            border: 2px dashed #ccc;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 216px;
+            margin-bottom: 20px;
+            position: relative;
+            cursor: pointer;
+            overflow: hidden;
+            background-color: #f8f9fa;
+        }
+        .upload-box input[type="file"] {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+        .upload-box img {
+            max-width: 100%;
+            max-height: 100%;
+            display: none;
+        }
+        .upload-box::before {
+            content: 'Choose File';
+            color: #888;
+            font-size: 16px;
+            position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
 </head>
 <body>
     <div class="d-flex" id="wrapper">
@@ -66,38 +138,53 @@
             </nav>
             <!-- Card -->
             <div class="container-fluid">
-                <h1 class="mt-4">Edit Profile</h1>
-                {% if messages %}
-                    {% for message in messages %}
-                        <div class="alert alert-primary" role="alert">
-                            {{ message }}
-                        </div>
-                    {% endfor %}
-                {% endif %}
-                <form method="post">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <p class="mt-3 mb-1"><a href="{% url 'superapp:getAllTheListAnnouncement' %}" style="cursor: pointer; text-decoration: none; color: black;">Announcement </a> / Add Announcement</p>
+                        <h3 class="mt-2 mb-3">Post Announcement</h3>
+                    </div>
+                </div>
+                <form method="post" enctype="multipart/form-data">
                     {% csrf_token %}
                     <div class="form-group">
-                        <label for="username">Username</label>
-                        {{ form.username }}
+                        <label for="Title">Title</label>
+                        {{ form.Title }}
                     </div>
                     <div class="form-group">
-                        <label for="first_name">First Name</label>
-                        {{ form.first_name }}
+                        <label for="Image" style="font-size: 12px;">Preview Image (recommended dimension: 1280 x 400)</label><br>
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
+                            <div id="image-preview" class="preview-box">
+                                {% if announcement.Image %}
+                                    <img src="{{ announcement.Image.url }}" alt="Current Image" style="max-width: 200px;" id="current-image"><br>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <div class="upload-box">
+                                    {{ form.Image }}
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div class="form-group">
-                        <label for="last_name">Last Name</label>
-                        {{ form.last_name }}
+                        <label for="Description">Description</label>
+                        {{ form.Description }}
                     </div>
-                    <div class="form-group">
-                        <label for="email">Email</label>
-                        {{ form.email }}
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label for="Status">Status</label>
+                            {{ form.Status }}
+                        </div>
+                        <div class="col-md-4">
+                            <label for="StartDate">Start Date</label>
+                            {{ form.StartDate }}
+                        </div>
+                        <div class="col-md-4">
+                            <label for="EndDate">End Date</label>
+                            {{ form.EndDate }}
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="position">Position</label>
-                        {{ form.position }}
-                    </div>
-                    <button type="submit" class="btn btn-primary">Update Profile</button>
-                </form>   
+                    <button type="submit" class="btn btn-primary mb-3">Add Announcement</button>
+                </form>
             </div>
         </div>
     </div>
@@ -109,6 +196,17 @@
         $(".navbar-toggler").click(function(e) {
             e.preventDefault();
             $("#wrapper").toggleClass("toggled");
+        });
+
+        // Image preview functionality
+        $(document).ready(function() {
+            $("input[type='file']").change(function(e) {
+                let reader = new FileReader();
+                reader.onload = function(e) {
+                    $('#image-preview').html('<img src="' + e.target.result + '" style="max-width: 500px;" alt="New Image Preview">');
+                }
+                reader.readAsDataURL(this.files[0]);
+            });
         });
     </script>
 </body>

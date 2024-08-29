@@ -20,6 +20,10 @@ urlpatterns = [
     path('getActivityLogs/', views.getActivityLogs, name='getActivityLogs'),
     path('studentManagement/', views.studentManagement, name='studentManagement'),
     path('set_rendering_hours/', views.set_rendering_hours, name='set_rendering_hours'),
+    path('getAllTheListAnnouncement/', views.getAllTheListAnnouncement, name='getAllTheListAnnouncement'),
+    path('postAnnouncement/', views.postAnnouncement, name='postAnnouncement'),
+    path('editAnnouncement/<int:id>/', views.editAnnouncement, name='editAnnouncement'),
+    path('deleteAnnouncement/<int:id>/', views.deleteAnnouncement, name='deleteAnnouncement'),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)

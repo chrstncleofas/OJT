@@ -414,7 +414,7 @@ def listOfAnnouncement(request):
         'lastName': lastName
     })
 
-def announcement(request):
+def postAnnouncement(request):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
     firstName = admin.first_name
@@ -456,6 +456,14 @@ def editAnnouncement(request, id):
         'lastName': lastName,
         'announcement': announcement,
     })
+
+def deleteAnnouncement(request, id):
+    announcement = get_object_or_404(TableAnnouncement, id=id)
+    if request.method == 'POST':
+        announcement.delete()
+        messages.success(request, 'Announcement has been deleted successfully.')
+        return redirect('listOfAnnouncement')
+    return render(request, LIST_ANNOUNCEMENT, {'announcement': announcement})
 
 def setSchedule(request, id):
     user = request.user
@@ -523,11 +531,3 @@ def editStudentDetails(request, id):
         'firstName': firstName,
         'lastName': lastName,
     })
-
-def deleteAnnouncement(request, id):
-    announcement = get_object_or_404(TableAnnouncement, id=id)
-    if request.method == 'POST':
-        announcement.delete()
-        messages.success(request, 'Announcement has been deleted successfully.')
-        return redirect('listOfAnnouncement')
-    return render(request, 'app/delete-announcement.html', {'announcement': announcement})
