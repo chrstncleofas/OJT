@@ -5,7 +5,7 @@ from django.urls import reverse
 from django.conf import settings
 from django.utils import timezone
 from django.contrib import messages
-from django.utils.timezone import now
+from django.utils.timezone import now, localtime
 from django.core.mail import send_mail
 from app.models import TableAnnouncement
 from django.shortcuts import render, redirect
@@ -154,24 +154,31 @@ def TimeInAndTimeOut(request):
 
     if request.method == 'POST':
         form = TimeLogForm(request.POST, request.FILES)
-        if form.is_valid():
-            time_log = form.save(commit=False)
-            time_log.student = student
-            time_log.duration = 0
-            time_log.timestamp = timezone.now()
-            time_log.save()
-            messages.success(request, f'Time {time_log.action} recorded successfully with image.')
-            return redirect('students:TimeInAndTimeOut')
-        else:
-            messages.error(request, 'Failed to record time. Please ensure the form is filled out correctly.')
+        if request.method == 'POST':
+            form = TimeLogForm(request.POST, request.FILES)
+            if form.is_valid():
+                time_log = form.save(commit=False)
+                time_log.student = student
+                time_log.timestamp = timezone.now()
+                time_log.save()
+
+                # Set a message for the action performed
+                action_message = 'Time In' if time_log.action == 'IN' else 'Time Out'
+                messages.success(request, f'{action_message} recorded successfully with image.')
+
+                return redirect('students:TimeInAndTimeOut')
+            else:
+                messages.error(request, 'Failed to record time. Please ensure the form is filled out correctly.')
     else:
         form = TimeLogForm()
 
-    current_time = now()
+    current_time = localtime(now())
 
     firstName = student.Firstname
     lastName = student.Lastname
+    # Determine last action for button logic
     time_logs = TimeLog.objects.filter(student=student).order_by('-timestamp')
+    last_action = time_logs[0].action if time_logs else ''
     full_schedule = Schedule.objects.filter(student=student, day__in=['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']).order_by('id')
 
     return render(
@@ -183,7 +190,8 @@ def TimeInAndTimeOut(request):
             'time_logs': time_logs,
             'current_time': current_time,
             'form': form,
-            'full_schedule': full_schedule
+            'full_schedule': full_schedule,
+            'last_action': last_action,
         }
     )
 

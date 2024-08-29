@@ -179,24 +179,25 @@
                     </div>
                     <div class="card col-md-5 ml-2">
                         <div class="mt-2">
-                            <form method="POST" enctype="multipart/form-data">
+                            <form method="POST" enctype="multipart/form-data" id="timeForm">
                                 {% csrf_token %}
                                 <div class="upload-box" id="uploadBox">
                                     {{ form.image }}
                                     <img id="preview" src="#" alt="Preview Image">
                                 </div>
-                                {{ form.action }}
                                 {% if time_logs %}
-                                    {% if time_logs.0.action == 'IN' %}
-                                        <p style="margin-bottom: 2px;">Current login time was</p>
-                                        <p class="time-info" style="margin-bottom: 2px; font-weight: bold;">{{ time_logs.0.timestamp|date:"g:i:s A" }}</p>
-                                        <p>on <span style="font-weight: bold;">{{ time_logs.0.timestamp|date:"l, n/j" }}</span></p>
-                                    {% else %}
-                                        <p style="margin-bottom: 2px;">Current logging out at</p>
-                                        <p style="margin-bottom: 2px; font-weight: bold;" class="time-info">{{ current_time|date:"g:i:s A" }}</p>
-                                        <p>on <span style="font-weight: bold;">{{ current_time|date:"l, n/j" }}</span></p>
-                                    {% endif %}
+                                {% if time_logs.0.action == 'IN' %}
+                                <p style="margin-bottom: 2px;">Current login time was</p>
+                                <p class="time-info" style="margin-bottom: 2px; font-weight: bold;">{{ time_logs.0.timestamp|date:"g:i:s A" }}</p>
+                                <p>on <span style="font-weight: bold;">{{ time_logs.0.timestamp|date:"l, n/j" }}</span></p>
+                                {% else %}
+                                <p style="margin-bottom: 2px;">Current logging out at</p>
+                                <p style="margin-bottom: 2px; font-weight: bold;" class="time-info">{{ current_time|date:"g:i:s A" }}</p>
+                                <p>on <span style="font-weight: bold;">{{ current_time|date:"l, n/j" }}</span></p>
                                 {% endif %}
+                                {% endif %}
+                                {{ form.action }}
+                                <input type="hidden" id="lastAction" value="{{ last_action }}">
                                 <div class="form-group" style="display: flex; justify-content: space-between;">
                                     <button type="submit" id="timeInBtn" class="btn btn-success" onclick="document.getElementById('id_action').value='IN'" disabled>Time In</button>
                                     <button type="submit" id="timeOutBtn" class="btn btn-danger" onclick="document.getElementById('id_action').value='OUT'" disabled>Time Out</button>
@@ -258,26 +259,52 @@
             e.preventDefault();
             $("#wrapper").toggleClass("toggled");
         });
-        document.getElementById('id_image').addEventListener('change', function() {
-            if (this.files && this.files[0]) {
-                document.getElementById('timeInBtn').disabled = false;
-                document.getElementById('timeOutBtn').disabled = false;
-            }
-        });
-        // 
-        function previewImage(event) {
-            var preview = document.getElementById('preview');
-            var file = document.getElementById('id_image').files[0];
-            var reader = new FileReader();
-            reader.onload = function() {
-                preview.src = reader.result;
-                preview.style.display = 'block';
-            }
-            if (file) {
-                reader.readAsDataURL(file);
+        // Function to handle enabling/disabling buttons and preview image based on last action and image upload
+        function updateButtonStates() {
+            const imageInput = document.getElementById('id_image');
+            const timeInBtn = document.getElementById('timeInBtn');
+            const timeOutBtn = document.getElementById('timeOutBtn');
+            const lastAction = document.getElementById('lastAction').value; // Gets the last action
+            const preview = document.getElementById('preview'); // Image preview element
+
+            // Add event listener for image input change
+            imageInput.addEventListener('change', function () {
+                // Check if an image is uploaded
+                if (imageInput.files.length > 0) {
+                    const reader = new FileReader();
+
+                    // Preview image function
+                    reader.onload = function (e) {
+                        preview.src = e.target.result;
+                        preview.style.display = 'block';
+                    };
+
+                    reader.readAsDataURL(imageInput.files[0]);
+
+                    // Enable the appropriate button based on the last action
+                    if (lastAction === 'IN') {
+                        timeInBtn.disabled = true;
+                        timeOutBtn.disabled = false; // Enable Time Out button if last action was TIME IN
+                    } else {
+                        timeInBtn.disabled = false; // Enable Time In button if no time in today
+                        timeOutBtn.disabled = true;
+                    }
+                } else {
+                    // If no image is uploaded, keep both buttons disabled
+                    timeInBtn.disabled = true;
+                    timeOutBtn.disabled = true;
+                    preview.style.display = 'none'; // Hide the preview if no file is uploaded
+                }
+            });
+
+            // Run the update function on page load to set the initial button state
+            if (imageInput.files.length > 0) {
+                imageInput.dispatchEvent(new Event('change'));
             }
         }
-        document.getElementById('id_image').addEventListener('change', previewImage);  
+
+        // Run the button state function on document ready
+        document.addEventListener('DOMContentLoaded', updateButtonStates);
     </script>
 </body>
 </html>
