@@ -161,11 +161,6 @@ def TimeInAndTimeOut(request):
                 time_log.student = student
                 time_log.timestamp = timezone.now()
                 time_log.save()
-
-                # Set a message for the action performed
-                action_message = 'Time In' if time_log.action == 'IN' else 'Time Out'
-                messages.success(request, f'{action_message} recorded successfully with image.')
-
                 return redirect('students:TimeInAndTimeOut')
             else:
                 messages.error(request, 'Failed to record time. Please ensure the form is filled out correctly.')
