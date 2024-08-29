@@ -5,11 +5,11 @@ from django.urls import reverse
 from django.conf import settings
 from django.utils import timezone
 from django.contrib import messages
-from django.utils.timezone import now, localtime
 from django.core.mail import send_mail
 from app.models import TableAnnouncement
 from django.shortcuts import render, redirect
 from django.shortcuts import get_object_or_404
+from django.utils.timezone import now, localtime
 from django.template.loader import render_to_string
 from django.contrib.auth.hashers import check_password
 from django.contrib.auth import update_session_auth_hash
