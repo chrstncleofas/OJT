@@ -162,8 +162,6 @@ def TimeInAndTimeOut(request):
                 time_log.timestamp = timezone.now()
                 time_log.save()
                 return redirect('students:TimeInAndTimeOut')
-            else:
-                messages.error(request, 'Failed to record time. Please ensure the form is filled out correctly.')
     else:
         form = TimeLogForm()
 
