@@ -40,7 +40,7 @@ def welcomeDashboard(request) -> HttpResponse:
         }
     )
 
-def announcement(request):
+def getAnnouncement(request):
     enabledAnnouncement = TableAnnouncement.objects.filter(Status='enable')
     return render(
         request, 'students/announcement.html', 
