@@ -1,13 +1,14 @@
 import json
 from typing import Union
 from django.urls import reverse
-from app.forms import SetRenderingHoursForm
+from app.utils import saveActivityLogs
 from app.models import RenderingHoursTable
 from django.conf import settings
 from django.contrib import messages
 from django.core.mail import send_mail
 from datetime import datetime, timedelta
 from .forms import CustomPasswordChangeForm
+from app.forms import SetRenderingHoursForm
 from django.shortcuts import render, redirect
 from django.shortcuts import get_object_or_404
 from app.models import CustomUser, TableAnnouncement
@@ -147,6 +148,8 @@ def userLoginFunction(request):
             if user.is_staff and not user.is_superuser:
                 login(request, user)
                 request.session['admin_password'] = user.password
+                # Log the successful login action
+                saveActivityLogs(user=user, action='LOGIN', request=request, description='Login admin')
                 return redirect('dashboard')
             else:
                 messages.error(request, 'You do not have the necessary permissions to access this site.')

@@ -2,7 +2,6 @@ from typing import Union
 from datetime import timedelta
 from django.db.models import Q
 from django.utils import timezone
-from app.models import CustomUser
 from django.contrib import messages
 from django.shortcuts import redirect
 from django.core.mail import send_mail
@@ -13,6 +12,7 @@ from app.forms import SetRenderingHoursForm
 from app.forms import CustomUserCreationForm
 from django.shortcuts import render, redirect
 from django.shortcuts import get_object_or_404
+from app.models import CustomUser, StoreActivityLogs
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 from app.forms import EditUsersDetailsForm, AnnouncementForm
@@ -169,7 +169,7 @@ def getActivityLogs(request):
     firstName = admin.first_name
     lastName = admin.last_name
     # 
-    admin_users = CustomUser.objects.filter(Q(is_staff=True) or Q(is_superuser=True) or Q(is_superuser=False))
+    admin_users = StoreActivityLogs.objects.all()
     return render(request, 'superapp/activitylogs.html', {
         'getActivityLogs': admin_users,
         'firstName': firstName,

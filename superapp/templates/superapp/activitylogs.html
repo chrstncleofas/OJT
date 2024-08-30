@@ -105,23 +105,25 @@
                 <table class="table">
                     <thead>
                         <tr>
-                            <th>Username</th>
                             <th>Firstname</th>
                             <th>Lastname</th>
-                            <th>Email</th>
                             <th>Role</th>
+                            <th>Action</th>
                             <th>Last Login</th>
+                            <th>Description</th>
+                            <th>IP Address</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for logs in getActivityLogs %}
                         <tr>
-                            <td>{{ logs.username }}</td>
                             <td style="text-transform: uppercase;">{{ logs.first_name }}</td>
                             <td style="text-transform: uppercase;">{{ logs.last_name }}</td>
-                            <td style="color: blue; text-decoration: underline; cursor: pointer;">{{ logs.email }}</td>
                             <td style="text-transform: uppercase;">{{ logs.position }}</td>
-                            <td>{{ logs.last_login }}</td>
+                            <td style="text-transform: uppercase;">{{ logs.action }}</td>
+                            <td>{{ logs.timestamp }}</td>
+                            <td>{{ logs.description }}</td>
+                            <td>{{ logs.ip_address }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
