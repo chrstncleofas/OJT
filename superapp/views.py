@@ -5,8 +5,8 @@ from django.utils import timezone
 from django.contrib import messages
 from django.shortcuts import redirect
 from django.core.mail import send_mail
+from app.utils import saveActivityLogs
 from superapp.forms import EditUsersForm
-from app.models import TableAnnouncement
 from app.models import RenderingHoursTable
 from app.forms import SetRenderingHoursForm
 from app.forms import CustomUserCreationForm
@@ -15,6 +15,7 @@ from django.shortcuts import get_object_or_404
 from app.models import CustomUser, StoreActivityLogs
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
+from app.models import TableAnnouncement, StoreActivityLogs
 from app.forms import EditUsersDetailsForm, AnnouncementForm
 from students.models import DataTableStudents, TimeLog, Schedule
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponsePermanentRedirect
@@ -343,6 +344,7 @@ def superAdminLogin(request):
         if user:
             if user.is_superuser:
                 login(request, user)
+                saveActivityLogs(user=user, action='LOGIN', request=request, description='Login Super Admin')
                 return redirect('superapp:superAdminDashboard')
             else:
                 messages.error(request, 'You do not have the necessary permissions to access this site.')
@@ -351,7 +353,14 @@ def superAdminLogin(request):
     return render(request, 'superapp/base.html')
 
 def loggingOut(request) -> HttpResponseRedirect:
+    user = request.user
     logout(request)
+    saveActivityLogs(
+        user=user,
+        action='LOGOUT',
+        request=request,
+        description='Logout Super Admin'
+    )
     return redirect('superapp:superHome')
 
 @login_required
