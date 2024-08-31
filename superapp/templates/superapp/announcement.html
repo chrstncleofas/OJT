@@ -105,7 +105,7 @@
                 <div class="d-flex justify-content-between mb-3 mt-3">
                     <form class="form-inline">
                         <div class="input-group">
-                            <input type="search" class="form-control" placeholder="Search....." aria-label="Search" aria-describedby="search-icon">
+                            <input type="search" name="search" class="form-control" placeholder="Search....." aria-label="Search" aria-describedby="search-icon" id="search-input">
                             <div class="input-group-prepend" style="cursor: pointer;">
                                 <span class="input-group-text" id="search-icon">
                                     <i class="fas fa-search"></i>
@@ -121,12 +121,13 @@
                             <th>Title</th>
                             <th>Image</th>
                             <th>Status</th>
-                            <th>Category</th>
-                            <th>Date of Post</th>
-                            <th>Actions</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                            <th>Action</th>
+
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="announcementList">
                         {% for announcement in getAllTheListAnnouncement %}
                         <tr>
                             <td>{{ announcement.Title }}</td>
@@ -138,8 +139,8 @@
                                 {% endif %}
                             </td>
                             <td style="text-transform: capitalize;">{{ announcement.Status }}</td>
-                            <td style="text-transform: capitalize;">{{ announcement.Category }}</td>
-                            <td>{{ announcement.Date|date:"Y F d" }}</td>
+                            <td style="text-transform: capitalize;">{{ announcement.StartDate }}</td>
+                            <td style="text-transform: capitalize;">{{ announcement.EndDate }}</td>
                             <td>
                                 <a href="{% url 'superapp:editAnnouncement' announcement.id %}" class="btn btn-primary"><i class="fa-solid fa-pen-to-square"></i></a>
                                 <form method="POST" action="{% url 'superapp:deleteAnnouncement' announcement.id %}" style="display:inline;">
@@ -156,12 +157,36 @@
     </div>
     <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script> 
     <script>
         $(".navbar-toggler").click(function(e) {
             e.preventDefault();
             $("#wrapper").toggleClass("toggled");
+        });
+        document.getElementById('search-input').addEventListener('input', function() {
+            const searchValue = this.value;
+            
+            fetch(`{% url 'superapp:getAllTheListAnnouncement' %}?search=${searchValue}`, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+            })
+            .then(response => response.text())
+            .then(html => {
+                // Parse the response and update the table
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const newTbody = doc.getElementById('announcementList');
+                const currentTbody = document.getElementById('announcementList');
+                
+                if (newTbody) {
+                    currentTbody.innerHTML = newTbody.innerHTML;
+                }
+            })
+            .catch(error => console.error('Error:', error));
         });
     </script>
 </body>

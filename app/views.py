@@ -1,6 +1,7 @@
 import json
 from typing import Union
 from datetime import timedelta
+from django.db.models import Q
 from django.urls import reverse
 from django.conf import settings
 from django.contrib import messages
@@ -437,7 +438,19 @@ def listOfAnnouncement(request):
     admin = get_object_or_404(CustomUser, id=user.id)
     firstName = admin.first_name
     lastName = admin.last_name
+
+    search_query = request.GET.get('search', '')
+
     announcements = TableAnnouncement.objects.all()
+
+    if search_query:
+        listOfAnnouncementInTheTable = listOfAnnouncementInTheTable.filter(
+            Q(Title__icontains=search_query)
+        )
+    
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return render(request, LIST_ANNOUNCEMENT, {'listOfAnnouncement': listOfAnnouncementInTheTable})
+    
     return render(request, LIST_ANNOUNCEMENT, {
         'listOfAnnouncement': announcements,
         'firstName': firstName,

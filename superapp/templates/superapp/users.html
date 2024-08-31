@@ -114,7 +114,7 @@
                 <div class="d-flex justify-content-between mb-3 mt-3">
                     <form class="form-inline">
                         <div class="input-group">
-                            <input type="search" class="form-control" placeholder="Search....." aria-label="Search" aria-describedby="search-icon">
+                            <input type="search" name="search" class="form-control" placeholder="Search....." aria-label="Search" aria-describedby="search-icon" id="search-input">
                             <div class="input-group-prepend" style="cursor: pointer;">
                                 <span class="input-group-text" id="search-icon">
                                     <i class="fas fa-search"></i>
@@ -135,7 +135,7 @@
                             <th>Actions</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="user-list">
                         {% for users in getAllTheUserAccount %}
                         <tr>
                             <td>{{ users.username }}</td>
@@ -159,12 +159,32 @@
     </div>
     <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script> 
     <script>
         $(".navbar-toggler").click(function(e) {
             e.preventDefault();
             $("#wrapper").toggleClass("toggled");
+        });
+        document.getElementById('search-input').addEventListener('input', function() {
+            const searchValue = this.value;
+    
+            fetch(`{% url 'superapp:getAllTheUserAccount' %}?search=${searchValue}`, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+            })
+            .then(response => response.text())
+            .then(html => {
+                // Parse the response and update the table
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const newTbody = doc.getElementById('user-list');
+                document.getElementById('user-list').innerHTML = newTbody.innerHTML;
+            })
+            .catch(error => console.error('Error:', error));
         });
     </script>
 </body>

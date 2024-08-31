@@ -190,7 +190,22 @@ def getAllTheUserAccount(request):
     admin = get_object_or_404(CustomUser, id=user.id)    
     firstName = admin.first_name
     lastName = admin.last_name
+    # 
+    search_query = request.GET.get('search', '')
+    # 
     admin_users = CustomUser.objects.filter(Q(is_staff=True) or Q(is_superuser=True))
+    # 
+    if search_query:
+        admin_users = admin_users.filter(
+            Q(first_name__icontains=search_query) |
+            Q(last_name__icontains=search_query) |
+            Q(position__icontains=search_query) |
+            Q(email__icontains=search_query)
+        )
+    # Check if the request is an AJAX request
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return render(request, 'superapp/users.html', {'getAllTheUserAccount': admin_users})
+    # 
     return render(request, 'superapp/users.html', {
         'getAllTheUserAccount': admin_users,
         'firstName': firstName,
@@ -210,8 +225,10 @@ def getActivityLogs(request):
     # 
     if search_query:
         admin_users = admin_users.filter(
-            Q(first_name__icontains=search_query) | 
-            Q(position__icontains=search_query)
+            Q(first_name__icontains=search_query) |
+            Q(last_name__icontains=search_query) |
+            Q(position__icontains=search_query) |
+            Q(action__icontains=search_query)
         )
     # Check if the request is an AJAX request
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
@@ -228,9 +245,20 @@ def getAllTheListAnnouncement(request):
     admin = get_object_or_404(CustomUser, id=user.id)
     firstName = admin.first_name
     lastName = admin.last_name
-    # 
+    
+    search_query = request.GET.get('search', '')
+    
     listOfAnnouncementInTheTable = TableAnnouncement.objects.all()
-    return render(request, LIST_ANNOUNCEMENT, {
+    
+    if search_query:
+        listOfAnnouncementInTheTable = listOfAnnouncementInTheTable.filter(
+            Q(Title__icontains=search_query)
+        )
+    
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return render(request, 'superapp/announcement.html', {'getAllTheListAnnouncement': listOfAnnouncementInTheTable})
+    
+    return render(request, 'superapp/announcement.html', {
         'getAllTheListAnnouncement': listOfAnnouncementInTheTable,
         'firstName': firstName,
         'lastName': lastName
