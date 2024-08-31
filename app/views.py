@@ -228,7 +228,14 @@ def unArchivedStudent(request, id):
     return redirect(reverse('studentManagement'))
 
 def logoutView(request) -> HttpResponseRedirect:
+    user = request.user
     logout(request)
+    saveActivityLogs(
+        user=user,
+        action='LOGIN',
+        request=request,
+        description='Logout page'
+    )
     return redirect(home)
 
 def isAdmin(user):
