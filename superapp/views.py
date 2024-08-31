@@ -170,7 +170,7 @@ def getActivityLogs(request):
     firstName = admin.first_name
     lastName = admin.last_name
     # 
-    admin_users = StoreActivityLogs.objects.all()
+    admin_users = StoreActivityLogs.objects.all().order_by('-timestamp')
     return render(request, 'superapp/activitylogs.html', {
         'getActivityLogs': admin_users,
         'firstName': firstName,
