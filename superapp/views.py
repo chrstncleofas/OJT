@@ -213,6 +213,9 @@ def getActivityLogs(request):
             Q(first_name__icontains=search_query) | 
             Q(position__icontains=search_query)
         )
+    # Check if the request is an AJAX request
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return render(request, 'superapp/activitylogs.html', {'getActivityLogs': admin_users})
     
     return render(request, 'superapp/activitylogs.html', {
         'getActivityLogs': admin_users,
