@@ -232,7 +232,7 @@ def logoutView(request) -> HttpResponseRedirect:
     logout(request)
     saveActivityLogs(
         user=user,
-        action='LOGIN',
+        action='LOGOUT',
         request=request,
         description='Logout page'
     )
