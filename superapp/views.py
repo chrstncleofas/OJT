@@ -204,7 +204,16 @@ def getActivityLogs(request):
     firstName = admin.first_name
     lastName = admin.last_name
     # 
+    search_query = request.GET.get('search', '')
+    # 
     admin_users = StoreActivityLogs.objects.all().order_by('-timestamp')
+    # 
+    if search_query:
+        admin_users = admin_users.filter(
+            Q(first_name__icontains=search_query) | 
+            Q(position__icontains=search_query)
+        )
+    
     return render(request, 'superapp/activitylogs.html', {
         'getActivityLogs': admin_users,
         'firstName': firstName,
