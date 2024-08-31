@@ -107,7 +107,7 @@
                                 <div class="card-body">
                                     <i class="fas fa-check-circle icon"></i>
                                     <div>
-                                        <div class="count">{{ approve_count }}</div>
+                                        <div class="count approved">{{ approve_count }}</div>
                                         <div>Approved</div>
                                     </div>
                                 </div>
@@ -120,7 +120,7 @@
                                 <div class="card-body">
                                     <i class="fas fa-hourglass-half icon"></i>
                                     <div>
-                                        <div class="count">{{ pending_count }}</div>
+                                        <div class="count pending">{{ pending_count }}</div>
                                         <div>Pending Registration</div>
                                     </div>
                                 </div>
@@ -133,7 +133,7 @@
                                 <div class="card-body">
                                     <i class="fas fa-close icon"></i>
                                     <div>
-                                        <div class="count">{{ reject_count }}</div>
+                                        <div class="count rejected">{{ reject_count }}</div>
                                         <div>Disapprove Registration</div>
                                     </div>
                                 </div>
@@ -146,13 +146,31 @@
     </div>
     <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script> 
     <script>
         $(".navbar-toggler").click(function(e) {
             e.preventDefault();
             $("#wrapper").toggleClass("toggled");
         });
+        {% comment %}  {% endcomment %}
+        function loadLogs() {
+            $.ajax({
+                url: "{% url 'mainDashboard' %}",
+                type: "GET",
+                success: function(data) {
+                    document.querySelector('.count.approved').textContent = data.approve_count;
+                    document.querySelector('.count.pending').textContent = data.pending_count;
+                    document.querySelector('.count.rejected').textContent = data.reject_count;
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error fetching data:', error);
+                }
+            });
+        }
+        setInterval(loadLogs, 10000);
+        loadLogs();
     </script>
 </body>
 </html>

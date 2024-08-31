@@ -271,7 +271,7 @@ def studentRegister(request):
             send_mail(subject, message, settings.EMAIL_HOST_USER, recipient_list, fail_silently=False)
 
             messages.success(request, "Registration successful, Your account is pending approval by an admin, Please wait for admin's approve your account...")
-            return redirect('students:success')
+            return redirect('students:register')
         else:
             for field, errors in user_form.errors.items():
                 for error in errors:

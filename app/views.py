@@ -1,19 +1,18 @@
 import json
 from typing import Union
+from datetime import timedelta
 from django.urls import reverse
-from app.utils import saveActivityLogs
-from app.models import RenderingHoursTable
 from django.conf import settings
 from django.contrib import messages
 from django.core.mail import send_mail
-from datetime import datetime, timedelta
+from app.utils import saveActivityLogs
+from app.models import RenderingHoursTable
 from .forms import CustomPasswordChangeForm
 from app.forms import SetRenderingHoursForm
 from django.shortcuts import render, redirect
 from django.shortcuts import get_object_or_404
-from app.models import CustomUser, TableAnnouncement
-from django.http import HttpResponse, JsonResponse
 from django.template.loader import render_to_string
+from app.models import CustomUser, TableAnnouncement
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from app.forms import EditProfileForm, AnnouncementForm
@@ -23,7 +22,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import user_passes_test
 from students.forms import EditStudentForm, ScheduleSettingForm
 from students.models import DataTableStudents, TimeLog, Schedule
-from django.http import HttpResponse, HttpResponseRedirect, HttpResponsePermanentRedirect
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponsePermanentRedirect, JsonResponse
 
 HOME_URL_PATH = 'app/base.html'
 DASHBOARD = 'app/dashboard.html'
@@ -55,6 +54,14 @@ def mainDashboard(request):
     reject = DataTableStudents.objects.filter(status='Rejected')
     reject_count = reject.count()
 
+
+    if request.method == 'GET' and request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return JsonResponse({
+            'approve_count': approve_count,
+            'pending_count': pending_count,
+            'reject_count': reject_count,
+        })
+
     return render(
         request,
         MAIN_DASHBOARD,
@@ -76,6 +83,7 @@ def profile(request):
         form = EditProfileForm(request.POST, instance=admin)
         if form.is_valid():
             form.save()
+            saveActivityLogs(user=user, action='UPDATE', request=request, description='Update admin/coordinator profile')
             messages.success(request, 'Profile updated successfully.')
             return redirect('profile')
     else:
@@ -96,6 +104,7 @@ def changePass(request):
         if form.is_valid():
             user = form.save()
             update_session_auth_hash(request, user)
+            saveActivityLogs(user=user, action='CHANGE', request=request, description='Changes password of admin/coordinator')
             messages.success(request, 'Your password was successfully updated!')
             return redirect('changePass')
         else:
@@ -149,7 +158,7 @@ def userLoginFunction(request):
                 login(request, user)
                 request.session['admin_password'] = user.password
                 # Log the successful login action
-                saveActivityLogs(user=user, action='LOGIN', request=request, description='Login admin')
+                saveActivityLogs(user=user, action='LOGIN', request=request, description='Login admin/coordinator')
                 return redirect('dashboard')
             else:
                 messages.error(request, 'You do not have the necessary permissions to access this site.')
@@ -161,10 +170,12 @@ def userLoginFunction(request):
 @require_POST
 @csrf_exempt
 def archivedStudent(request, id):
+    user = request.user
     try:
         student = DataTableStudents.objects.get(pk=id)
         student.archivedStudents = 'Archive'
         student.save()
+        saveActivityLogs(user=user, action='ARCHIVED', request=request, description='Archive students')
         return JsonResponse({'status': 'success', 'message': f'{student.Firstname} {student.Lastname} has been archived.'})
     except DataTableStudents.DoesNotExist:
         return JsonResponse({'status': 'error', 'message': 'Student not found'}, status=404)
@@ -188,9 +199,11 @@ def validateAdminPassword(request):
         return JsonResponse({'status': 'error', 'message': 'Incorrect password'})
 
 def approveStudent(request, id):
+    user = request.user
     student = DataTableStudents.objects.get(id=id)
     student.status = 'Approved'
     student.save()
+    saveActivityLogs(user=user, action='APPROVED', request=request, description='Approve students')
     subject = 'Your OJT Management System Account Has Been Approved'
     message = render_to_string('app/approval_email.txt', {
         'first_name': student.Firstname,
@@ -202,12 +215,14 @@ def approveStudent(request, id):
 
 @csrf_exempt
 def rejectStudent(request, id):
+    user = request.user
     if request.method == 'POST':
         student = DataTableStudents.objects.get(id=id)
         data = json.loads(request.body)
         reason = data.get('reason', 'No reason provided')
         student.status = 'Rejected'
         student.save()
+        saveActivityLogs(user=user, action='REJECTED', request=request, description='Rejected students')
         subject = 'Account Rejected'
         message = render_to_string('app/rejection_email.txt', {
             'first_name': student.Firstname,
@@ -221,9 +236,11 @@ def rejectStudent(request, id):
     return JsonResponse({'status': 'failed'}, status=400)
 
 def unArchivedStudent(request, id):
+    user = request.user
     student = DataTableStudents.objects.get(id=id)
     student.archivedStudents = 'UnArchive'
     student.save()
+    saveActivityLogs(user=user, action='UNARCHIVED', request=request, description='Unarchive students')
     messages.success(request, f'{student.Firstname} {student.Lastname} has been remove to archived.')
     return redirect(reverse('studentManagement'))
 
@@ -367,6 +384,7 @@ def set_rendering_hours(request):
                 course='BS Computer Science',
                 defaults={'required_hours': bscs_hours}
             )
+            saveActivityLogs(user=user, action='SET', request=request, description='Set render time')
             return redirect('set_rendering_hours')
     else:
         try:
@@ -391,6 +409,7 @@ def set_rendering_hours(request):
     })
 
 def editRenderHours(request):
+    user = request.user
     if request.method == 'POST':
         form = SetRenderingHoursForm(request.POST)
         if form.is_valid():
@@ -404,6 +423,7 @@ def editRenderHours(request):
                 course='BS Computer Science',
                 defaults={'required_hours': bscs_hours}
             )
+            saveActivityLogs(user=user, action='EDIT', request=request, description='Edit render time')
             return redirect('set_rendering_hours')
     else:
         form = SetRenderingHoursForm()
@@ -433,6 +453,7 @@ def postAnnouncement(request):
         form = AnnouncementForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
+            saveActivityLogs(user=user, action='POST', request=request, description='Post announcement')
             return redirect('listOfAnnouncement')
     else:
         form = AnnouncementForm()
@@ -456,6 +477,7 @@ def editAnnouncement(request, id):
         form = AnnouncementForm(request.POST, request.FILES, instance=announcement)
         if form.is_valid():
             form.save()
+            saveActivityLogs(user=user, action='EDIT', request=request, description='Edit announcement')
             return redirect('listOfAnnouncement')
     else:
         form = AnnouncementForm(instance=announcement)
@@ -468,9 +490,11 @@ def editAnnouncement(request, id):
     })
 
 def deleteAnnouncement(request, id):
+    user = request.user
     announcement = get_object_or_404(TableAnnouncement, id=id)
     if request.method == 'POST':
         announcement.delete()
+        saveActivityLogs(user=user, action='DELETE', request=request, description='Delete announcement')
         messages.success(request, 'Announcement has been deleted successfully.')
         return redirect('listOfAnnouncement')
     return render(request, LIST_ANNOUNCEMENT, {'announcement': announcement})
@@ -506,7 +530,7 @@ def setSchedule(request, id):
                         start_time=start_time,
                         end_time=end_time
                     )
-
+            saveActivityLogs(user=user, action='SET', request=request, description='Set schedule')
             return redirect('editStudentDetails', id=id)
     else:
         form = ScheduleSettingForm()
@@ -519,8 +543,8 @@ def setSchedule(request, id):
     })
 
 def editStudentDetails(request, id):
-    student = get_object_or_404(DataTableStudents, pk=id)
     user = request.user
+    student = get_object_or_404(DataTableStudents, pk=id)
     # 
     admin = get_object_or_404(CustomUser, id=user.id)
     firstName = admin.first_name
@@ -530,6 +554,7 @@ def editStudentDetails(request, id):
         form = EditStudentForm(request.POST, instance=student)
         if form.is_valid():
             form.save()
+            saveActivityLogs(user=user, action='EDIT', request=request, description='Edit students details')
             messages.success(request, 'Student details updated successfully.')
             return redirect('studentManagement')
     else:

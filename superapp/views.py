@@ -18,7 +18,7 @@ from django.contrib.auth import authenticate, login, logout
 from app.models import TableAnnouncement, StoreActivityLogs
 from app.forms import EditUsersDetailsForm, AnnouncementForm
 from students.models import DataTableStudents, TimeLog, Schedule
-from django.http import HttpResponse, HttpResponseRedirect, HttpResponsePermanentRedirect
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponsePermanentRedirect, JsonResponse
 
 DASHBOARD = 'superapp/dashboard.html'
 MAIN_DASHBOARD = 'superapp/main-dashboard.html'
@@ -48,6 +48,13 @@ def mainDashboard(request):
     reject = DataTableStudents.objects.filter(status='Rejected')
     reject_count = reject.count()
 
+    if request.method == 'GET' and request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return JsonResponse({
+            'approve_count': approve_count,
+            'pending_count': pending_count,
+            'reject_count': reject_count,
+        })
+
     return render(
         request,
         MAIN_DASHBOARD,
@@ -59,6 +66,33 @@ def mainDashboard(request):
             'lastName': lastName
         }
     )
+
+def superAdminLogin(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(request, username=username, password=password)
+        if user:
+            if user.is_superuser:
+                login(request, user)
+                saveActivityLogs(user=user, action='LOGIN', request=request, description='Login Super Admin')
+                return redirect('superapp:superAdminDashboard')
+            else:
+                messages.error(request, 'You do not have the necessary permissions to access this site.')
+        else:
+            messages.error(request, 'Invalid username or password.')
+    return render(request, 'superapp/base.html')
+
+def loggingOut(request) -> HttpResponseRedirect:
+    user = request.user
+    logout(request)
+    saveActivityLogs(
+        user=user,
+        action='LOGOUT',
+        request=request,
+        description='Logout Super Admin'
+    )
+    return redirect('superapp:superHome')
 
 def studentManagement(request):
     user = request.user
@@ -199,6 +233,7 @@ def postAnnouncement(request):
         form = AnnouncementForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
+            saveActivityLogs(user=user, action='POST', request=request, description='Post announcement')
             return redirect('listOfAnnouncement')
     else:
         form = AnnouncementForm()
@@ -222,6 +257,7 @@ def editAnnouncement(request, id):
         form = AnnouncementForm(request.POST, request.FILES, instance=announcement)
         if form.is_valid():
             form.save()
+            saveActivityLogs(user=user, action='EDIT', request=request, description='Edit announcement details')
             return redirect('superapp:getAllTheListAnnouncement')
     else:
         form = AnnouncementForm(instance=announcement)
@@ -234,9 +270,11 @@ def editAnnouncement(request, id):
     })
 
 def deleteAnnouncement(request, id):
+    user = request.user
     announcement = get_object_or_404(TableAnnouncement, id=id)
     if request.method == 'POST':
         announcement.delete()
+        saveActivityLogs(user=user, action='DELETE', request=request, description='Delete announcement')
         messages.success(request, 'Announcement has been deleted successfully.')
         return redirect('superapp:getAllTheListAnnouncement')
     return render(
@@ -260,6 +298,7 @@ def editUsers(request, id):
         form = EditUsersDetailsForm(request.POST, instance=toEditDetails)
         if form.is_valid():
             form.save()
+            saveActivityLogs(user=user, action='EDIT', request=request, description='Edit users details')
             messages.success(request, 'Profile updated successfully.')
             return redirect('superapp:getAllTheUserAccount')
         else:
@@ -284,6 +323,7 @@ def editUserProfile(request):
         form = EditUsersForm(request.POST, instance=admin)
         if form.is_valid():
             form.save()
+            saveActivityLogs(user=user, action='EDIT', request=request, description='Update profile')
             messages.success(request, 'Profile updated successfully.')
             return redirect('superapp:editUserProfile')
     else:
@@ -305,6 +345,7 @@ def addUsers(request):
             user = form.save(commit=False)
             user.is_staff = True
             user.save()
+            saveActivityLogs(user=user, action='ADD', request=request, description='Create admin/coordinator account')
             return redirect('superapp:addUsers')
         else:
             for field, errors in form.errors.items():
@@ -327,6 +368,7 @@ def createUserAdmin(request):
             user = form.save(commit=False)
             user.is_staff = True
             user.save()
+            saveActivityLogs(user=user, action='CREATE', request=request, description='Create super credentials')
             return redirect('superapp:createUserAdmin')
         else:
             for field, errors in form.errors.items():
@@ -335,33 +377,6 @@ def createUserAdmin(request):
     else:
         form = CustomUserCreationForm()
     return render(request, 'superapp/userCreation.html', {'form': form})
-
-def superAdminLogin(request):
-    if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        user = authenticate(request, username=username, password=password)
-        if user:
-            if user.is_superuser:
-                login(request, user)
-                saveActivityLogs(user=user, action='LOGIN', request=request, description='Login Super Admin')
-                return redirect('superapp:superAdminDashboard')
-            else:
-                messages.error(request, 'You do not have the necessary permissions to access this site.')
-        else:
-            messages.error(request, 'Invalid username or password.')
-    return render(request, 'superapp/base.html')
-
-def loggingOut(request) -> HttpResponseRedirect:
-    user = request.user
-    logout(request)
-    saveActivityLogs(
-        user=user,
-        action='LOGOUT',
-        request=request,
-        description='Logout Super Admin'
-    )
-    return redirect('superapp:superHome')
 
 @login_required
 def set_rendering_hours(request):
@@ -383,6 +398,7 @@ def set_rendering_hours(request):
                 course='BS Computer Science',
                 defaults={'required_hours': bscs_hours}
             )
+            saveActivityLogs(user=user, action='SET', request=request, description='Set time render')
             return redirect('superapp:set_rendering_hours')
     else:
         try:
@@ -407,6 +423,7 @@ def set_rendering_hours(request):
     })
 
 def editRenderHours(request):
+    user = request.user
     if request.method == 'POST':
         form = SetRenderingHoursForm(request.POST)
         if form.is_valid():
@@ -420,6 +437,7 @@ def editRenderHours(request):
                 course='BS Computer Science',
                 defaults={'required_hours': bscs_hours}
             )
+            saveActivityLogs(user=user, action='EDIT', request=request, description='Edit render time')
             return redirect('superapp:set_rendering_hours')
     else:
         form = SetRenderingHoursForm()

@@ -56,9 +56,15 @@
                         <h5 class="card-title">OMS Student Registration</h5>
                         {% if messages %}
                             {% for message in messages %}
-                                <div class="alert alert-danger" role="alert">
-                                    {{ message }}
-                                </div>
+                                {% if message.tags == 'success' %}
+                                    <div class="alert alert-success" role="alert">
+                                        {{ message }}
+                                    </div>
+                                {% elif message.tags == 'error' %}
+                                    <div class="alert alert-danger" role="alert">
+                                        {{ message }}
+                                    </div>
+                                {% endif %}
                             {% endfor %}
                         {% endif %}
                         <form method="post" action="{% url 'students:register' %}">
