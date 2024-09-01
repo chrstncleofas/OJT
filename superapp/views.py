@@ -185,6 +185,22 @@ def viewStudent(request, id):
     }
     return render(request, 'superapp/TimeLogs.html', context)
 
+def viewPendingApplication(request, id):
+    students = get_object_or_404(DataTableStudents, id=id)
+    user = request.user
+    admin = get_object_or_404(CustomUser, id=user.id)
+    firstName = admin.first_name
+    lastName = admin.last_name
+    return render(
+        request,
+        'superapp/pending-view-page.html',
+        {
+            'students': students,
+            'firstName': firstName,
+            'lastName': lastName
+        }
+    )
+
 def getAllTheUserAccount(request):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)    

@@ -22,6 +22,7 @@ urlpatterns = [
     path('set_rendering_hours/', views.set_rendering_hours, name='set_rendering_hours'),
     path('getAllTheListAnnouncement/', views.getAllTheListAnnouncement, name='getAllTheListAnnouncement'),
     path('postAnnouncement/', views.postAnnouncement, name='postAnnouncement'),
+    path('viewPendingApplication/<int:id>/', views.viewPendingApplication, name='viewPendingApplication'),
     path('editAnnouncement/<int:id>/', views.editAnnouncement, name='editAnnouncement'),
     path('deleteAnnouncement/<int:id>/', views.deleteAnnouncement, name='deleteAnnouncement'),
 ]

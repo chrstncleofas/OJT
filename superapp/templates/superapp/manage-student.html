@@ -229,7 +229,7 @@
                                     <td>{{ student.Course }}</td>
                                     <td>{{ student.Year }}</td>
                                     <td>
-                                        <a href="" class="btn btn-secondary"><i class="fas fa-eye"></i></a>
+                                        <a href="{% url 'superapp:viewPendingApplication' student.id %}" class="btn btn-secondary"><i class="fas fa-eye"></i></a>
                                     </td>
                                 </tr>
                                 {% endfor %}
