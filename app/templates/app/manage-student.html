@@ -268,7 +268,8 @@
                                 {% endif %}
                             </ul>
                         </div>
-                    </div>                  
+                    </div>
+                    <!-- Pending Students Tab -->            
                     <div class="tab-pane fade {% if active_tab == 'pending-application' %}show active{% endif %}" id="pending-application" role="tabpanel" aria-labelledby="pending-application-tab">
                         <div class="d-flex justify-content-end mb-3 mt-3">
                             <label for="courseFilter" class="form-label mr-2 align-self-center">Filter by Course:</label>
@@ -291,7 +292,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for student in getAllPendingRegister %}
+                                {% for student in students %}
                                 <tr>
                                     <td>{{ student.StudentID }}</td>
                                     <td>{{ student.Firstname }}</td>
@@ -306,7 +307,8 @@
                                 {% endfor %}
                             </tbody>
                         </table>
-                    </div>         
+                    </div>
+                    <!-- Rejected Students Tab -->      
                     <div class="tab-pane fade {% if active_tab == 'rejected-application' %}show active{% endif %}" id="rejected-application" role="tabpanel" aria-labelledby="rejected-application-tab">
                         <div class="d-flex justify-content-end mb-3 mt-3">
                             <label for="courseFilter" class="form-label mr-2 align-self-center">Filter by Course:</label>
@@ -345,6 +347,7 @@
                             </tbody>
                         </table>
                     </div>
+                    <!-- Archive Students Tab --> 
                     <div class="tab-pane fade {% if active_tab == 'archive' %}show active{% endif %}" id="archive" role="tabpanel" aria-labelledby="archive-tab">
                         <div class="d-flex justify-content-end mb-3 mt-3">
                             <label for="courseFilter" class="form-label mr-2 align-self-center">Filter by Course:</label>
