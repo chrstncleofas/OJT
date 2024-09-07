@@ -1,0 +1,174 @@
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-lg-12">
+            <p class="mt-3 mb-1"><a href="{% url 'mainDashboard' %}" style="cursor: pointer; text-decoration: none; color: black;">Home</a> / Students List</p>
+            <h3 class="mt-2 mb-2">Students List</h3>
+        </div>
+        <!-- Date Filter -->
+        <div class="col-lg-12 d-flex justify-content-end align-items-center mb-3">
+            <!-- Date Filter Buttons -->
+            <div class="btn-group btn-group-toggle mr-3" data-toggle="buttons">
+                <label class="btn btn-light border rounded mr-1">
+                    <input type="radio" name="dateFilter" id="today" autocomplete="off"> Today
+                </label>
+                <label class="btn btn-light border rounded mr-1">
+                    <input type="radio" name="dateFilter" id="yesterday" autocomplete="off"> Yesterday
+                </label>
+                <label class="btn btn-light border rounded mr-1">
+                    <input type="radio" name="dateFilter" id="week" autocomplete="off"> Week
+                </label>
+                <label class="btn btn-light border rounded mr-1">
+                    <input type="radio" name="dateFilter" id="month" autocomplete="off"> Month
+                </label>
+            </div>
+            <!-- Start Date and End Date Inputs -->
+            <div class="form-inline">
+                <div class="form-group mr-1">
+                    <label for="start-date" class="sr-only">Start Date</label>
+                    <input type="date" class="form-control" id="start-date" placeholder="Start Date">
+                </div>
+                <div class="form-group mr-1">
+                    <label for="end-date" class="sr-only">End Date</label>
+                    <input type="date" class="form-control" id="end-date" placeholder="End Date">
+                </div>
+                <button type="button" class="btn btn-primary">Filter</button>
+            </div>
+        </div>
+    </div>
+    <ul class="nav nav-tabs" id="myTab" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link {% if active_tab == 'approved-students' %}active{% endif %}" id="approved-students-tab" data-toggle="tab" href="#approved-students" role="tab" aria-controls="approved-students" aria-selected="true">Approved Students</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if active_tab == 'pending-application' %}active{% endif %}" id="pending-application-tab" data-toggle="tab" href="#pending-application" role="tab" aria-controls="pending-application" aria-selected="false">Pending Application</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if active_tab == 'rejected-application' %}active{% endif %}" id="rejected-application-tab" data-toggle="tab" href="#rejected-application" role="tab" aria-controls="rejected-application" aria-selected="false">Rejected Application</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if active_tab == 'archive' %}active{% endif %}" id="archive-tab" data-toggle="tab" href="#archive" role="tab" aria-controls="archive" aria-selected="false">Archive Students</a>
+        </li>
+    </ul>
+    <div class="tab-content" id="myTabContent">
+        <!-- Approved Students Tab -->
+        <div class="tab-pane fade show {% if active_tab == 'approved-students' %}show active{% endif %}" id="approved-students" role="tabpanel" aria-labelledby="approved-students-tab">
+            <div class="d-flex justify-content-end mb-3 mt-3">
+                <label for="courseFilter" class="form-label mr-2 align-self-center">Filter by Course:</label>
+                <select id="courseFilter" class="form-control w-auto">
+                    <option value="all">All</option>
+                    <option value="BS Information Technology">BS Information Technology</option>
+                    <option value="BS Computer Science">BS Computer Science</option>
+                </select>
+            </div>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Student ID</th>
+                        <th>Firstname</th>
+                        <th>Lastname</th>
+                        <th>Course</th>
+                        <th>Year</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="studentTableBody">
+                    {% for student in students %}
+                    <tr data-course="{{ student.Course }}">
+                        <td>{{ student.StudentID }}</td>
+                        <td style="text-transform: uppercase;">{{ student.Firstname }}</td>
+                        <td style="text-transform: uppercase;">{{ student.Lastname }}</td>
+                        <td style="text-transform: uppercase;">{{ student.Course }}</td>
+                        <td style="text-transform: uppercase;">{{ student.Year }}</td>
+                        <td>
+                           <p style="text-transform: uppercase; font-weight: bold;" class="text-primary">Approved</p>
+                        </td>
+                        <td>
+                            <a href="{% url 'editStudentDetails' student.id %}" class="btn btn-primary"><i class="fa-solid fa-pen-to-square"></i></a>
+                            <a href="{% url 'viewTimeLogs' student.id %}" class="btn btn-secondary"><i class="fas fa-eye"></i></a>
+                            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#passwordModal{{student.id}}"><i class="fa fa-archive"></i></button>     
+                            <!-- Password Modal -->
+                            <div id="passwordModal{{student.id}}" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="passwordModalLabel{{student.id}}" aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="passwordModalLabel{{student.id}}">Enter password</h5>
+                                            <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <input type="hidden" id="studentId{{student.id}}" value="{{ student.id }}">
+                                            <input type="password" id="adminPassword{{student.id}}" class="form-control" placeholder="Admin Password">
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                            <button type="button" class="btn btn-primary" onclick="validatePassword('{{ student.id }}')">Validate Password</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center">No approved students found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <!-- Pagination Controls -->
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <!-- Items per Page Selector -->
+                <div class="form-group">
+                    <label for="perPage" class="form-label mr-2">Items per page:</label>
+                    <select id="perPage" class="form-control w-auto" onchange="updatePerPage(this.value)">
+                        <option value="10" {% if per_page == 10 %}selected{% endif %}>10</option>
+                        <option value="20" {% if per_page == 20 %}selected{% endif %}>20</option>
+                        <option value="30" {% if per_page == 30 %}selected{% endif %}>30</option>
+                        <option value="50" {% if per_page == 50 %}selected{% endif %}>50</option>
+                        <option value="100" {% if per_page == 100 %}selected{% endif %}>100</option>
+                    </select>
+                </div>
+                <!-- Pagination Links -->
+                <ul class="pagination">
+                    {% if students.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?tab={{ active_tab }}&page=1&per_page={{ per_page }}" aria-label="First">
+                            <span aria-hidden="true">&laquo;&laquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?tab={{ active_tab }}&page={{ students.previous_page_number }}&per_page={{ per_page }}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    {% for num in students.paginator.page_range %}
+                        {% if students.number == num %}
+                        <li class="page-item active" aria-current="page"><span class="page-link">{{ num }}</span></li>
+                        {% else %}
+                        <li class="page-item"><a class="page-link" href="?tab={{ active_tab }}&page={{ num }}&per_page={{ per_page }}">{{ num }}</a></li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if students.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?tab={{ active_tab }}&page={{ students.next_page_number }}&per_page={{ per_page }}" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?tab={{ active_tab }}&page={{ students.paginator.num_pages }}&per_page={{ per_page }}" aria-label="Last">
+                            <span aria-hidden="true">&raquo;&raquo;</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+
+        <!-- Similar tab content sections for other tabs: pending-application, rejected-application, archive -->
+    </div>
+</div>
