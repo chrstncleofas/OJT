@@ -307,6 +307,56 @@
                                 {% endfor %}
                             </tbody>
                         </table>
+                        <!-- Pagination Controls -->
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <!-- Items per Page Selector -->
+                            <div class="form-group">
+                                <label for="perPage" class="form-label mr-2">Items per page:</label>
+                                <select id="perPage" class="form-control w-auto" onchange="updatePerPage(this.value)">
+                                    <option value="10" {% if per_page == 10 %}selected{% endif %}>10</option>
+                                    <option value="20" {% if per_page == 20 %}selected{% endif %}>20</option>
+                                    <option value="30" {% if per_page == 30 %}selected{% endif %}>30</option>
+                                    <option value="50" {% if per_page == 50 %}selected{% endif %}>50</option>
+                                    <option value="100" {% if per_page == 100 %}selected{% endif %}>100</option>
+                                </select>
+                            </div>
+                            <!-- Pagination Links -->
+                            <ul class="pagination">
+                                {% if students.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?tab={{ active_tab }}&page=1&per_page={{ per_page }}" aria-label="First">
+                                        <span aria-hidden="true">&laquo;&laquo;</span>
+                                    </a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?tab={{ active_tab }}&page={{ students.previous_page_number }}&per_page={{ per_page }}" aria-label="Previous">
+                                        <span aria-hidden="true">&laquo;</span>
+                                    </a>
+                                </li>
+                                {% endif %}
+
+                                {% for num in students.paginator.page_range %}
+                                    {% if students.number == num %}
+                                    <li class="page-item active" aria-current="page"><span class="page-link">{{ num }}</span></li>
+                                    {% else %}
+                                    <li class="page-item"><a class="page-link" href="?tab={{ active_tab }}&page={{ num }}&per_page={{ per_page }}">{{ num }}</a></li>
+                                    {% endif %}
+                                {% endfor %}
+
+                                {% if students.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?tab={{ active_tab }}&page={{ students.next_page_number }}&per_page={{ per_page }}" aria-label="Next">
+                                        <span aria-hidden="true">&raquo;</span>
+                                    </a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?tab={{ active_tab }}&page={{ students.paginator.num_pages }}&per_page={{ per_page }}" aria-label="Last">
+                                        <span aria-hidden="true">&raquo;&raquo;</span>
+                                    </a>
+                                </li>
+                                {% endif %}
+                            </ul>
+                        </div>
                     </div>
                     <!-- Rejected Students Tab -->      
                     <div class="tab-pane fade {% if active_tab == 'rejected-application' %}show active{% endif %}" id="rejected-application" role="tabpanel" aria-labelledby="rejected-application-tab">
