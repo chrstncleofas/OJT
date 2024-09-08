@@ -86,12 +86,13 @@ def superAdminLogin(request):
 def loggingOut(request) -> HttpResponseRedirect:
     user = request.user
     logout(request)
-    saveActivityLogs(
-        user=user,
-        action='LOGOUT',
-        request=request,
-        description='Logout Super Admin'
-    )
+    if user.is_authenticated:
+        saveActivityLogs(
+            user=user,
+            action='LOGOUT',
+            request=request,
+            description='Logout Super Admin'
+        )
     return redirect('superapp:superHome')
 
 def studentManagement(request):
