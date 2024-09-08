@@ -313,10 +313,24 @@ def getAllTheListAnnouncement(request):
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         return render(request, 'superapp/announcement.html', {'getAllTheListAnnouncement': listOfAnnouncementInTheTable})
     
+    # Pagination logic
+    page = request.GET.get('page', 1)  # Get the current page number from the request
+    per_page = request.GET.get('per_page', 5)  # Default items per page is set to 5
+
+    paginator = Paginator(listOfAnnouncementInTheTable, per_page)  # Create paginator object
+
+    try:
+        listOfAnnouncementInTheTable = paginator.page(page)  # Get the current page of results
+    except PageNotAnInteger:
+        listOfAnnouncementInTheTable = paginator.page(1)  # If page is not an integer, deliver first page
+    except EmptyPage:
+        listOfAnnouncementInTheTable = paginator.page(paginator.num_pages)  # If page is out of range, deliver last page
+    
     return render(request, 'superapp/announcement.html', {
         'getAllTheListAnnouncement': listOfAnnouncementInTheTable,
         'firstName': firstName,
-        'lastName': lastName
+        'lastName': lastName,
+        'per_page': per_page,
     })
 
 def postAnnouncement(request):

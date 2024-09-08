@@ -468,13 +468,26 @@ def listOfAnnouncement(request):
     announcements = TableAnnouncement.objects.all()
 
     if search_query:
-        listOfAnnouncementInTheTable = listOfAnnouncementInTheTable.filter(
+        announcements = announcements.filter(
             Q(Title__icontains=search_query)
         )
     
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-        return render(request, LIST_ANNOUNCEMENT, {'listOfAnnouncement': listOfAnnouncementInTheTable})
+        return render(request, LIST_ANNOUNCEMENT, {'listOfAnnouncement': announcements})
     
+    # Pagination logic
+    page = request.GET.get('page', 1)  # Get the current page number from the request
+    per_page = request.GET.get('per_page', 5)  # Default items per page is set to 5
+
+    paginator = Paginator(announcements, per_page)  # Create paginator object
+
+    try:
+        announcements = paginator.page(page)  # Get the current page of results
+    except PageNotAnInteger:
+        announcements = paginator.page(1)  # If page is not an integer, deliver first page
+    except EmptyPage:
+        announcements = paginator.page(paginator.num_pages)  # If page is out of range, deliver last page
+
     return render(request, LIST_ANNOUNCEMENT, {
         'listOfAnnouncement': announcements,
         'firstName': firstName,
