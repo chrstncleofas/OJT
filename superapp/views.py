@@ -254,14 +254,16 @@ def getAllTheUserAccount(request):
 def getActivityLogs(request):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
-    # 
+
     firstName = admin.first_name
     lastName = admin.last_name
-    # 
+
     search_query = request.GET.get('search', '')
-    # 
-    admin_users = StoreActivityLogs.objects.all().order_by('-timestamp')
-    # 
+
+    # Fetch all activity logs ordered by timestamp
+    admin_users = StoreActivityLogs.objects.all().order_by('-timestamp', 'id')
+
+    # Apply search filters if a search query is provided
     if search_query:
         admin_users = admin_users.filter(
             Q(first_name__icontains=search_query) |
@@ -269,14 +271,28 @@ def getActivityLogs(request):
             Q(position__icontains=search_query) |
             Q(action__icontains=search_query)
         )
+
+    # Pagination logic
+    page = request.GET.get('page', 1)  # Get the current page number from the request
+    per_page = request.GET.get('per_page', 5)  # Default items per page is set to 10
+
+    paginator = Paginator(admin_users, per_page)  # Create paginator object
+    try:
+        admin_users = paginator.page(page)  # Get the current page of results
+    except PageNotAnInteger:
+        admin_users = paginator.page(1)  # If page is not an integer, deliver first page
+    except EmptyPage:
+        admin_users = paginator.page(paginator.num_pages)  # If page is out of range, deliver last page
+
     # Check if the request is an AJAX request
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         return render(request, 'superapp/activitylogs.html', {'getActivityLogs': admin_users})
-    
+
     return render(request, 'superapp/activitylogs.html', {
         'getActivityLogs': admin_users,
         'firstName': firstName,
-        'lastName': lastName
+        'lastName': lastName,
+        'per_page': per_page,
     })
 
 def getAllTheListAnnouncement(request):
