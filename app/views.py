@@ -465,7 +465,7 @@ def listOfAnnouncement(request):
 
     search_query = request.GET.get('search', '')
 
-    announcements = TableAnnouncement.objects.all()
+    announcements = TableAnnouncement.objects.all().order_by('id')
 
     if search_query:
         announcements = announcements.filter(

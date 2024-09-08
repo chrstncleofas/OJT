@@ -303,7 +303,7 @@ def getAllTheListAnnouncement(request):
     
     search_query = request.GET.get('search', '')
     
-    listOfAnnouncementInTheTable = TableAnnouncement.objects.all()
+    listOfAnnouncementInTheTable = TableAnnouncement.objects.all().order_by('id')
     
     if search_query:
         listOfAnnouncementInTheTable = listOfAnnouncementInTheTable.filter(
