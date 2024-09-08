@@ -274,7 +274,7 @@ def getActivityLogs(request):
 
     # Pagination logic
     page = request.GET.get('page', 1)  # Get the current page number from the request
-    per_page = request.GET.get('per_page', 5)  # Default items per page is set to 10
+    per_page = request.GET.get('per_page', 5)  # Default items per page is set to 5
 
     paginator = Paginator(admin_users, per_page)  # Create paginator object
     try:

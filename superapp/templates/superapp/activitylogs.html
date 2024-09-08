@@ -14,7 +14,7 @@
 <body>
     <div class="d-flex" id="wrapper">
         <!-- Sidebar -->
-        <div class="bg-light border-right vh-100" id="sidebar-wrapper">
+        <div class="bg-light border-right d-flex flex-column h-100 overflow-y-auto" id="sidebar-wrapper">
             <a href="{% url 'superapp:superAdminDashboard' %}" style="text-decoration: none !important; color: black !important;"><div class="sidebar-heading">OJT Management System</div></a>
             <div class="list-group list-group-flush">
                 <a href="{% url 'superapp:mainDashboard' %}" class="list-group-item list-group-item-action bg-light">
@@ -41,7 +41,7 @@
             </div>
         </div>
         <!-- Page Content -->
-        <div id="page-content-wrapper">
+        <div id="page-content-wrapper" class="flex-grow-1">
             <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>

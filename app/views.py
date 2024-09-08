@@ -137,7 +137,7 @@ def studentManagement(request):
     # Get the active tab and pagination parameters
     active_tab = request.GET.get('tab', 'approved-students')  # Default to 'approved-students' tab
     page = request.GET.get('page', 1)
-    per_page = int(request.GET.get('per_page', 10))  # Default items per page
+    per_page = int(request.GET.get('per_page', 5))  # Default items per page
 
     # Determine which list to paginate based on the active tab
     if active_tab == 'approved-students':
