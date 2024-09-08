@@ -18,6 +18,7 @@ from django.contrib.auth import authenticate, login, logout
 from app.models import TableAnnouncement, StoreActivityLogs
 from app.forms import EditUsersDetailsForm, AnnouncementForm
 from students.models import DataTableStudents, TimeLog, Schedule
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponsePermanentRedirect, JsonResponse
 
 DASHBOARD = 'superapp/dashboard.html'
@@ -107,7 +108,29 @@ def studentManagement(request):
     rejected = DataTableStudents.objects.filter(status='Rejected')
     archive = DataTableStudents.objects.filter(archivedStudents='Archive')
     
-    active_tab = request.GET.get('tab', 'approved-students')
+    # Get the active tab and pagination parameters
+    active_tab = request.GET.get('tab', 'approved-students')  # Default to 'approved-students' tab
+    page = request.GET.get('page', 1)
+    per_page = int(request.GET.get('per_page', 10))  # Default items per page
+
+    # Determine which list to paginate based on the active tab
+    if active_tab == 'approved-students':
+        students_list = approved
+    elif active_tab == 'pending-application':
+        students_list = pending
+    elif active_tab == 'rejected-application':
+        students_list = rejected
+    else:  # Archive tab
+        students_list = archive
+
+    # Setup paginator and handle pagination
+    paginator = Paginator(students_list, per_page)
+    try:
+        students = paginator.page(page)
+    except PageNotAnInteger:
+        students = paginator.page(1)
+    except EmptyPage:
+        students = paginator.page(paginator.num_pages)
     
     # Include last_login in the student data with timezone conversion
     for student in approved:
@@ -124,13 +147,12 @@ def studentManagement(request):
         request,
         MANAGEMENT_STUDENT,
         {
-            'getListOfApproveStudent': approved,
-            'getAllPendingRegister': pending,
-            'getAllRejectedApplication': rejected,
-            'getListOfArchivedStudents': archive,
+            'students': students,
             'firstName': firstName,
             'lastName': lastName,
-            'active_tab': active_tab
+            'active_tab': active_tab,
+            'per_page': per_page,
+            'paginator': paginator,
         }
     )
 
