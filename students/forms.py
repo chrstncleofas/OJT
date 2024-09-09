@@ -233,3 +233,24 @@ class FillUpPDFForm(forms.Form):
     hte_name = forms.CharField(label='Name of HTE', max_length=100, required=False)
     hte_address = forms.CharField(label='Address of HTE', max_length=255, required=False)
     department_division = forms.CharField(label='Department Division Assigned', max_length=100, required=False)
+
+    # Monday
+    monday_date = forms.DateField(label='Monday Date', required=False, widget=forms.TextInput(attrs={'type': 'date'}))
+    monday_description = forms.CharField(label='Monday Description', widget=forms.Textarea(attrs={'rows': 3}), required=False)
+    monday_hours = forms.IntegerField(label='Monday Hours', required=False)
+    # Tuesday
+    tuesday_date = forms.DateField(label='Tuesday Date', required=False, widget=forms.TextInput(attrs={'type': 'date'}))
+    tuesday_description = forms.CharField(label='Tuesday Description', widget=forms.Textarea(attrs={'rows': 3}), required=False)
+    tuesday_hours = forms.IntegerField(label='Tuesday Hours', required=False)
+    # Wednesday
+    wednesday_date = forms.DateField(label='Wednesday Date', required=False, widget=forms.TextInput(attrs={'type': 'date'}))
+    wednesday_description = forms.CharField(label='Wednesday Description', widget=forms.Textarea(attrs={'rows': 3}), required=False)
+    wednesday_hours = forms.IntegerField(label='Wednesday Hours', required=False)
+    # Thursday
+    thursday_date = forms.DateField(label='Thursday Date', required=False, widget=forms.TextInput(attrs={'type': 'date'}))
+    thursday_description = forms.CharField(label='Thursday Description', widget=forms.Textarea(attrs={'rows': 3}), required=False)
+    thursday_hours = forms.IntegerField(label='Thursday Hours', required=False)
+    # Friday
+    friday_date = forms.DateField(label='Friday Date', required=False, widget=forms.TextInput(attrs={'type': 'date'}))
+    friday_description = forms.CharField(label='Friday Description', widget=forms.Textarea(attrs={'rows': 3}), required=False)
+    friday_hours = forms.IntegerField(label='Friday Hours', required=False)

@@ -74,6 +74,22 @@ def mainPageForDashboard(request) -> HttpResponse:
         }
     )
 
+def draw_wrapped_text(page, text, start_pos, max_width, fontsize=12, fontname="helv"):
+    """
+    Draws wrapped text within the specified width on a given PDF page.
+
+    :param page: The PyMuPDF page object.
+    :param text: The text to be drawn.
+    :param start_pos: Starting position (x, y) tuple for the text.
+    :param max_width: Maximum width allowed for each line.
+    :param fontsize: Font size for the text.
+    :param fontname: Font name to be used.
+    """
+    x, y = start_pos
+    rect = fitz.Rect(x, y, x + max_width, y + 1000)  # Set a reasonable height to fit long text
+    page.insert_textbox(rect, text, fontsize=fontsize, fontname=fontname, align=0)
+
+
 def progressReport(request):
     user = request.user
     student = get_object_or_404(DataTableStudents, user=user)
@@ -130,6 +146,29 @@ def progressReport(request):
             page.insert_text(coordinates['hte_name'], form.cleaned_data['hte_name'], fontsize=12, color=(0, 0, 0))
             page.insert_text(coordinates['hte_address'], form.cleaned_data['hte_address'], fontsize=12, color=(0, 0, 0))
             page.insert_text(coordinates['department_division'], form.cleaned_data['department_division'], fontsize=12, color=(0, 0, 0))
+
+            # Font size for text
+            text_fontsize = 12
+
+            # Draw daily progress
+            days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday']
+            y_start = 350  # Starting y-coordinate for progress entries
+            description_max_width = 230  # Maximum width for text wrapping
+
+            for day in days:
+                date = form.cleaned_data.get(f'{day}_date')
+                description = form.cleaned_data.get(f'{day}_description')
+                hours = form.cleaned_data.get(f'{day}_hours')
+
+                if date:
+                    page.insert_text((140, y_start), date.strftime('%Y-%m-%d'), fontsize=10, color=(0, 0, 0))
+                if description:
+                    draw_wrapped_text(page, description, (220, y_start + 10), description_max_width, fontsize=text_fontsize)           
+                if hours:
+                    page.insert_text((500, y_start), str(hours), fontsize=text_fontsize, color=(0, 0, 0))
+                
+                y_start += 70
+            
             # Save the modified PDF to a buffer
             buffer = BytesIO()
             pdf_document.save(buffer)
@@ -138,6 +177,7 @@ def progressReport(request):
             return HttpResponse(buffer, content_type='application/pdf')
     else:
         form = FillUpPDFForm()
+    
     return render(
         request, 
         'students/progress-report.html', 

@@ -208,6 +208,38 @@
                                     {% endfor %}
                                 </div>
                             </div>
+                            <!-- Daily progress fields -->
+                            <h5>Monday</h5>
+                            <div class="form-row">
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.monday_date.id_for_label }}">Date</label>
+                                    <input type="date" id="{{ form.monday_date.id_for_label }}" name="{{ form.monday_date.name }}" class="form-control" value="{{ form.monday_date.value }}">
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.monday_description.id_for_label }}">Description</label>
+                                    <textarea id="{{ form.monday_description.id_for_label }}" name="{{ form.monday_description.name }}" class="form-control" rows="3"></textarea>
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.monday_hours.id_for_label }}">Number of Hours</label>
+                                    <input type="number" id="{{ form.monday_hours.id_for_label }}" name="{{ form.monday_hours.name }}" class="form-control" value="{{ form.monday_hours.value }}">
+                                </div>
+                            </div>
+                            <!-- Daily progress fields -->
+                            <h5>Tuesday</h5>
+                            <div class="form-row">
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.tuesday_date.id_for_label }}">Date</label>
+                                    <input type="date" id="{{ form.tuesday_date.id_for_label }}" name="{{ form.tuesday_date.name }}" class="form-control" value="{{ form.tuesday_date.value }}">
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.tuesday_description.id_for_label }}">Description</label>
+                                    <textarea id="{{ form.tuesday_description.id_for_label }}" name="{{ form.tuesday_description.name }}" class="form-control" rows="3"></textarea>
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.tuesday_hours.id_for_label }}">Number of Hours</label>
+                                    <input type="number" id="{{ form.tuesday_hours.id_for_label }}" name="{{ form.tuesday_hours.name }}" class="form-control" value="{{ form.tuesday_hours.value }}">
+                                </div>
+                            </div>
                             <button type="submit" class="btn btn-primary">Download Report <i class="fa fa-download" aria-hidden="true" style="margin-left: 5px;"></i></button>
                         </form>
                     </div>
