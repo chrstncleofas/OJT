@@ -89,7 +89,6 @@ def draw_wrapped_text(page, text, start_pos, max_width, fontsize=12, fontname="h
     rect = fitz.Rect(x, y, x + max_width, y + 1000)  # Set a reasonable height to fit long text
     page.insert_textbox(rect, text, fontsize=fontsize, fontname=fontname, align=0)
 
-
 def progressReport(request):
     user = request.user
     student = get_object_or_404(DataTableStudents, user=user)
