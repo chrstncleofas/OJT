@@ -148,12 +148,12 @@ def progressReport(request):
             page.insert_text(coordinates['department_division'], form.cleaned_data['department_division'], fontsize=12, color=(0, 0, 0))
 
             # Font size for text
-            text_fontsize = 12
+            text_fontsize = 9
 
             # Draw daily progress
             days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday']
             y_start = 350  # Starting y-coordinate for progress entries
-            description_max_width = 230  # Maximum width for text wrapping
+            description_max_width = 265  # Maximum width for text wrapping
 
             for day in days:
                 date = form.cleaned_data.get(f'{day}_date')
@@ -161,13 +161,13 @@ def progressReport(request):
                 hours = form.cleaned_data.get(f'{day}_hours')
 
                 if date:
-                    page.insert_text((140, y_start), date.strftime('%Y-%m-%d'), fontsize=10, color=(0, 0, 0))
+                    page.insert_text((140, y_start + 20), date.strftime('%Y-%m-%d'), fontsize=text_fontsize, color=(0, 0, 0))
                 if description:
-                    draw_wrapped_text(page, description, (220, y_start + 10), description_max_width, fontsize=text_fontsize)           
+                    draw_wrapped_text(page, description, (205, y_start - 5), description_max_width, fontsize=text_fontsize)           
                 if hours:
-                    page.insert_text((500, y_start), str(hours), fontsize=text_fontsize, color=(0, 0, 0))
+                    page.insert_text((500, y_start + 15), str(hours), fontsize=text_fontsize, color=(0, 0, 0))
                 
-                y_start += 70
+                y_start += 60
             
             # Save the modified PDF to a buffer
             buffer = BytesIO()

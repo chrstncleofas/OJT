@@ -96,7 +96,7 @@
 <body>
     <div class="d-flex" id="wrapper">
         <!-- Sidebar -->
-        <div class="bg-light border-right vh-100" id="sidebar-wrapper">
+        <div class="bg-light border-right vh-150" id="sidebar-wrapper">
             <a href="{% url 'students:studentPage' %}" style="text-decoration: none !important; color: black !important;"><div class="sidebar-heading">OJT Management System</div></a>
             <div class="list-group list-group-flush">
                 <a href="{% url 'students:Dashboard' %}" class="list-group-item list-group-item-action bg-light">
@@ -240,7 +240,56 @@
                                     <input type="number" id="{{ form.tuesday_hours.id_for_label }}" name="{{ form.tuesday_hours.name }}" class="form-control" value="{{ form.tuesday_hours.value }}">
                                 </div>
                             </div>
-                            <button type="submit" class="btn btn-primary">Download Report <i class="fa fa-download" aria-hidden="true" style="margin-left: 5px;"></i></button>
+                            <!-- Daily progress fields -->
+                            <h5>Wednesday</h5>
+                            <div class="form-row">
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.wednesday_date.id_for_label }}">Date</label>
+                                    <input type="date" id="{{ form.wednesday_date.id_for_label }}" name="{{ form.wednesday_date.name }}" class="form-control" value="{{ form.wednesday_date.value }}">
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.wednesday_description.id_for_label }}">Description</label>
+                                    <textarea id="{{ form.wednesday_description.id_for_label }}" name="{{ form.wednesday_description.name }}" class="form-control" rows="3"></textarea>
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.wednesday_hours.id_for_label }}">Number of Hours</label>
+                                    <input type="number" id="{{ form.wednesday_hours.id_for_label }}" name="{{ form.wednesday_hours.name }}" class="form-control" value="{{ form.wednesday_hours.value }}">
+                                </div>
+                            </div>
+                            <!-- Daily progress fields -->
+                            <h5>Thursday</h5>
+                            <div class="form-row">
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.thursday_date.id_for_label }}">Date</label>
+                                    <input type="date" id="{{ form.thursday_date.id_for_label }}" name="{{ form.thursday_date.name }}" class="form-control" value="{{ form.thursday_date.value }}">
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.thursday_description.id_for_label }}">Description</label>
+                                    <textarea id="{{ form.thursday_description.id_for_label }}" name="{{ form.thursday_description.name }}" class="form-control" rows="3"></textarea>
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.thursday_hours.id_for_label }}">Number of Hours</label>
+                                    <input type="number" id="{{ form.thursday_hours.id_for_label }}" name="{{ form.thursday_hours.name }}" class="form-control" value="{{ form.thursday_hours.value }}">
+                                </div>
+                            </div>
+                            <!-- Daily progress fields -->
+                            <h5>Friday</h5>
+                            <div class="form-row">
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.friday_date.id_for_label }}">Date</label>
+                                    <input type="date" id="{{ form.friday_date.id_for_label }}" name="{{ form.friday_date.name }}" class="form-control" value="{{ form.friday_date.value }}">
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.friday_description.id_for_label }}">Description</label>
+                                    <textarea id="{{ form.friday_description.id_for_label }}" name="{{ form.friday_description.name }}" class="form-control" rows="3"></textarea>
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.friday_hours.id_for_label }}">Number of Hours</label>
+                                    <input type="number" id="{{ form.friday_hours.id_for_label }}" name="{{ form.friday_hours.name }}" class="form-control" value="{{ form.friday_hours.value }}">
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary mt-2">Download Report <i class="fa fa-download" aria-hidden="true" style="margin-left: 5px;"></i></button>
+                            <button type="submit" class="btn btn-primary mt-2">Submit Report <i class="fa fa-paper-plane" aria-hidden="true" style="margin-left: 5px;"></i></button>
                         </form>
                     </div>
                 </div>
