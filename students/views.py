@@ -5,6 +5,8 @@ from django.urls import reverse
 from django.conf import settings
 from django.utils import timezone
 from django.contrib import messages
+from django.utils.text import slugify
+from django.http import JsonResponse
 from django.core.mail import send_mail
 from app.models import TableAnnouncement
 from django.shortcuts import render, redirect
@@ -16,7 +18,7 @@ from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth import authenticate, login, logout
-from students.models import DataTableStudents, TimeLog, Schedule
+from students.models import DataTableStudents, TimeLog, Schedule, TableSubmittedReport
 from students.forms import StudentRegistrationForm, UserForm, ChangePasswordForm, TimeLogForm, StudentProfileForm, ScheduleSettingForm, FillUpPDFForm
 
 def studentHome(request) -> HttpResponse:
@@ -86,7 +88,7 @@ def draw_wrapped_text(page, text, start_pos, max_width, fontsize=12, fontname="h
     :param fontname: Font name to be used.
     """
     x, y = start_pos
-    rect = fitz.Rect(x, y, x + max_width, y + 1000)  # Set a reasonable height to fit long text
+    rect = fitz.Rect(x, y, x + max_width, y + 1000)
     page.insert_textbox(rect, text, fontsize=fontsize, fontname=fontname, align=0)
 
 def progressReport(request):
@@ -100,10 +102,7 @@ def progressReport(request):
         if form.is_valid():
             pdf_path = os.path.join(settings.PDF_ROOT, 'PROGRESS-REPORT.pdf')
             pdf_document = fitz.open(pdf_path)
-            # Use the first page; adjust as needed for multiple pages
             page = pdf_document[0]
-            
-            # Coordinates for each field (adjust these as needed)
             coordinates = {
                 'name_field': (170, 157),
                 'classification_local': (200, 195),
@@ -118,7 +117,6 @@ def progressReport(request):
                 'hte_address': (170, 275),
                 'department_division': (250, 290),
             }
-
             # Draw text fields
             page.insert_text(coordinates['name_field'], form.cleaned_data['student_name'], fontsize=12, color=(0, 0, 0))
             # Draw Internship Classification
@@ -145,38 +143,46 @@ def progressReport(request):
             page.insert_text(coordinates['hte_name'], form.cleaned_data['hte_name'], fontsize=12, color=(0, 0, 0))
             page.insert_text(coordinates['hte_address'], form.cleaned_data['hte_address'], fontsize=12, color=(0, 0, 0))
             page.insert_text(coordinates['department_division'], form.cleaned_data['department_division'], fontsize=12, color=(0, 0, 0))
-
-            # Font size for text
             text_fontsize = 9
-
-            # Draw daily progress
             days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday']
-            y_start = 350  # Starting y-coordinate for progress entries
-            description_max_width = 265  # Maximum width for text wrapping
-
+            y_start = 350
+            description_max_width = 265
             for day in days:
                 date = form.cleaned_data.get(f'{day}_date')
                 description = form.cleaned_data.get(f'{day}_description')
                 hours = form.cleaned_data.get(f'{day}_hours')
-
                 if date:
                     page.insert_text((140, y_start + 20), date.strftime('%Y-%m-%d'), fontsize=text_fontsize, color=(0, 0, 0))
                 if description:
                     draw_wrapped_text(page, description, (205, y_start - 5), description_max_width, fontsize=text_fontsize)           
                 if hours:
-                    page.insert_text((500, y_start + 15), str(hours), fontsize=text_fontsize, color=(0, 0, 0))
-                
+                    page.insert_text((500, y_start + 15), str(hours), fontsize=text_fontsize, color=(0, 0, 0))              
                 y_start += 60
-            
-            # Save the modified PDF to a buffer
             buffer = BytesIO()
             pdf_document.save(buffer)
             pdf_document.close()
             buffer.seek(0)
-            return HttpResponse(buffer, content_type='application/pdf')
+
+            if not buffer.getvalue():
+                messages.error(request, "PDF generation failed.")
+                return redirect('students:progressReport')
+
+            action = request.POST.get('action')
+            if action == 'preview_report':
+                response = HttpResponse(buffer, content_type='application/pdf')
+                response['Content-Disposition'] = 'inline; filename="PROGRESS-REPORT.pdf"'
+                return response
+            elif action == 'submit_report':
+                student_name = f"{slugify(firstName)}_{slugify(lastName)}"
+                file_name = f"{student_name}_PROGRESS-REPORT.pdf"
+
+                report_instance, created = TableSubmittedReport.objects.get_or_create(student=student)
+                report_instance.report_file.save(file_name, buffer)
+                messages.success(request, "Report submitted successfully!")
+                return redirect('students:progressReport')
+
     else:
-        form = FillUpPDFForm()
-    
+        form = FillUpPDFForm()    
     return render(
         request, 
         'students/progress-report.html', 

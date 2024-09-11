@@ -49,7 +49,7 @@ class TimeLog(models.Model):
     action = models.CharField(max_length=10, choices=[('IN', 'Time In'), ('OUT', 'Time Out')])
     timestamp = models.DateTimeField(auto_now_add=True)
     image = models.ImageField(upload_to='time_logs/', blank=True, null=True)
-    duration = models.DecimalField(max_digits=5, decimal_places=2)
+    duration = models.DecimalField(max_digits=5, decimal_places=2, default=0)
 
     def __str__(self):
         return f"{self.student} - {self.action} at {self.timestamp}"
@@ -72,3 +72,11 @@ class Schedule(models.Model):
 
     def __str__(self):
         return f"{self.student.username} - {self.day}"
+
+class TableSubmittedReport(models.Model):
+    student = models.ForeignKey(DataTableStudents, on_delete=models.CASCADE)
+    date_submitted = models.DateTimeField(auto_now_add=True)
+    report_file = models.FileField(upload_to='reports/', blank=True, null=True)
+
+    def __str__(self):
+        return f"Report by {self.student.username} on {self.submitted_at.strftime('%Y-%m-%d %H:%M:%S')}"
