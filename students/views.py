@@ -96,6 +96,7 @@ def progressReport(request):
     student = get_object_or_404(DataTableStudents, user=user)
     firstName = student.Firstname
     lastName = student.Lastname
+    full_name = f"{firstName} {lastName}"
 
     if request.method == 'POST':
         form = FillUpPDFForm(request.POST)
@@ -105,6 +106,7 @@ def progressReport(request):
             page = pdf_document[0]
             coordinates = {
                 'name_field': (170, 157),
+                'intern_name': (145, 707),
                 'classification_local': (200, 195),
                 'classification_international': (330, 195),
                 'classification_in_campus': (220, 210),
@@ -116,6 +118,7 @@ def progressReport(request):
                 'hte_name': (170, 260),
                 'hte_address': (170, 275),
                 'department_division': (250, 290),
+                'total_hours': (506, 652)
             }
             # Draw text fields
             page.insert_text(coordinates['name_field'], form.cleaned_data['student_name'], fontsize=12, color=(0, 0, 0))
@@ -143,10 +146,12 @@ def progressReport(request):
             page.insert_text(coordinates['hte_name'], form.cleaned_data['hte_name'], fontsize=12, color=(0, 0, 0))
             page.insert_text(coordinates['hte_address'], form.cleaned_data['hte_address'], fontsize=12, color=(0, 0, 0))
             page.insert_text(coordinates['department_division'], form.cleaned_data['department_division'], fontsize=12, color=(0, 0, 0))
+            page.insert_text(coordinates['intern_name'], form.cleaned_data['student_name'], fontsize=12, color=(0, 0, 0))
             text_fontsize = 9
             days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday']
             y_start = 350
             description_max_width = 265
+            total_hours = 0
             for day in days:
                 date = form.cleaned_data.get(f'{day}_date')
                 description = form.cleaned_data.get(f'{day}_description')
@@ -156,8 +161,12 @@ def progressReport(request):
                 if description:
                     draw_wrapped_text(page, description, (205, y_start - 5), description_max_width, fontsize=text_fontsize)           
                 if hours:
-                    page.insert_text((500, y_start + 15), str(hours), fontsize=text_fontsize, color=(0, 0, 0))              
+                    page.insert_text((500, y_start + 15), str(hours), fontsize=text_fontsize, color=(0, 0, 0))
+                    total_hours += hours        
                 y_start += 60
+            # 
+            page.insert_text(coordinates['total_hours'], str(total_hours), fontsize=text_fontsize, color=(0, 0, 0))
+            # 
             buffer = BytesIO()
             pdf_document.save(buffer)
             pdf_document.close()
