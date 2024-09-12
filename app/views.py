@@ -352,12 +352,16 @@ def viewTimeLogs(request, student_id):
 
     selected_student_reported = get_object_or_404(DataTableStudents, id=student_id)
 
-    progress_report = TableSubmittedReport.objects.filter(student=selected_student_reported).last()
-
-    # Check if the file exists
-    if progress_report and not os.path.isfile(os.path.join(settings.MEDIA_ROOT, progress_report.report_file.name)):
-        # Remove the reference from the database if the file does not exist
-        progress_report.delete()
+    progress_report_queryset = TableSubmittedReport.objects.filter(student=selected_student)
+    if progress_report_queryset.exists():
+        for report in progress_report_queryset:
+            file_path = os.path.join(settings.MEDIA_ROOT, report.report_file.name)
+            if not os.path.isfile(file_path):
+                # File does not exist; delete the report
+                report.delete()
+        # Get the latest valid report
+        progress_report = progress_report_queryset.last()
+    else:
         progress_report = None
 
     def format_seconds(seconds):
