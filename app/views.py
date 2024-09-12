@@ -22,7 +22,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import user_passes_test
 from students.forms import EditStudentForm, ScheduleSettingForm
-from students.models import DataTableStudents, TimeLog, Schedule
+from students.models import DataTableStudents, TimeLog, Schedule, TableSubmittedReport
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponsePermanentRedirect, JsonResponse
 
@@ -318,7 +318,6 @@ def viewPendingApplication(request, id):
         }
     )
 
-
 def viewTimeLogs(request, student_id):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
@@ -350,6 +349,10 @@ def viewTimeLogs(request, student_id):
     remaining_hours_seconds = required_hours_seconds - total_work_seconds
     full_schedule = Schedule.objects.filter(student=student, day__in=['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']).order_by('id')
 
+    selected_student_reported = get_object_or_404(DataTableStudents, id=student_id)
+
+    progress_report = TableSubmittedReport.objects.filter(student=selected_student_reported).last()
+
     def format_seconds(seconds):
         hours, remainder = divmod(seconds, 3600)
         minutes, seconds = divmod(remainder, 60)
@@ -368,6 +371,7 @@ def viewTimeLogs(request, student_id):
         'studentFirstname': studentFirstname,
         'studentLastname': studentLastname,
         'full_schedule': full_schedule,
+        'progress_report': progress_report,
     }
     return render(request, 'app/TimeLogs.html', context)
 
