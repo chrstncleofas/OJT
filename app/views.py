@@ -1,3 +1,4 @@
+import os
 import json
 from typing import Union
 from datetime import timedelta
@@ -352,6 +353,12 @@ def viewTimeLogs(request, student_id):
     selected_student_reported = get_object_or_404(DataTableStudents, id=student_id)
 
     progress_report = TableSubmittedReport.objects.filter(student=selected_student_reported).last()
+
+    # Check if the file exists
+    if progress_report and not os.path.isfile(os.path.join(settings.MEDIA_ROOT, progress_report.report_file.name)):
+        # Remove the reference from the database if the file does not exist
+        progress_report.delete()
+        progress_report = None
 
     def format_seconds(seconds):
         hours, remainder = divmod(seconds, 3600)
