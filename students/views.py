@@ -107,14 +107,14 @@ def progressReport(request):
             coordinates = {
                 'name_field': (170, 157),
                 'intern_name': (145, 707),
-                'classification_local': (200, 195),
-                'classification_international': (330, 195),
-                'classification_in_campus': (220, 210),
-                'classification_off_campus': (226, 225),
-                'modality_actual': (200, 239),
-                'modality_virtual': (330, 239),
-                'virtual_wfh': (350, 255),
-                'virtual_alternative': (350, 270),
+                'classification_local': (203, 185),
+                'classification_international': (335, 185),
+                'classification_in_campus': (225, 200),
+                'classification_off_campus': (226, 215),
+                'modality_actual': (204, 230),
+                'modality_virtual': (335, 229),
+                'virtual_wfh': (355, 245),
+                'virtual_alternative': (355, 260),
                 'hte_name': (170, 260),
                 'hte_address': (170, 275),
                 'department_division': (250, 290),
@@ -124,24 +124,24 @@ def progressReport(request):
             page.insert_text(coordinates['name_field'], form.cleaned_data['student_name'], fontsize=12, color=(0, 0, 0))
             # Draw Internship Classification
             if form.cleaned_data['internship_classification'] == 'local':
-                page.insert_text(coordinates['classification_local'], '✓', fontsize=75, color=(0, 0, 0))
+                page.insert_text(coordinates['classification_local'], '✓', fontsize=45, color=(0, 0, 0))
             elif form.cleaned_data['internship_classification'] == 'international':
-                page.insert_text(coordinates['classification_international'], '✓', fontsize=75, color=(0, 0, 0))
+                page.insert_text(coordinates['classification_international'], '✓', fontsize=45, color=(0, 0, 0))
             # Draw Local Condition
             if form.cleaned_data['local_condition'] == 'inCampus':
-                page.insert_text(coordinates['classification_in_campus'], '✓', fontsize=75, color=(0, 0, 0))
+                page.insert_text(coordinates['classification_in_campus'], '✓', fontsize=45, color=(0, 0, 0))
             elif form.cleaned_data['local_condition'] == 'offCampus':
-                page.insert_text(coordinates['classification_off_campus'], '✓', fontsize=75, color=(0, 0, 0))
+                page.insert_text(coordinates['classification_off_campus'], '✓', fontsize=45, color=(0, 0, 0))
             # Draw Modality
             if form.cleaned_data['internship_modality'] == 'actual':
-                page.insert_text(coordinates['modality_actual'], '✓', fontsize=75, color=(0, 0, 0))
+                page.insert_text(coordinates['modality_actual'], '✓', fontsize=45, color=(0, 0, 0))
             elif form.cleaned_data['internship_modality'] == 'virtual':
-                page.insert_text(coordinates['modality_virtual'], '✓', fontsize=75, color=(0, 0, 0))
+                page.insert_text(coordinates['modality_virtual'], '✓', fontsize=45, color=(0, 0, 0))
             # Draw Virtual
             if form.cleaned_data['virtual_conditions'] == 'wfh':
-                page.insert_text(coordinates['virtual_wfh'], '✓', fontsize=75, color=(0, 0, 0))
+                page.insert_text(coordinates['virtual_wfh'], '✓', fontsize=45, color=(0, 0, 0))
             elif form.cleaned_data['virtual_conditions'] == 'under':
-                page.insert_text(coordinates['virtual_alternative'], '✓', fontsize=75, color=(0, 0, 0))
+                page.insert_text(coordinates['virtual_alternative'], '✓', fontsize=45, color=(0, 0, 0))
             # Draw 
             page.insert_text(coordinates['hte_name'], form.cleaned_data['hte_name'], fontsize=12, color=(0, 0, 0))
             page.insert_text(coordinates['hte_address'], form.cleaned_data['hte_address'], fontsize=12, color=(0, 0, 0))
