@@ -350,19 +350,15 @@ def viewTimeLogs(request, student_id):
     remaining_hours_seconds = required_hours_seconds - total_work_seconds
     full_schedule = Schedule.objects.filter(student=student, day__in=['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']).order_by('id')
 
-    selected_student_reported = get_object_or_404(DataTableStudents, id=student_id)
+    # Retrieve all submitted reports for the student
+    progress_reports = TableSubmittedReport.objects.filter(student=selected_student)
 
-    progress_report_queryset = TableSubmittedReport.objects.filter(student=selected_student)
-    if progress_report_queryset.exists():
-        for report in progress_report_queryset:
-            file_path = os.path.join(settings.MEDIA_ROOT, report.report_file.name)
-            if not os.path.isfile(file_path):
-                # File does not exist; delete the report
-                report.delete()
-        # Get the latest valid report
-        progress_report = progress_report_queryset.last()
-    else:
-        progress_report = None
+    # Check if any reports have missing files and clean them up
+    for report in progress_reports:
+        file_path = os.path.join(settings.MEDIA_ROOT, report.report_file.name)
+        if not os.path.isfile(file_path):
+            # File does not exist; delete the report
+            report.delete()
 
     def format_seconds(seconds):
         hours, remainder = divmod(seconds, 3600)
@@ -382,7 +378,7 @@ def viewTimeLogs(request, student_id):
         'studentFirstname': studentFirstname,
         'studentLastname': studentLastname,
         'full_schedule': full_schedule,
-        'progress_report': progress_report,
+        'progress_reports': progress_reports,
     }
     return render(request, 'app/TimeLogs.html', context)
 

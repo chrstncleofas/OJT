@@ -1,6 +1,7 @@
 import os
 import fitz
 from io import BytesIO
+from datetime import datetime
 from django.urls import reverse
 from django.conf import settings
 from django.utils import timezone
@@ -182,11 +183,14 @@ def progressReport(request):
                 response['Content-Disposition'] = 'inline; filename="PROGRESS-REPORT.pdf"'
                 return response
             elif action == 'submit_report':
-                student_name = f"{slugify(firstName)}_{slugify(lastName)}"
-                file_name = f"{student_name}_PROGRESS-REPORT.pdf"
+                # Generate filename using the current date and time
+                timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')  # Format: YYYY-MM-DD_HH-MM-SS
+                file_name = f"{timestamp}_PROGRESS-REPORT.pdf"
 
-                report_instance, created = TableSubmittedReport.objects.get_or_create(student=student)
+                # Use create() to always create a new report instance
+                report_instance = TableSubmittedReport.objects.create(student=student)
                 report_instance.report_file.save(file_name, buffer)
+
                 messages.success(request, "Report submitted successfully!")
                 return redirect('students:progressReport')
 
