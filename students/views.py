@@ -354,11 +354,11 @@ def requirements(request):
     if request.method == 'POST':
         form = SubmittedRequirement(request.POST, request.FILES)
         if form.is_valid():
-            submission = form.save(commit=False)  # Don't commit to database yet
-            submission.student = student  # Assign the student before saving
-            submission.save()  # Now save to the database with the student
+            submission = form.save(commit=False)
+            submission.student = student
+            submission.save()
             messages.success(request, 'Document uploaded successfully!')
-            return HttpResponseRedirect(reverse('students:requirements'))  # Redirect after successful form submission
+            return HttpResponseRedirect(reverse('students:requirements'))
         else:
             messages.error(request, 'Error uploading document. Please check the form.')
 

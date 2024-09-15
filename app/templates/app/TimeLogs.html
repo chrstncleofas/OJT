@@ -187,6 +187,35 @@
                                 {% endif %}
                             </tbody>
                         </table>
+                        <h6 class="mt-4 ml-1 mb-3">Requirements</h6>
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Filename</th>
+                                    <th>Date Submitted</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if requirements %}
+                                    {% for docs in requirements %}
+                                        <tr>
+                                            <td>{{ docs.nameOfDocs }}</td>
+                                            <td>{{ docs.submission_date }}</td>
+                                            <td>
+                                                <a href="{{ docs.submitted_file.url }}" class="btn btn-primary" target="_blank">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="4">No progress report submitted.</td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
                     </div>
                     <div class="card col-md-3 mt-3">
                         <div class="card-header bg-primary text-white p-3 mt-3">

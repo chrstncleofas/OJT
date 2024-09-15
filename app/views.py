@@ -25,7 +25,7 @@ from app.models import RenderingHoursTable, TableRequirements
 from students.forms import EditStudentForm, ScheduleSettingForm
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from app.forms import EditProfileForm, AnnouncementForm, UploadRequirementForm
-from students.models import DataTableStudents, TimeLog, Schedule, TableSubmittedReport
+from students.models import DataTableStudents, TimeLog, Schedule, TableSubmittedReport, TableSubmittedRequirement
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponsePermanentRedirect, JsonResponse
 
 HOME_URL_PATH = 'app/base.html'
@@ -373,6 +373,7 @@ def viewTimeLogs(request, student_id):
 
     # Retrieve all submitted reports for the student
     progress_reports = TableSubmittedReport.objects.filter(student=selected_student).order_by('-date_submitted', 'id')
+    requirements = TableSubmittedRequirement.objects.filter(student=selected_student).order_by('-submission_date', 'id')
 
     # Check if any reports have missing files and clean them up
     for report in progress_reports:
@@ -401,7 +402,8 @@ def viewTimeLogs(request, student_id):
         'studentFirstname': studentFirstname,
         'studentLastname': studentLastname,
         'full_schedule': full_schedule,
-        'cleaned_reports': cleaned_reports
+        'cleaned_reports': cleaned_reports,
+        'requirements': requirements
     }
     return render(request, 'app/TimeLogs.html', context)
 
