@@ -598,6 +598,16 @@ def deleteAnnouncement(request, id):
         return redirect('listOfAnnouncement')
     return render(request, LIST_ANNOUNCEMENT, {'announcement': announcement})
 
+def deleteRequirementDocuments(request, id):
+    user = request.user
+    docs = get_object_or_404(TableRequirements, id=id)
+    if request.method == 'POST':
+        docs.delete()
+        saveActivityLogs(user=user, action='DELETE', request=request, description='Delete documents')
+        messages.success(request, 'Announcement has been deleted successfully.')
+        return redirect('set_rendering_hours')
+    return render(request, 'app/settings.html', {'docs': docs})
+
 def setSchedule(request, id):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
