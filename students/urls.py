@@ -19,6 +19,7 @@ urlpatterns = [
     path('changePassword/', views.changePassword, name='changePassword'),
     path('TimeInAndTimeOut/', views.TimeInAndTimeOut, name='TimeInAndTimeOut'),
     path('scheduleSettings/', views.scheduleSettings, name='scheduleSettings'),
+    path('requirements/', views.requirements, name='requirements'),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)

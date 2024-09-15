@@ -9,7 +9,6 @@ from django.contrib import messages
 from django.utils.text import slugify
 from django.http import JsonResponse
 from django.core.mail import send_mail
-from app.models import TableAnnouncement
 from django.shortcuts import render, redirect
 from django.shortcuts import get_object_or_404
 from django.utils.timezone import now, localtime
@@ -18,9 +17,10 @@ from django.contrib.auth.hashers import check_password
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseRedirect
+from app.models import TableAnnouncement, TableRequirements
 from django.contrib.auth import authenticate, login, logout
-from students.models import DataTableStudents, TimeLog, Schedule, TableSubmittedReport
-from students.forms import StudentRegistrationForm, UserForm, ChangePasswordForm, TimeLogForm, StudentProfileForm, ScheduleSettingForm, FillUpPDFForm
+from students.models import DataTableStudents, TimeLog, Schedule, TableSubmittedReport, TableSubmittedRequirement
+from students.forms import StudentRegistrationForm, UserForm, ChangePasswordForm, TimeLogForm, StudentProfileForm, ScheduleSettingForm, FillUpPDFForm, SubmittedRequirement
 
 def studentHome(request) -> HttpResponse:
     return render(request, 'students/student-base.html')
@@ -211,17 +211,18 @@ def TimeInAndTimeOut(request):
     student = get_object_or_404(DataTableStudents, user=user)
 
     if request.method == 'POST':
-        form = TimeLogForm(request.POST, request.FILES)
-        if request.method == 'POST':
-            form = TimeLogForm(request.POST, request.FILES)
-            if form.is_valid():
-                time_log = form.save(commit=False)
-                time_log.student = student
-                time_log.timestamp = timezone.now()
-                time_log.save()
-                return redirect('students:TimeInAndTimeOut')
+        form = SubmittedRequirement(request.POST, request.FILES)
+        
+        if form.is_valid():
+            submission = form.save(commit=False)
+            submission.student = student  # Assign the student to the submission
+            submission.save()
+            messages.success(request, 'Document uploaded successfully!')
+        else:
+            messages.error(request, 'Error uploading document.')
+
     else:
-        form = TimeLogForm()
+        form = SubmittedRequirement()
 
     current_time = localtime(now())
 
@@ -342,6 +343,38 @@ def studentRegister(request):
         student_form = StudentRegistrationForm()
 
     return render(request, 'students/register.html', {'user_form': user_form, 'student_form': student_form})
+
+
+def requirements(request):
+    user = request.user
+    student = get_object_or_404(DataTableStudents, user=user)
+    firstName = student.Firstname
+    lastName = student.Lastname
+
+    if request.method == 'POST':
+        form = SubmittedRequirement(request.POST, request.FILES)
+        if form.is_valid():
+            submission = form.save(commit=False)  # Don't commit to database yet
+            submission.student = student  # Assign the student before saving
+            submission.save()  # Now save to the database with the student
+            messages.success(request, 'Document uploaded successfully!')
+            return HttpResponseRedirect(reverse('students:requirements'))  # Redirect after successful form submission
+        else:
+            messages.error(request, 'Error uploading document. Please check the form.')
+
+    form = SubmittedRequirement()
+
+    requirements = TableRequirements.objects.all()
+
+    submittedDocs = TableSubmittedRequirement.objects.all()
+
+    return render(request, 'students/requirements.html', {
+        'form': form,
+        'requirements': requirements,
+        'submittedDocs': submittedDocs,
+        'firstName': firstName,
+        'lastName': lastName,
+    })
 
 def studentLogin(request):
     if request.method == 'POST':

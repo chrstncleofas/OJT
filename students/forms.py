@@ -1,6 +1,6 @@
 from django import forms
-from app.models import CustomUser
-from students.models import DataTableStudents, TimeLog
+from app.models import CustomUser, TableRequirements
+from students.models import DataTableStudents, TimeLog, TableSubmittedRequirement
 from students.custom_widgets import CustomClearableFileInput
 
 COURSE_CHOICES = [
@@ -254,3 +254,30 @@ class FillUpPDFForm(forms.Form):
     friday_date = forms.DateField(label='Friday Date', required=False, widget=forms.TextInput(attrs={'type': 'date'}))
     friday_description = forms.CharField(label='Friday Description', widget=forms.Textarea(attrs={'rows': 3}), required=False)
     friday_hours = forms.IntegerField(label='Friday Hours', required=False)
+
+
+class SubmittedRequirement(forms.ModelForm):
+    REQUIREMENT_CHOICES = [
+        ('Select Document', 'Select Document'),
+        ('Endorsement Letter', 'Endorsement Letter'),
+        ('Internship Application', 'Internship Application'),
+        ('Internship Contract', 'Internship Contract'),
+        ('Notice of Acceptance', 'Notice of Acceptance'),
+        ('Parent Consent', 'Parent Consent'),
+    ]
+
+    nameOfDocs = forms.ChoiceField(
+        choices=REQUIREMENT_CHOICES,
+        label="Select Requirement",
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+
+    class Meta:
+        model = TableSubmittedRequirement
+        fields = ['nameOfDocs', 'submitted_file']
+
+    def __init__(self, *args, **kwargs):
+        super(SubmittedRequirement, self).__init__(*args, **kwargs)
+        # Set the submitted_file field attributes
+        self.fields['submitted_file'].required = True
+        self.fields['submitted_file'].widget.attrs.update({'accept': 'application/pdf', 'class': 'form-control-file'})
