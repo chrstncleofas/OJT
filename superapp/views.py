@@ -15,10 +15,10 @@ from django.shortcuts import get_object_or_404
 from app.models import CustomUser, StoreActivityLogs
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
-from app.models import TableAnnouncement, StoreActivityLogs
-from app.forms import EditUsersDetailsForm, AnnouncementForm
 from students.models import DataTableStudents, TimeLog, Schedule
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from app.models import TableAnnouncement, StoreActivityLogs, TableRequirements
+from app.forms import EditUsersDetailsForm, AnnouncementForm, UploadRequirementForm
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponsePermanentRedirect, JsonResponse
 
 DASHBOARD = 'superapp/dashboard.html'
@@ -510,6 +510,7 @@ def set_rendering_hours(request):
 
     if request.method == 'POST':
         form = SetRenderingHoursForm(request.POST)
+        upload_form = UploadRequirementForm(request.POST, request.FILES)
         if form.is_valid():
             bsit_hours = form.cleaned_data.get('bsit_hours')
             bscs_hours = form.cleaned_data.get('bscs_hours')
@@ -523,6 +524,13 @@ def set_rendering_hours(request):
             )
             saveActivityLogs(user=user, action='SET', request=request, description='Set time render')
             return redirect('superapp:set_rendering_hours')
+        
+        elif upload_form.is_valid():
+            requirement = upload_form.save(commit=False)
+            requirement.save()
+            # Log activity for file upload
+            saveActivityLogs(user=user, action='UPLOAD', request=request, description='Uploaded new requirement')
+            return redirect('set_rendering_hours')
     else:
         try:
             bsit_hours = RenderingHoursTable.objects.get(course='BS Information Technology').required_hours
@@ -539,10 +547,15 @@ def set_rendering_hours(request):
             'bscs_hours': bscs_hours,
         })
 
+        upload_form = UploadRequirementForm()
+        
+    requirements = TableRequirements.objects.all()
     return render(request, 'superapp/settings.html', {
         'form': form,
         'firstName': firstName,
-        'lastName': lastName
+        'lastName': lastName,
+        'requirements': requirements,
+        'upload_form': upload_form
     })
 
 def editRenderHours(request):
