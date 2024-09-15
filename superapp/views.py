@@ -241,6 +241,20 @@ def getAllTheUserAccount(request):
             Q(position__icontains=search_query) |
             Q(email__icontains=search_query)
         )
+
+    # Pagination logic
+    page = request.GET.get('page', 1)  # Get the current page number from the request
+    per_page = request.GET.get('per_page', 5)  # Default items per page is set to 5
+
+    paginator = Paginator(admin_users, per_page)  # Create paginator object
+
+    try:
+        admin_users = paginator.page(page)  # Get the current page of results
+    except PageNotAnInteger:
+        admin_users = paginator.page(1)  # If page is not an integer, deliver first page
+    except EmptyPage:
+        admin_users = paginator.page(paginator.num_pages)  
+
     # Check if the request is an AJAX request
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         return render(request, 'superapp/users.html', {'getAllTheUserAccount': admin_users})

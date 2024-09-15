@@ -36,3 +36,11 @@ class StoreActivityLogs(models.Model):
 
     def __str__(self):
         return f"{self.user} - {self.action} at {self.timestamp} from {self.ip_address}"
+    
+class TableRequirements(models.Model):
+    nameOfFile = models.CharField(max_length=255)
+    document = models.FileField(upload_to='ojt_requirements/')
+    upload_date = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.nameOfFile

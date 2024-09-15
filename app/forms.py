@@ -1,6 +1,6 @@
 from django import forms
 from app.models import TableAnnouncement
-from app.models import RenderingHoursTable
+from app.models import RenderingHoursTable, TableRequirements
 from django.contrib.auth import get_user_model
 from app.custom_widgets import CustomClearableFileInput
 from django.contrib.auth.forms import UserCreationForm
@@ -102,6 +102,15 @@ class EditUsersDetailsForm(forms.ModelForm):
             'first_name': forms.TextInput(attrs={'class': 'form-control'}),
             'last_name': forms.TextInput(attrs={'class': 'form-control'}),
             'email': forms.EmailInput(attrs={'class': 'form-control'}),
+        }
+
+class UploadRequirementForm(forms.ModelForm):
+    class Meta:
+        model = TableRequirements
+        fields = ['nameOfFile', 'document']
+        widgets = {
+            'nameOfFile': forms.TextInput(attrs={'class': 'form-control'}),
+            'document': forms.FileInput(attrs={'class': 'form-control'}),
         }
 
 

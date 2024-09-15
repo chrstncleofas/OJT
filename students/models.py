@@ -3,7 +3,7 @@ import base64
 from django.db import models
 from django.utils import timezone
 from django.core.files.base import ContentFile
-from app.models import CustomUser, RenderingHoursTable
+from app.models import CustomUser, RenderingHoursTable, TableRequirements
 
 class DataTableStudents(models.Model):
     STATUS_CHOICES = [
@@ -80,3 +80,12 @@ class TableSubmittedReport(models.Model):
 
     def __str__(self):
         return f"Report by {self.student.username} on {self.submitted_at.strftime('%Y-%m-%d %H:%M:%S')}"
+    
+class TableSubmittedRequirements(models.Model):
+    student = models.ForeignKey(DataTableStudents, on_delete=models.CASCADE)
+    requirement = models.ForeignKey(TableRequirements, on_delete=models.CASCADE)
+    submitted_file = models.FileField(upload_to='student_submissions/')
+    submission_date = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.student.username} - {self.requirement.title}"

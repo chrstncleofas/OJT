@@ -168,11 +168,11 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {% if progress_reports %}
-                                    {% for report in progress_reports %}
+                                {% if cleaned_reports %}
+                                    {% for report, cleaned_filename in cleaned_reports %}
                                         <tr>
                                             <td>{{ report.report_file.name|slice:"8:" }}</td>
-                                            <td>{{ report.date_submitted|date:"M d, Y" }}</td>
+                                            <td>{{ report.date_submitted|slice:"0:-5"}}</td>
                                             <td>
                                                 <a href="{{ report.report_file.url }}" class="btn btn-primary" target="_blank">
                                                     <i class="fas fa-eye"></i>

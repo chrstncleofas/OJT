@@ -1,3 +1,4 @@
+import re
 import os
 import json
 from typing import Union
@@ -8,7 +9,6 @@ from django.conf import settings
 from django.contrib import messages
 from django.core.mail import send_mail
 from app.utils import saveActivityLogs
-from app.models import RenderingHoursTable
 from .forms import CustomPasswordChangeForm
 from app.forms import SetRenderingHoursForm
 from django.shortcuts import render, redirect
@@ -17,14 +17,15 @@ from django.template.loader import render_to_string
 from app.models import CustomUser, TableAnnouncement
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
-from app.forms import EditProfileForm, AnnouncementForm
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import user_passes_test
+from app.models import RenderingHoursTable, TableRequirements
 from students.forms import EditStudentForm, ScheduleSettingForm
-from students.models import DataTableStudents, TimeLog, Schedule, TableSubmittedReport
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from app.forms import EditProfileForm, AnnouncementForm, UploadRequirementForm
+from students.models import DataTableStudents, TimeLog, Schedule, TableSubmittedReport
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponsePermanentRedirect, JsonResponse
 
 HOME_URL_PATH = 'app/base.html'
@@ -293,6 +294,19 @@ def timeSheet(request):
     admin = get_object_or_404(CustomUser, id=user.id)
     firstName = admin.first_name
     lastName = admin.last_name
+
+    # Pagination logic
+    page = request.GET.get('page', 1)  # Get the current page number from the request
+    per_page = request.GET.get('per_page', 5)  # Default items per page is set to 5
+
+    paginator = Paginator(students, per_page)  # Create paginator object
+    try:
+        students = paginator.page(page)  # Get the current page of results
+    except PageNotAnInteger:
+        students = paginator.page(1)  # If page is not an integer, deliver first page
+    except EmptyPage:
+        students = paginator.page(paginator.num_pages)  # If page is out of range, deliver last page
+
     return render(
         request,
         'app/timeSheet.html',
@@ -318,6 +332,13 @@ def viewPendingApplication(request, id):
             'lastName': lastName
         }
     )
+
+def clean_filename(filename):
+    """Remove timestamp from the filename."""
+    if filename:
+        # Remove timestamp pattern from the filename
+        return re.sub(r'^\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}_', '', filename)
+    return filename
 
 def viewTimeLogs(request, student_id):
     user = request.user
@@ -351,7 +372,7 @@ def viewTimeLogs(request, student_id):
     full_schedule = Schedule.objects.filter(student=student, day__in=['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']).order_by('id')
 
     # Retrieve all submitted reports for the student
-    progress_reports = TableSubmittedReport.objects.filter(student=selected_student)
+    progress_reports = TableSubmittedReport.objects.filter(student=selected_student).order_by('-date_submitted', 'id')
 
     # Check if any reports have missing files and clean them up
     for report in progress_reports:
@@ -359,6 +380,8 @@ def viewTimeLogs(request, student_id):
         if not os.path.isfile(file_path):
             # File does not exist; delete the report
             report.delete()
+
+    cleaned_reports = [(report, clean_filename(report.report_file.name)) for report in progress_reports]
 
     def format_seconds(seconds):
         hours, remainder = divmod(seconds, 3600)
@@ -378,7 +401,7 @@ def viewTimeLogs(request, student_id):
         'studentFirstname': studentFirstname,
         'studentLastname': studentLastname,
         'full_schedule': full_schedule,
-        'progress_reports': progress_reports,
+        'cleaned_reports': cleaned_reports
     }
     return render(request, 'app/TimeLogs.html', context)
 
@@ -400,6 +423,7 @@ def viewStudentInformation(request, student_id):
         }
     )
 
+
 @login_required
 def set_rendering_hours(request):
     user = request.user
@@ -409,6 +433,7 @@ def set_rendering_hours(request):
 
     if request.method == 'POST':
         form = SetRenderingHoursForm(request.POST)
+        upload_form = UploadRequirementForm(request.POST, request.FILES)
         if form.is_valid():
             bsit_hours = form.cleaned_data.get('bsit_hours')
             bscs_hours = form.cleaned_data.get('bscs_hours')
@@ -421,6 +446,13 @@ def set_rendering_hours(request):
                 defaults={'required_hours': bscs_hours}
             )
             saveActivityLogs(user=user, action='SET', request=request, description='Set render time')
+            return redirect('set_rendering_hours')
+        
+        elif upload_form.is_valid():
+            requirement = upload_form.save(commit=False)
+            requirement.save()
+            # Log activity for file upload
+            saveActivityLogs(user=user, action='UPLOAD', request=request, description='Uploaded new requirement')
             return redirect('set_rendering_hours')
     else:
         try:
@@ -438,10 +470,16 @@ def set_rendering_hours(request):
             'bscs_hours': bscs_hours,
         })
 
+        upload_form = UploadRequirementForm()
+
+    # Get all uploaded requirements
+    requirements = TableRequirements.objects.all()
     return render(request, 'app/settings.html', {
         'form': form,
         'firstName': firstName,
-        'lastName': lastName
+        'lastName': lastName,
+        'requirements': requirements,
+        'upload_form': upload_form
     })
 
 def editRenderHours(request):
