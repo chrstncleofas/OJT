@@ -4,10 +4,7 @@ from io import BytesIO
 from datetime import datetime
 from django.urls import reverse
 from django.conf import settings
-from django.utils import timezone
 from django.contrib import messages
-from django.utils.text import slugify
-from django.http import JsonResponse
 from django.core.mail import send_mail
 from django.shortcuts import render, redirect
 from django.shortcuts import get_object_or_404
@@ -20,7 +17,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from app.models import TableAnnouncement, TableRequirements
 from django.contrib.auth import authenticate, login, logout
 from students.models import DataTableStudents, TimeLog, Schedule, TableSubmittedReport, TableSubmittedRequirement
-from students.forms import StudentRegistrationForm, UserForm, ChangePasswordForm, TimeLogForm, StudentProfileForm, ScheduleSettingForm, FillUpPDFForm, SubmittedRequirement
+from students.forms import StudentRegistrationForm, UserForm, ChangePasswordForm, StudentProfileForm, ScheduleSettingForm, FillUpPDFForm, SubmittedRequirement
 
 def studentHome(request) -> HttpResponse:
     return render(request, 'students/student-base.html')
@@ -447,4 +444,18 @@ def scheduleSettings(request):
         'form': form,
         'firstName' : firstName,
         'lastName' : lastName
+    })
+
+def getAllSubmittedDocuments(request):
+    user = request.user
+    student = get_object_or_404(DataTableStudents, user=user)
+    firstName = student.Firstname
+    lastName = student.Lastname
+    progress_report = TableSubmittedReport.objects.filter(student=student).order_by('-date_submitted', 'id')
+    submittedDocs = TableSubmittedRequirement.objects.all()
+    return render(request, 'students/submitted-docs.html', {
+        'firstName' : firstName,
+        'lastName' : lastName,
+        'progress_report': progress_report,
+        'submittedDocs': submittedDocs
     })

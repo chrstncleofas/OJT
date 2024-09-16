@@ -20,6 +20,7 @@ urlpatterns = [
     path('TimeInAndTimeOut/', views.TimeInAndTimeOut, name='TimeInAndTimeOut'),
     path('scheduleSettings/', views.scheduleSettings, name='scheduleSettings'),
     path('requirements/', views.requirements, name='requirements'),
+    path('getAllSubmittedDocuments/', views.getAllSubmittedDocuments, name='getAllSubmittedDocuments'),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)
