@@ -354,10 +354,7 @@ def requirements(request):
             submission = form.save(commit=False)
             submission.student = student
             submission.save()
-            messages.success(request, 'Document uploaded successfully!')
             return HttpResponseRedirect(reverse('students:requirements'))
-        else:
-            messages.error(request, 'Error uploading document. Please check the form.')
 
     form = SubmittedRequirement()
 

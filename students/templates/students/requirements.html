@@ -217,20 +217,21 @@
                             <div class="col-lg-12">
                                 <form method="POST" enctype="multipart/form-data" class="form-inline">
                                     {% csrf_token %}
-                                    
                                     <!-- Requirement Dropdown (select tag) -->
-                                    <div class="form-group mr-3">
+                                    <div class="form-group mr-3 mt-4">
                                         {{ form.nameOfDocs }}
                                     </div>
-                                    
                                     <!-- File Input -->
-                                    <div id="uploadSection" class="form-group mr-3" style="display:none;">
-                                        <input type="file" name="submitted_file" class="form-control-file" style="border: 1px; width: 205px;">
-                                    </div>
-                                    
-                                    <!-- Submit Button -->
-                                    <div class="form-group" id="submitDocs" style="display:none;">
-                                        <button type="submit" class="btn btn-sm btn-primary"><i class="fas fa-upload"></i> Upload</button>
+                                    <div id="uploadSection" class="form-group mr-3 row" style="display:none;">
+                                        <!-- Make sure the paragraph spans the entire width -->
+                                        <div class="col-9">
+                                            <p style="font-size: 11px; margin-bottom: 8px; margin-right: 0px;">Upload File (.pdf, .png, .jpeg, .jpg format, Max. file size is 5 MB)</p>
+                                        </div>  
+                                        <!-- The input field for file upload -->
+                                        <div class="col-9">
+                                            <input type="file" name="submitted_file" class="form-control-file" style="border: 1px; z-index: -1;">
+                                        </div>
+                                        <button type="submit" class="btn btn-sm btn-primary" style="margin-left: -180px; z-index: 1000;"><i class="fas fa-upload"></i> Upload</button>
                                     </div>
                                 </form>
                             </div>
