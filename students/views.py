@@ -229,17 +229,17 @@ def TimeInAndTimeOut(request):
                 'requirements_submitted': requirements_submitted,
             }
         )
-
-    if request.method == 'POST':
-        form = TimeLogForm(request.POST, request.FILES)
-        if form.is_valid():
-            time_log = form.save(commit=False)
-            time_log.student = student
-            time_log.timestamp = timezone.now()
-            time_log.save()
-            return redirect('students:TimeInAndTimeOut')
     else:
-        form = TimeLogForm()
+        if request.method == 'POST':
+            form = TimeLogForm(request.POST, request.FILES)
+            if form.is_valid():
+                time_log = form.save(commit=False)
+                time_log.student = student
+                time_log.timestamp = timezone.now()
+                time_log.save()
+                return redirect('students:TimeInAndTimeOut')
+        else:
+            form = TimeLogForm()
 
     current_time = localtime(timezone.now())
     time_logs = TimeLog.objects.filter(student=student).order_by('-timestamp')
