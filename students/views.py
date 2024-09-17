@@ -229,8 +229,6 @@ def TimeInAndTimeOut(request):
                 'requirements_submitted': requirements_submitted,
             }
         )
-    else:
-        message = None
 
     if request.method == 'POST':
         form = TimeLogForm(request.POST, request.FILES)

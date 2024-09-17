@@ -230,6 +230,8 @@
                                     <div class="alert alert-warning mt-3" role="alert">
                                         {{ message }}
                                     </div>
+                                {% else %}
+                                    <p></p>
                                 {% endif %}
                                 <div class="form-group" style="display: flex; justify-content: space-between;">
                                     <button type="submit" id="timeInBtn" class="btn btn-success" onclick="document.getElementById('id_action').value='IN'" disabled>Time In</button>
