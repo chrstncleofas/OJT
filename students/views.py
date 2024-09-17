@@ -231,18 +231,6 @@ def TimeInAndTimeOut(request):
         )
     else:
         message = None
-        return render(
-            request,
-            'students/timeIn-timeOut.html',
-            {
-                'firstName': student.Firstname,
-                'lastName': student.Lastname,
-                'message': message,
-                'form': TimeLogForm(),
-                'schedule_exists': schedule_exists,
-                'requirements_submitted': requirements_submitted,
-            }
-        )
 
     if request.method == 'POST':
         form = TimeLogForm(request.POST, request.FILES)
