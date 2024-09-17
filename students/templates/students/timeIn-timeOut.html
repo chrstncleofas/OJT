@@ -160,6 +160,22 @@
                     </ul>
                 </div>
             </nav>
+            <div class="modal fade" id="requirementModal" tabindex="-1" aria-labelledby="requirementModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="requirementModalLabel">Requirements Missing</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p>You need to set your schedule and/or submit all required documents before you can clock in or out.</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <!-- Card -->
             <div class="container-fluid">
                 <div class="row p-3">
@@ -210,6 +226,11 @@
                                 {% endif %}
                                 {{ form.action }}
                                 <input type="hidden" id="lastAction" value="{{ last_action }}">
+                                {% if not requirements_submitted or not schedule_set %}
+                                    <div class="alert alert-warning mt-3" role="alert">
+                                        {{ message }}
+                                    </div>
+                                {% endif %}
                                 <div class="form-group" style="display: flex; justify-content: space-between;">
                                     <button type="submit" id="timeInBtn" class="btn btn-success" onclick="document.getElementById('id_action').value='IN'" disabled>Time In</button>
                                     <button type="submit" id="timeOutBtn" class="btn btn-danger" onclick="document.getElementById('id_action').value='OUT'" disabled>Time Out</button>
@@ -317,6 +338,23 @@
 
         // Run the button state function on document ready
         document.addEventListener('DOMContentLoaded', updateButtonStates);
+
+        function handleTimeAction(action) {
+            // Check schedule and requirements
+            let hasSchedule = {{ full_schedule|length }} > 0;
+            let hasRequirements = {{ requirements|length }} > 0; // Assuming you pass the number of requirements as a context variable
+    
+            if (!hasSchedule || !hasRequirements) {
+                // Prevent form submission
+                event.preventDefault();
+    
+                // Show modal
+                $('#requirementModal').modal('show');
+            } else {
+                // Allow form submission
+                document.getElementById('timeForm').submit();
+            }
+        }
     </script>
 </body>
 </html>

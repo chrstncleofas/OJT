@@ -293,18 +293,22 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for student in students %}
+                                {% for pendingStudent in pending %}
                                 <tr>
-                                    <td>{{ student.StudentID }}</td>
-                                    <td>{{ student.Firstname }}</td>
-                                    <td>{{ student.Middlename }}</td>
-                                    <td>{{ student.Lastname }}</td>
-                                    <td>{{ student.Course }}</td>
-                                    <td>{{ student.Year }}</td>
+                                    <td>{{ pendingStudent.PendingStudentID }}</td>
+                                    <td>{{ pendingStudent.PendingFirstname }}</td>
+                                    <td>{{ pendingStudent.PendingMiddlename }}</td>
+                                    <td>{{ pendingStudent.PendingLastname }}</td>
+                                    <td>{{ pendingStudent.PendingCourse }}</td>
+                                    <td>{{ pendingStudent.PendingYear }}</td>
                                     <td>
-                                        <a href="{% url 'viewPendingApplication' student.id %}" class="btn btn-secondary"><i class="fas fa-eye"></i></a>
+                                        <a href="{% url 'viewPendingApplication' pendingStudent.id %}" class="btn btn-secondary"><i class="fas fa-eye"></i></a>
                                     </td>
                                 </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="7" class="text-center">No pending applications found.</td>
+                                    </tr>
                                 {% endfor %}
                             </tbody>
                         </table>
@@ -314,6 +318,7 @@
                             <div class="form-group">
                                 <label for="perPage" class="form-label mr-2">Items per page:</label>
                                 <select id="perPage" class="form-control w-auto" onchange="updatePerPage(this.value)">
+                                    <option value="5" {% if per_page == 5 %}selected{% endif %}>5</option>
                                     <option value="10" {% if per_page == 10 %}selected{% endif %}>10</option>
                                     <option value="20" {% if per_page == 20 %}selected{% endif %}>20</option>
                                     <option value="30" {% if per_page == 30 %}selected{% endif %}>30</option>
@@ -394,6 +399,10 @@
                                         <p class="text-danger">Disapproved</p>
                                     </td>
                                 </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="7" class="text-center">No rejected applications found.</td>
+                                    </tr>
                                 {% endfor %}
                             </tbody>
                         </table>
@@ -403,6 +412,7 @@
                             <div class="form-group">
                                 <label for="perPage" class="form-label mr-2">Items per page:</label>
                                 <select id="perPage" class="form-control w-auto" onchange="updatePerPage(this.value)">
+                                    <option value="5" {% if per_page == 5 %}selected{% endif %}>5</option>
                                     <option value="10" {% if per_page == 10 %}selected{% endif %}>10</option>
                                     <option value="20" {% if per_page == 20 %}selected{% endif %}>20</option>
                                     <option value="30" {% if per_page == 30 %}selected{% endif %}>30</option>
@@ -487,6 +497,10 @@
                                         <a href="{% url 'unArchivedStudent' student.id %}" class="btn btn-primary">Unarchive</a>
                                     </td>
                                 </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="7" class="text-center">No archive account found.</td>
+                                    </tr>
                                 {% endfor %}
                             </tbody>
                         </table>
@@ -496,6 +510,7 @@
                             <div class="form-group">
                                 <label for="perPage" class="form-label mr-2">Items per page:</label>
                                 <select id="perPage" class="form-control w-auto" onchange="updatePerPage(this.value)">
+                                    <option value="5" {% if per_page == 5 %}selected{% endif %}>5</option>
                                     <option value="10" {% if per_page == 10 %}selected{% endif %}>10</option>
                                     <option value="20" {% if per_page == 20 %}selected{% endif %}>20</option>
                                     <option value="30" {% if per_page == 30 %}selected{% endif %}>30</option>

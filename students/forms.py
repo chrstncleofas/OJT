@@ -1,7 +1,7 @@
 from django import forms
 from app.models import CustomUser, TableRequirements
-from students.models import DataTableStudents, TimeLog, TableSubmittedRequirement
 from students.custom_widgets import CustomClearableFileInput
+from students.models import DataTableStudents, TimeLog, TableSubmittedRequirement, PendingApplication
 
 COURSE_CHOICES = [
     ('', '--- Select Course ---'),
@@ -106,7 +106,76 @@ class StudentRegistrationForm(forms.ModelForm):
         self.fields['Course'].required = True
         self.fields['Year'].required = True
 
+class PendingStudentRegistrationForm(forms.ModelForm):
+    PendingStudentID = forms.CharField(
+        max_length=16, 
+        label='Student ID',
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ex. 18-0000'})
+    )
 
+    PendingCourse = forms.ChoiceField(
+        choices=COURSE_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+
+    PendingPrefix = forms.ChoiceField(
+        choices=PREFIX_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        required=False
+    )
+
+    PendingNumber = forms.CharField(
+        max_length=11, 
+        label='Number',
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ex. 09610090120'})
+    )
+
+    PendingYear = forms.ChoiceField(
+        choices=YEAR_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        required=False
+    )
+
+    PendingPassword = forms.CharField(
+        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Enter password'}),
+        label='Password'
+    )
+
+    confirmPassword = forms.CharField(
+        widget=forms.PasswordInput(
+            attrs={'class': 'form-control', 'placeholder': 'Re-type your password'}
+        )
+    )
+
+    class Meta:
+        model = PendingApplication
+        fields = ['PendingStudentID', 'PendingFirstname', 'PendingMiddlename', 'PendingLastname', 'PendingPrefix', 'PendingEmail', 'PendingAddress', 'PendingNumber' ,'PendingCourse', 'PendingYear', 'PendingUsername', 'PendingPassword']
+        widgets = {
+            'PendingFirstname': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter First Name'}),
+            'PendingMiddlename': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Middle Name'}),
+            'PendingLastname': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Last Name'}),
+            'PendingAddress': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Full Address'}),
+            'PendingEmail': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Enter Email'}),
+            'PendingUsername': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Username'}),
+        }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        password = cleaned_data.get("PendingPassword")
+        confirm_password = cleaned_data.get("confirm_password")
+
+        if password and confirm_password and password != confirm_password:
+            self.add_error('confirm_password', "Password and Confirm Password do not match")
+
+    def __init__(self, *args, **kwargs):
+        super(PendingStudentRegistrationForm, self).__init__(*args, **kwargs)
+        self.fields['PendingFirstname'].required = True
+        self.fields['PendingMiddlename'].required = False
+        self.fields['PendingLastname'].required = True
+        self.fields['PendingCourse'].required = True
+        self.fields['PendingYear'].required = True
+
+    
 class StudentProfileForm(forms.ModelForm):
     class Meta:
         model = DataTableStudents

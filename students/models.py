@@ -6,11 +6,6 @@ from django.core.files.base import ContentFile
 from app.models import CustomUser, RenderingHoursTable, TableRequirements
 
 class DataTableStudents(models.Model):
-    STATUS_CHOICES = [
-        ('Pending', 'Pending'),
-        ('Approved', 'Approved'),
-        ('Rejected', 'Rejected'),
-    ]
     ARCHIVED_STATUS = [
         ('NotArchive', 'NotArchive'),
         ('Archive', 'Archive'),
@@ -31,7 +26,7 @@ class DataTableStudents(models.Model):
     Image = models.ImageField(upload_to='profileImage/', blank=True, null=True)
     Username = models.CharField(max_length=100, unique=True)
     Password = models.CharField(max_length=100)
-    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='Pending')
+    status = models.CharField(max_length=50)
     archivedStudents = models.CharField(max_length=30, choices=ARCHIVED_STATUS, default='NotArchive')
 
     def __str__(self):
@@ -43,6 +38,37 @@ class DataTableStudents(models.Model):
             return course_requirement.required_hours
         except RenderingHoursTable.DoesNotExist:
             return None
+        
+class PendingApplication(models.Model):
+    PendingStudentID = models.CharField(max_length=16, unique=True)
+    PendingFirstname = models.CharField(max_length=100)
+    PendingMiddlename = models.CharField(max_length=100, blank=True, null=True)
+    PendingLastname = models.CharField(max_length=100)   
+    PendingPrefix = models.CharField(max_length=100, blank=True, null=True)  
+    PendingEmail = models.EmailField(unique=True)
+    PendingAddress = models.CharField(max_length=250)
+    PendingNumber = models.CharField(max_length=11)
+    PendingCourse = models.CharField(max_length=100)
+    PendingYear = models.CharField(max_length=50)
+    PendingImage = models.ImageField(upload_to='profileImage/', blank=True, null=True)
+    PendingUsername = models.CharField(max_length=100, unique=True)
+    PendingPassword = models.CharField(max_length=100)
+    StatusApplication = models.CharField(max_length=100, default='PendingApplication')
+
+class RejectApplication(models.Model):
+    StudentID = models.CharField(max_length=16, unique=True)
+    Firstname = models.CharField(max_length=100)
+    Middlename = models.CharField(max_length=100, blank=True, null=True)
+    Lastname = models.CharField(max_length=100)   
+    Prefix = models.CharField(max_length=100, blank=True, null=True)  
+    Email = models.EmailField(unique=True)
+    Address = models.CharField(max_length=250)
+    Number = models.CharField(max_length=11)
+    Course = models.CharField(max_length=100)
+    Year = models.CharField(max_length=50)
+    Username = models.CharField(max_length=100, unique=True)
+    Password = models.CharField(max_length=100)
+    status = models.CharField(max_length=100, default='RejectedApplication')
 
 class TimeLog(models.Model):
     student = models.ForeignKey(DataTableStudents, on_delete=models.CASCADE)

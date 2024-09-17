@@ -5,19 +5,21 @@ from datetime import datetime
 from django.urls import reverse
 from django.conf import settings
 from django.contrib import messages
+from django.utils import timezone
 from django.core.mail import send_mail
 from django.shortcuts import render, redirect
 from django.shortcuts import get_object_or_404
 from django.utils.timezone import now, localtime
 from django.template.loader import render_to_string
+from django.contrib.auth.hashers import make_password
 from django.contrib.auth.hashers import check_password
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseRedirect
 from app.models import TableAnnouncement, TableRequirements
 from django.contrib.auth import authenticate, login, logout
-from students.models import DataTableStudents, TimeLog, Schedule, TableSubmittedReport, TableSubmittedRequirement
-from students.forms import StudentRegistrationForm, UserForm, ChangePasswordForm, StudentProfileForm, ScheduleSettingForm, FillUpPDFForm, SubmittedRequirement
+from students.models import DataTableStudents, TimeLog, Schedule, TableSubmittedReport, TableSubmittedRequirement, PendingApplication
+from students.forms import StudentRegistrationForm, UserForm, ChangePasswordForm, StudentProfileForm, ScheduleSettingForm, FillUpPDFForm, SubmittedRequirement, PendingStudentRegistrationForm, TimeLogForm
 
 def studentHome(request) -> HttpResponse:
     return render(request, 'students/student-base.html')
@@ -207,25 +209,53 @@ def TimeInAndTimeOut(request):
     user = request.user
     student = get_object_or_404(DataTableStudents, user=user)
 
-    if request.method == 'POST':
-        form = SubmittedRequirement(request.POST, request.FILES)
-        
-        if form.is_valid():
-            submission = form.save(commit=False)
-            submission.student = student  # Assign the student to the submission
-            submission.save()
-            messages.success(request, 'Document uploaded successfully!')
-        else:
-            messages.error(request, 'Error uploading document.')
+    # Check if the student has set a schedule
+    schedule_exists = Schedule.objects.filter(student=student).exists()
+    
+    # Check if the student has submitted requirements
+    requirements_submitted = TableSubmittedRequirement.objects.filter(student=student).exists()
 
+    if not schedule_exists or not requirements_submitted:
+        message = 'Please set your schedule and submit your requirements before you can time in.'
+        return render(
+            request,
+            'students/timeIn-timeOut.html',
+            {
+                'firstName': student.Firstname,
+                'lastName': student.Lastname,
+                'message': message,
+                'form': TimeLogForm(),
+                'schedule_exists': schedule_exists,
+                'requirements_submitted': requirements_submitted,
+            }
+        )
     else:
-        form = SubmittedRequirement()
+        message = None
+        return render(
+            request,
+            'students/timeIn-timeOut.html',
+            {
+                'firstName': student.Firstname,
+                'lastName': student.Lastname,
+                'message': message,
+                'form': TimeLogForm(),
+                'schedule_exists': schedule_exists,
+                'requirements_submitted': requirements_submitted,
+            }
+        )
 
-    current_time = localtime(now())
+    if request.method == 'POST':
+        form = TimeLogForm(request.POST, request.FILES)
+        if form.is_valid():
+            time_log = form.save(commit=False)
+            time_log.student = student
+            time_log.timestamp = timezone.now()
+            time_log.save()
+            return redirect('students:TimeInAndTimeOut')
+    else:
+        form = TimeLogForm()
 
-    firstName = student.Firstname
-    lastName = student.Lastname
-    # Determine last action for button logic
+    current_time = localtime(timezone.now())
     time_logs = TimeLog.objects.filter(student=student).order_by('-timestamp')
     last_action = time_logs[0].action if time_logs else ''
     full_schedule = Schedule.objects.filter(student=student, day__in=['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']).order_by('id')
@@ -234,13 +264,15 @@ def TimeInAndTimeOut(request):
         request,
         'students/timeIn-timeOut.html',
         {
-            'firstName': firstName,
-            'lastName': lastName,
+            'firstName': student.Firstname,
+            'lastName': student.Lastname,
             'time_logs': time_logs,
             'current_time': current_time,
             'form': form,
             'full_schedule': full_schedule,
             'last_action': last_action,
+            'schedule_exists': schedule_exists,
+            'requirements_submitted': requirements_submitted,
         }
     )
 
@@ -301,46 +333,45 @@ def changePassword(request):
 
 def studentRegister(request):
     if request.method == 'POST':
-        user_form = UserForm(request.POST)
-        student_form = StudentRegistrationForm(request.POST)
-        if user_form.is_valid() and student_form.is_valid():
-            user = user_form.save(commit=False)
-            user.set_password(user_form.cleaned_data['password'])
-            user.save()
-            student = student_form.save(commit=False)
-            student.user = user
-            student.StudentID = student_form.cleaned_data['StudentID']
-            student.Email = user.email
-            student.Username = user.username
-            student.Password = user.password
-            student.save()
-
-            # Sending email notification
-            subject = 'Registration Successful'
+        pending_registration_form = PendingStudentRegistrationForm(request.POST)
+        if pending_registration_form.is_valid():
+            # Create a new PendingRegistration entry (no storing in actual students table)
+            pending_registration = PendingApplication(
+                PendingEmail=pending_registration_form.cleaned_data['PendingEmail'],
+                PendingUsername=pending_registration_form.cleaned_data['PendingUsername'],
+                PendingPassword=pending_registration_form.cleaned_data['PendingPassword'],
+                PendingFirstname=pending_registration_form.cleaned_data['PendingFirstname'],
+                PendingMiddlename=pending_registration_form.cleaned_data.get('PendingMiddlename', ''),
+                PendingLastname=pending_registration_form.cleaned_data['PendingLastname'],
+                PendingPrefix=pending_registration_form.cleaned_data.get('PendingPrefix', ''),
+                PendingStudentID=pending_registration_form.cleaned_data['PendingStudentID'],
+                PendingAddress=pending_registration_form.cleaned_data['PendingAddress'],
+                PendingNumber=pending_registration_form.cleaned_data['PendingNumber'],
+                PendingCourse=pending_registration_form.cleaned_data['PendingCourse'],
+                PendingYear=pending_registration_form.cleaned_data['PendingYear'],
+            )
+            pending_registration.save()
+            # Sending email notification to the student
+            subject = 'Registration Pending Approval'
             message = render_to_string('students/registration_email.txt', {
-                'first_name': student.Firstname,
-                'last_name': student.Lastname,
-                'email': student.Email,
-                'username': student.Username,
+                'first_name': pending_registration.PendingFirstname,
+                'last_name': pending_registration.PendingLastname,
+                'email': pending_registration.PendingEmail,
+                'username': pending_registration.PendingUsername,
             })
-            recipient_list = [student.Email]
+            recipient_list = [pending_registration.PendingEmail]
             send_mail(subject, message, settings.EMAIL_HOST_USER, recipient_list, fail_silently=False)
-
-            messages.success(request, "Registration successful, Your account is pending approval by an admin, Please wait for admin's approve your account...")
+            messages.success(request, "Your registration is pending approval by the admin.")
             return redirect('students:register')
-        else:
-            for field, errors in user_form.errors.items():
-                for error in errors:
-                    messages.error(request, f"{field}: {error}")
-            for field, errors in student_form.errors.items():
-                for error in errors:
-                    messages.error(request, f"{field}: {error}")
     else:
-        user_form = UserForm()
-        student_form = StudentRegistrationForm()
+        pending_registration_form = PendingStudentRegistrationForm()
 
-    return render(request, 'students/register.html', {'user_form': user_form, 'student_form': student_form})
-
+    return render(
+        request, 'students/register.html', 
+        {
+            'pending_registration_form': pending_registration_form
+        }
+    )
 
 def requirements(request):
     user = request.user

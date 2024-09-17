@@ -15,6 +15,7 @@ from django.shortcuts import render, redirect
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 from app.models import CustomUser, TableAnnouncement
+from django.contrib.auth.hashers import make_password
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.contrib.auth import update_session_auth_hash
@@ -25,8 +26,8 @@ from app.models import RenderingHoursTable, TableRequirements
 from students.forms import EditStudentForm, ScheduleSettingForm
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from app.forms import EditProfileForm, AnnouncementForm, UploadRequirementForm
-from students.models import DataTableStudents, TimeLog, Schedule, TableSubmittedReport, TableSubmittedRequirement
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponsePermanentRedirect, JsonResponse
+from students.models import DataTableStudents, TimeLog, Schedule, TableSubmittedReport, TableSubmittedRequirement, PendingApplication, RejectApplication
 
 HOME_URL_PATH = 'app/base.html'
 DASHBOARD = 'app/dashboard.html'
@@ -52,12 +53,11 @@ def mainDashboard(request):
     approve = DataTableStudents.objects.filter(status='Approved', archivedStudents='NotArchive')
     approve_count = approve.count()
     # Pending
-    pending = DataTableStudents.objects.filter(status='Pending')
+    pending = PendingApplication.objects.filter(StatusApplication='PendingApplication').order_by('id')
     pending_count = pending.count()
     # Rejected
-    reject = DataTableStudents.objects.filter(status='Rejected')
+    reject = DataTableStudents.objects.filter(status='RejectedApplication')
     reject_count = reject.count()
-
 
     if request.method == 'GET' and request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         return JsonResponse({
@@ -77,6 +77,59 @@ def mainDashboard(request):
             'lastName': lastName
         }
     )
+
+def studentManagement(request):
+    user = request.user
+    admin = get_object_or_404(CustomUser, id=user.id)
+
+    # Retrieve admin details
+    firstName = admin.first_name
+    lastName = admin.last_name
+
+    # Filter data based on student status
+    approved = DataTableStudents.objects.filter(status='Approved', archivedStudents='NotArchive')
+    pending = PendingApplication.objects.filter(StatusApplication='PendingApplication').order_by('id')
+    rejected = RejectApplication.objects.filter(status='RejectedApplication').order_by('id')
+    archive = DataTableStudents.objects.filter(archivedStudents='Archive')
+
+    # Get the active tab and pagination parameters
+    active_tab = request.GET.get('tab', 'approved-students')  # Default to 'approved-students' tab
+    page = request.GET.get('page', 1)
+    per_page = int(request.GET.get('per_page', 5))  # Default items per page
+
+    # Determine which list to paginate based on the active tab
+    if active_tab == 'approved-students':
+        students_list = approved
+    elif active_tab == 'pending-application':
+        students_list = pending
+    elif active_tab == 'rejected-application':
+        students_list = rejected
+    elif active_tab == 'archive':
+        students_list = archive
+    else:
+        students_list = []
+
+    # Setup paginator and handle pagination
+    paginator = Paginator(students_list, per_page)
+    try:
+        students = paginator.page(page)
+    except PageNotAnInteger:
+        students = paginator.page(1)
+    except EmptyPage:
+        students = paginator.page(paginator.num_pages)
+
+    # Context for the template
+    context = {
+        'students': students,
+        'pending': pending,
+        'firstName': firstName,
+        'lastName': lastName,
+        'active_tab': active_tab,
+        'per_page': per_page,
+        'paginator': paginator,
+    }
+
+    return render(request, 'app/manage-student.html', context)
 
 def profile(request):
     user = request.user
@@ -121,58 +174,6 @@ def changePass(request):
         'firstName': firstName,
         'lastName': lastName
     })
-
-def studentManagement(request):
-    user = request.user
-    admin = get_object_or_404(CustomUser, id=user.id)
-
-    # Retrieve admin details
-    firstName = admin.first_name
-    lastName = admin.last_name
-
-    # Filter data based on student status
-    approved = DataTableStudents.objects.filter(status='Approved', archivedStudents='NotArchive')
-    pending = DataTableStudents.objects.filter(status='Pending')
-    rejected = DataTableStudents.objects.filter(status='Rejected')
-    archive = DataTableStudents.objects.filter(archivedStudents='Archive')
-
-    # Get the active tab and pagination parameters
-    active_tab = request.GET.get('tab', 'approved-students')  # Default to 'approved-students' tab
-    page = request.GET.get('page', 1)
-    per_page = int(request.GET.get('per_page', 5))  # Default items per page
-
-    # Determine which list to paginate based on the active tab
-    if active_tab == 'approved-students':
-        students_list = approved
-    elif active_tab == 'pending-application':
-        students_list = pending
-    elif active_tab == 'rejected-application':
-        students_list = rejected
-    else:  # Archive tab
-        students_list = archive
-
-    # Setup paginator and handle pagination
-    paginator = Paginator(students_list, per_page)
-    try:
-        students = paginator.page(page)
-    except PageNotAnInteger:
-        students = paginator.page(1)
-    except EmptyPage:
-        students = paginator.page(paginator.num_pages)
-
-    # Render the management template with the paginated students and context data
-    return render(
-        request,
-        'app/manage-student.html',  # Replace with your actual template path
-        {
-            'students': students,
-            'firstName': firstName,
-            'lastName': lastName,
-            'active_tab': active_tab,
-            'per_page': per_page,
-            'paginator': paginator,
-        }
-    )
 
 def userLoginFunction(request):
     if request.method == 'POST':
@@ -224,20 +225,80 @@ def validateAdminPassword(request):
     else:
         return JsonResponse({'status': 'error', 'message': 'Incorrect password'})
 
+# def approveStudent(request, id):
+#     user = request.user
+#     student = DataTableStudents.objects.get(id=id)
+#     student.status = 'Approved'
+#     student.save()
+#     saveActivityLogs(user=user, action='APPROVED', request=request, description='Approve students')
+#     subject = 'Your OJT Management System Account Has Been Approved'
+#     message = render_to_string('app/approval_email.txt', {
+#         'first_name': student.Firstname,
+#         'last_name': student.Lastname,
+#     })
+#     recipient_list = [student.Email]
+#     send_mail(subject, message, settings.EMAIL_HOST_USER, recipient_list, fail_silently=False)
+#     return redirect(reverse('studentManagement'))
+
 def approveStudent(request, id):
     user = request.user
-    student = DataTableStudents.objects.get(id=id)
-    student.status = 'Approved'
-    student.save()
-    saveActivityLogs(user=user, action='APPROVED', request=request, description='Approve students')
+
+    # Get the pending application by ID
+    pending_student = get_object_or_404(PendingApplication, id=id)
+
+    # Create a new user in CustomUser model
+    new_user = CustomUser.objects.create(
+        username=pending_student.PendingUsername,
+        email=pending_student.PendingEmail,
+        password=make_password(pending_student.PendingPassword),  # Hash the password
+        first_name=pending_student.PendingFirstname,
+        last_name=pending_student.PendingLastname,
+    )
+    
+    # Save the new user to the database
+    new_user.save()
+
+    # Create a new student in DataTableStudents linked to the new CustomUser
+    new_student = DataTableStudents.objects.create(
+        user=new_user,
+        StudentID=pending_student.PendingStudentID,
+        Firstname=pending_student.PendingFirstname,
+        Middlename=pending_student.PendingMiddlename,
+        Lastname=pending_student.PendingLastname,
+        Email=pending_student.PendingEmail,
+        Address=pending_student.PendingAddress,
+        Number=pending_student.PendingNumber,
+        Course=pending_student.PendingCourse,
+        Year=pending_student.PendingYear,
+        Username=pending_student.PendingUsername,
+        Password=new_user.password,  # Use the hashed password from CustomUser
+        status='Approved',
+        archivedStudents='NotArchive',
+    )
+    
+    # Save the new student to the database
+    new_student.save()
+
+    # Delete the pending application after approval
+    pending_student.delete()
+
+    # Log the approval action
+    saveActivityLogs(user=user, action='APPROVED', request=request, description=f"Approved student {new_student.Firstname} {new_student.Lastname}")
+
+    # Send approval email to the student
     subject = 'Your OJT Management System Account Has Been Approved'
     message = render_to_string('app/approval_email.txt', {
-        'first_name': student.Firstname,
-        'last_name': student.Lastname,
+        'first_name': new_student.Firstname,
+        'last_name': new_student.Lastname,
     })
-    recipient_list = [student.Email]
+    recipient_list = [new_student.Email]
     send_mail(subject, message, settings.EMAIL_HOST_USER, recipient_list, fail_silently=False)
-    return redirect(reverse('studentManagement'))
+
+    # Display a success message to the admin
+    messages.success(request, f"{new_student.Firstname} {new_student.Lastname} has been approved and added to the student list.")
+
+    # Redirect back to the student management page
+    return redirect('studentManagement')
 
 @csrf_exempt
 def rejectStudent(request, id):
@@ -318,9 +379,13 @@ def timeSheet(request):
     )
 
 def viewPendingApplication(request, id):
-    students = get_object_or_404(DataTableStudents, id=id)
+    # 
     user = request.user
+    # 
+    students = get_object_or_404(PendingApplication, id=id)
+    # 
     admin = get_object_or_404(CustomUser, id=user.id)
+    # 
     firstName = admin.first_name
     lastName = admin.last_name
     return render(

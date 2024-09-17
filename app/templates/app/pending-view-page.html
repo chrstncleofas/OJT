@@ -103,7 +103,7 @@
                 <h3 class="mt-4 mb-3">Pending Application</h3>
                 <hr class="hr">
                 <div class="d-flex justify-content-between mb-3 mt-3">
-                    <p class="mt-1 text-center" style="font-size: 13px; font-weight: bold; text-align: center; justify-content: center;">Application Status: <span style="font-weight: 600;">{{ students.status }}</span></p> 
+                    <p class="mt-1 text-center" style="font-size: 13px; font-weight: bold; text-align: center; justify-content: center;">Application Status: <span style="font-weight: 600;">{{ students.StatusApplication }}</span></p> 
                     <div>
                         <a href="{% url 'studentManagement' %}" class="btn btn-primary">Back</a>
                         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#approveModal{{students.id}}">Approve</button>
@@ -155,37 +155,41 @@
                     <div class="row">
                         <div class="col-md-4">
                             <label for="StudentID">Student ID</label>
-                            <input type="text" class="form-control" id="StudentID" name="StudentID" value"{{ students.StudentID }}" placeholder="{{ students.StudentID }}">
+                            <input type="text" class="form-control" id="StudentID" name="StudentID" value"{{ students.PendingStudentID }}" placeholder="{{ students.PendingStudentID }}">
                         </div>
                         <div class="col-md-4">
                             <label for="Firstname">First Name</label>
-                            <input type="text" class="form-control" id="Firstname" name="StudentID" value"{{ students.Firstname }}" placeholder="{{ students.Firstname }}">
+                            <input type="text" class="form-control" id="Firstname" name="StudentID" value"{{ students.PendingFirstname }}" placeholder="{{ students.PendingFirstname }}">
                         </div>
                         <div class="col-md-4">
                             <label for="Middlename">Middle Name</label>
-                            <input type="text" class="form-control" id="Middlename" name="StudentID" value"{{ students.Middlename }}" placeholder="{{ students.Middlename }}">
+                            <input type="text" class="form-control" id="Middlename" name="StudentID" value"{{ students.PendingMiddlename }}" placeholder="{{ students.PendingMiddlename }}">
                         </div>
                         <div class="col-md-4 mt-2">
                             <label for="Lastname">Last Name</label>
-                            <input type="text" class="form-control" id="Lastname" name="StudentID" value"{{ students.Lastname }}" placeholder="{{ students.Lastname }}">       
+                            <input type="text" class="form-control" id="Lastname" name="StudentID" value"{{ students.PendingLastname }}" placeholder="{{ students.PendingLastname }}">       
                         </div>
                         <div class="col-md-4 mt-2">
                             <label for="Prefix">Prefix</label>
-                            <input type="text" class="form-control" id="Prefix" name="Prefix" value"{{ students.Prefix }}" placeholder="{{ students.Prefix }}">
+                            <input type="text" class="form-control" id="Prefix" name="Prefix" value"{{ students.PendingPrefix }}" placeholder="{{ students.PendingPrefix }}">
                         </div>
                         <div class="col-md-4 mt-2">
                             <label for="Email">Email</label>
-                            <input type="email" class="form-control" id="Email" name="Email" value"{{ students.Email }}" placeholder="{{ students.Email }}">
+                            <input type="email" class="form-control" id="Email" name="Email" value"{{ students.PendingEmail }}" placeholder="{{ students.PendingEmail }}">
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-4 mt-2">
                             <label for="Course">Course & Year</label>
-                            <input type="text" class="form-control" id="Course Year" name="Course Year" value"{{ students.Course }} & {{ students.Year }}" placeholder="{{ students.Course }} & {{ students.Year }} Year">
+                            <input type="text" class="form-control" id="Course Year" name="Course Year" value"{{ students.PendingCourse }} & {{ students.PendingYear }}" placeholder="{{ students.PendingCourse }} & {{ students.PendingYear }} Year">
                         </div>  
                         <div class="col-md-4 mt-2">
                             <label for="Username">Username</label>
-                            <input type="text" class="form-control" id="Username" name="Username" value"{{ students.Username }} & {{ students.Username }}" placeholder="{{ students.Username }}">
+                            <input type="text" class="form-control" id="Username" name="Username" value"{{ students.PendingUsername }} & {{ students.PendingUsername }}" placeholder="{{ students.PendingUsername }}">
+                        </div>
+                        <div class="col-md-4 mt-2">
+                            <label for="Password">Password</label>
+                            <input type="password" class="form-control" id="Password" name="Password" value"{{ students.PendingPassword }} & {{ students.PendingPassword }}" placeholder="{{ students.PendingPassword }}">
                         </div>
                     </div>
                 </form>
