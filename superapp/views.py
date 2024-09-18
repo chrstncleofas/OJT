@@ -213,14 +213,19 @@ def viewStudent(request, id):
     return render(request, 'superapp/TimeLogs.html', context)
 
 def viewPendingApplication(request, id):
-    students = get_object_or_404(DataTableStudents, id=id)
     user = request.user
+    try:
+        students = PendingApplication.objects.get(id=id)
+    except PendingApplication.DoesNotExist:
+        return redirect('studentManagement')
+
     admin = get_object_or_404(CustomUser, id=user.id)
     firstName = admin.first_name
     lastName = admin.last_name
+
     return render(
         request,
-        'superapp/pending-view-page.html',
+        'app/pending-view-page.html',
         {
             'students': students,
             'firstName': firstName,

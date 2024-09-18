@@ -519,7 +519,6 @@ def viewStudentInformation(request, student_id):
         }
     )
 
-
 @login_required
 def set_rendering_hours(request):
     user = request.user
