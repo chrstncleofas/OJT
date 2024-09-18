@@ -56,7 +56,7 @@ def mainDashboard(request):
     pending = PendingApplication.objects.filter(StatusApplication='PendingApplication').order_by('id')
     pending_count = pending.count()
     # Rejected
-    reject = DataTableStudents.objects.filter(status='RejectedApplication')
+    reject = RejectApplication.objects.filter(RejectStatus='RejectedApplication').order_by('id')
     reject_count = reject.count()
 
     if request.method == 'GET' and request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -87,10 +87,10 @@ def studentManagement(request):
     lastName = admin.last_name
 
     # Filter data based on student status
-    approved = DataTableStudents.objects.filter(status='Approved', archivedStudents='NotArchive')
+    approved = DataTableStudents.objects.filter(status='Approved', archivedStudents='NotArchive').order_by('id')
     pending = PendingApplication.objects.filter(StatusApplication='PendingApplication').order_by('id')
-    rejected = RejectApplication.objects.filter(status='RejectedApplication').order_by('id')
-    archive = DataTableStudents.objects.filter(archivedStudents='Archive')
+    rejected = RejectApplication.objects.filter(RejectStatus='RejectedApplication').order_by('id')
+    archive = DataTableStudents.objects.filter(archivedStudents='Archive').order_by('id')
 
     # Get the active tab and pagination parameters
     active_tab = request.GET.get('tab', 'approved-students')  # Default to 'approved-students' tab
@@ -122,6 +122,8 @@ def studentManagement(request):
     context = {
         'students': students,
         'pending': pending,
+        'rejected': rejected,
+        'archive': archive,
         'firstName': firstName,
         'lastName': lastName,
         'active_tab': active_tab,
@@ -304,23 +306,63 @@ def approveStudent(request, id):
 def rejectStudent(request, id):
     user = request.user
     if request.method == 'POST':
-        student = DataTableStudents.objects.get(id=id)
-        data = json.loads(request.body)
-        reason = data.get('reason', 'No reason provided')
-        student.status = 'Rejected'
-        student.save()
-        saveActivityLogs(user=user, action='REJECTED', request=request, description='Rejected students')
-        subject = 'Account Rejected'
-        message = render_to_string('app/rejection_email.txt', {
-            'first_name': student.Firstname,
-            'last_name': student.Lastname,
-            'reason': reason
-        })
-        recipient_list = [student.Email]
-        send_mail(subject, message, settings.EMAIL_HOST_USER, recipient_list, fail_silently=False)
+        try:
+            # Step 1: Try to fetch the pending application by ID
+            try:
+                pending_application = PendingApplication.objects.get(id=id)
+            except PendingApplication.DoesNotExist:
+                # If already deleted, just return success
+                return JsonResponse({'status': 'success', 'message': 'Pending application was already deleted.'})
 
-        return JsonResponse({'status': 'success'})
-    return JsonResponse({'status': 'failed'}, status=400)
+            # Step 2: Get the rejection reason from the request body
+            data = json.loads(request.body)
+            reason = data.get('reason', 'No reason provided')
+
+            # Step 3: Create a new entry in RejectApplication with data from PendingApplication
+            rejected = RejectApplication.objects.create(
+                RejectStudentID=pending_application.PendingStudentID,
+                RejectFirstname=pending_application.PendingFirstname,
+                RejectMiddlename=pending_application.PendingMiddlename,
+                RejectLastname=pending_application.PendingLastname,
+                RejectPrefix=pending_application.PendingPrefix,
+                RejectEmail=pending_application.PendingEmail,
+                RejectAddress=pending_application.PendingAddress,
+                RejectNumber=pending_application.PendingNumber,
+                RejectCourse=pending_application.PendingCourse,
+                RejectYear=pending_application.PendingYear,
+                RejectUsername=pending_application.PendingUsername,
+                RejectPassword=make_password(pending_application.PendingPassword),
+                RejectStatus='RejectedApplication'
+            )
+
+            # Step 4: Save the rejected application
+            rejected.save()
+
+            # Step 5: Log the rejection activity
+            saveActivityLogs(user=user, action='REJECTED', request=request, description='Rejected pending student application')
+
+            # Step 6: Send a rejection email
+            subject = 'Account Rejected'
+            message = render_to_string('app/rejection_email.txt', {
+                'first_name': pending_application.PendingFirstname,
+                'last_name': pending_application.PendingLastname,
+                'reason': reason
+            })
+            recipient_list = [pending_application.PendingEmail]
+            send_mail(subject, message, settings.EMAIL_HOST_USER, recipient_list, fail_silently=False)
+
+            # Step 7: Now, delete the pending application after everything else is successful
+            pending_application.delete()
+
+            # Step 8: Return success response
+            return JsonResponse({'status': 'success', 'message': 'Student successfully rejected.'})
+
+        except Exception as e:
+            # Catch any other errors and return failure
+            return JsonResponse({'status': 'failed', 'message': str(e)}, status=400)
+
+    # Handle non-POST requests
+    return redirect('studentManagement')
 
 def unArchivedStudent(request, id):
     user = request.user
@@ -379,15 +421,18 @@ def timeSheet(request):
     )
 
 def viewPendingApplication(request, id):
-    # 
     user = request.user
-    # 
-    students = get_object_or_404(PendingApplication, id=id)
-    # 
+    try:
+        # Try to fetch the pending application by ID
+        students = PendingApplication.objects.get(id=id)
+    except PendingApplication.DoesNotExist:
+        # Handle the case where the record does not exist
+        return redirect('studentManagement')  # or render an error page
+
     admin = get_object_or_404(CustomUser, id=user.id)
-    # 
     firstName = admin.first_name
     lastName = admin.last_name
+
     return render(
         request,
         'app/pending-view-page.html',

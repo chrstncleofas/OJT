@@ -387,14 +387,14 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for student in students %}
+                                {% for student in rejected %}
                                 <tr>
-                                    <td>{{ student.StudentID }}</td>
-                                    <td>{{ student.Firstname }}</td>
-                                    <td>{{ student.Middlename }}</td>
-                                    <td>{{ student.Lastname }}</td>
-                                    <td>{{ student.Course }}</td>
-                                    <td>{{ student.Year }}</td>
+                                    <td>{{ student.RejectStudentID }}</td>
+                                    <td>{{ student.RejectFirstname }}</td>
+                                    <td>{{ student.RejectMiddlename }}</td>
+                                    <td>{{ student.RejectLastname }}</td>
+                                    <td>{{ student.RejectCourse }}</td>
+                                    <td>{{ student.RejectYear }}</td>
                                     <td>
                                         <p class="text-danger">Disapproved</p>
                                     </td>
@@ -482,7 +482,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for student in students %}
+                                {% for student in archive %}
                                 <tr>
                                     <td>{{ student.StudentID }}</td>
                                     <td>{{ student.Firstname }}</td>
