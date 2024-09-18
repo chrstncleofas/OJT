@@ -270,18 +270,22 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for student in students %}
+                                {% for student in pending %}
                                 <tr>
-                                    <td>{{ student.StudentID }}</td>
-                                    <td>{{ student.Firstname }}</td>
-                                    <td>{{ student.Middlename }}</td>
-                                    <td>{{ student.Lastname }}</td>
-                                    <td>{{ student.Course }}</td>
-                                    <td>{{ student.Year }}</td>
+                                    <td>{{ student.PendingStudentID }}</td>
+                                    <td>{{ student.PendingFirstname }}</td>
+                                    <td>{{ student.PendingMiddlename }}</td>
+                                    <td>{{ student.PendingLastname }}</td>
+                                    <td>{{ student.PendingCourse }}</td>
+                                    <td>{{ student.PendingYear }}</td>
                                     <td>
                                         <a href="{% url 'superapp:viewPendingApplication' student.id %}" class="btn btn-secondary"><i class="fas fa-eye"></i></a>
                                     </td>
                                 </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="7" class="text-center">No pending applications found.</td>
+                                    </tr>
                                 {% endfor %}
                             </tbody>
                         </table>
@@ -358,18 +362,22 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for student in students %}
+                                {% for student in rejected %}
                                 <tr>
-                                    <td>{{ student.StudentID }}</td>
-                                    <td>{{ student.Firstname }}</td>
-                                    <td>{{ student.Middlename }}</td>
-                                    <td>{{ student.Lastname }}</td>
-                                    <td>{{ student.Course }}</td>
-                                    <td>{{ student.Year }}</td>
+                                    <td>{{ student.RejectStudentID }}</td>
+                                    <td>{{ student.RejectFirstname }}</td>
+                                    <td>{{ student.RejectMiddlename }}</td>
+                                    <td>{{ student.RejectLastname }}</td>
+                                    <td>{{ student.RejectCourse }}</td>
+                                    <td>{{ student.RejectYear }}</td>
                                     <td>
                                         <p class="text-danger">Disapproved</p>
                                     </td>
                                 </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="7" class="text-center">No rejected applications found.</td>
+                                    </tr>
                                 {% endfor %}
                             </tbody>
                         </table>
@@ -447,7 +455,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for student in students %}
+                                {% for student in archive %}
                                 <tr>
                                     <td>{{ student.StudentID }}</td>
                                     <td>{{ student.Firstname }}</td>
@@ -462,6 +470,10 @@
                                         <a href="{% url 'unArchivedStudent' student.id %}" class="btn btn-primary">Unarchive</a>
                                     </td>
                                 </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="7" class="text-center">No archive account found.</td>
+                                    </tr>
                                 {% endfor %}
                             </tbody>
                         </table>

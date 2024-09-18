@@ -18,6 +18,7 @@ from django.contrib.auth import authenticate, login, logout
 from students.models import DataTableStudents, TimeLog, Schedule
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from app.models import TableAnnouncement, StoreActivityLogs, TableRequirements
+from students.models import PendingApplication, RejectApplication
 from app.forms import EditUsersDetailsForm, AnnouncementForm, UploadRequirementForm
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponsePermanentRedirect, JsonResponse
 
@@ -43,10 +44,10 @@ def mainDashboard(request):
     approve = DataTableStudents.objects.filter(status='Approved', archivedStudents='NotArchive')
     approve_count = approve.count()
     # Pending
-    pending = DataTableStudents.objects.filter(status='Pending')
+    pending = PendingApplication.objects.filter(StatusApplication='PendingApplication')
     pending_count = pending.count()
     # Rejected
-    reject = DataTableStudents.objects.filter(status='Rejected')
+    reject = RejectApplication.objects.filter(RejectStatus='RejectedApplication')
     reject_count = reject.count()
 
     if request.method == 'GET' and request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -104,8 +105,8 @@ def studentManagement(request):
     lastName = admin.last_name
     
     approved = DataTableStudents.objects.filter(status='Approved', archivedStudents='NotArchive')
-    pending = DataTableStudents.objects.filter(status='Pending')
-    rejected = DataTableStudents.objects.filter(status='Rejected')
+    pending = PendingApplication.objects.filter(StatusApplication='PendingApplication')
+    rejected = RejectApplication.objects.filter(RejectStatus='RejectedApplication')
     archive = DataTableStudents.objects.filter(archivedStudents='Archive')
     
     # Get the active tab and pagination parameters
@@ -148,6 +149,9 @@ def studentManagement(request):
         MANAGEMENT_STUDENT,
         {
             'students': students,
+            'pending': pending,
+            'rejected': rejected,
+            'archive': archive,
             'firstName': firstName,
             'lastName': lastName,
             'active_tab': active_tab,
