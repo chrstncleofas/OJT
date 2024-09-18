@@ -53,10 +53,10 @@ def mainDashboard(request):
     approve = DataTableStudents.objects.filter(status='Approved', archivedStudents='NotArchive')
     approve_count = approve.count()
     # Pending
-    pending = PendingApplication.objects.filter(StatusApplication='PendingApplication').order_by('id')
+    pending = PendingApplication.objects.filter(StatusApplication='PendingApplication', PendingStatusArchive='NotArchive').order_by('id')
     pending_count = pending.count()
     # Rejected
-    reject = RejectApplication.objects.filter(RejectStatus='RejectedApplication').order_by('id')
+    reject = RejectApplication.objects.filter(RejectStatus='RejectedApplication', RejectStatusArchive='NotArchive').order_by('id')
     reject_count = reject.count()
 
     if request.method == 'GET' and request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -88,8 +88,8 @@ def studentManagement(request):
 
     # Filter data based on student status
     approved = DataTableStudents.objects.filter(status='Approved', archivedStudents='NotArchive').order_by('id')
-    pending = PendingApplication.objects.filter(StatusApplication='PendingApplication').order_by('id')
-    rejected = RejectApplication.objects.filter(RejectStatus='RejectedApplication').order_by('id')
+    pending = PendingApplication.objects.filter(StatusApplication='PendingApplication', PendingStatusArchive='NotArchive').order_by('id')
+    rejected = RejectApplication.objects.filter(RejectStatus='RejectedApplication', RejectStatusArchive='NotArchive').order_by('id')
     archive = DataTableStudents.objects.filter(archivedStudents='Archive').order_by('id')
 
     # Get the active tab and pagination parameters

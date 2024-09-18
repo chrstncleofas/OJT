@@ -54,6 +54,7 @@ class PendingApplication(models.Model):
     PendingUsername = models.CharField(max_length=100, unique=True)
     PendingPassword = models.CharField(max_length=100)
     StatusApplication = models.CharField(max_length=100, default='PendingApplication')
+    PendingStatusArchive = models.CharField(max_length=100, default='NotArchive')
 
 class RejectApplication(models.Model):
     RejectStudentID = models.CharField(max_length=16, unique=True)
@@ -69,6 +70,7 @@ class RejectApplication(models.Model):
     RejectUsername = models.CharField(max_length=100, unique=True)
     RejectPassword = models.CharField(max_length=100)
     RejectStatus = models.CharField(max_length=100, default='RejectedApplication')
+    RejectStatusArchive = models.CharField(max_length=100, default='NotArchive')
 
 class TimeLog(models.Model):
     student = models.ForeignKey(DataTableStudents, on_delete=models.CASCADE)
