@@ -326,17 +326,20 @@ class FillUpPDFForm(forms.Form):
 
 
 class SubmittedRequirement(forms.ModelForm):
-    REQUIREMENT_CHOICES = [
-        ('Select Document', 'Select Document'),
-        ('Endorsement Letter', 'Endorsement Letter'),
-        ('Internship Application', 'Internship Application'),
-        ('Internship Contract', 'Internship Contract'),
-        ('Notice of Acceptance', 'Notice of Acceptance'),
+    SELECTION = [
+        ('', '--- Select Document ---'),
+        ('Application Form', 'Application Form'),
         ('Parent Consent', 'Parent Consent'),
+        ('Endorsement Letter', 'Endorsement Letter'),
+        ('Notice of Acceptance', 'Notice of Acceptance'),
+        ('Internship Contract Agreement', 'Internship Contract Agreement'),
+        ('Medical Certificate', 'Medical Certificate'),
+        ('Student Performance Evaluation', 'Student Performance Evaluation'),
+        ('Internship Exit Survey', 'Internship Exit Survey'),
     ]
 
     nameOfDocs = forms.ChoiceField(
-        choices=REQUIREMENT_CHOICES,
+        choices=SELECTION,
         label="Select Requirement",
         widget=forms.Select(attrs={'class': 'form-control'})
     )

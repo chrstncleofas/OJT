@@ -105,11 +105,27 @@ class EditUsersDetailsForm(forms.ModelForm):
         }
 
 class UploadRequirementForm(forms.ModelForm):
+    SELECTION = [
+        ('', '--- Select Document ---'),
+        ('Application Form', 'Application Form'),
+        ('Parent Consent', 'Parent Consent'),
+        ('Endorsement Letter', 'Endorsement Letter'),
+        ('Notice of Acceptance', 'Notice of Acceptance'),
+        ('Internship Contract Agreement', 'Internship Contract Agreement'),
+        ('Medical Certificate', 'Medical Certificate'),
+        ('Student Performance Evaluation', 'Student Performance Evaluation'),
+        ('Internship Exit Survey', 'Internship Exit Survey'),
+    ]
+
+    nameOfFile = forms.ChoiceField(
+        choices=SELECTION,
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+
     class Meta:
         model = TableRequirements
         fields = ['nameOfFile', 'document']
         widgets = {
-            'nameOfFile': forms.TextInput(attrs={'class': 'form-control'}),
             'document': forms.FileInput(attrs={'class': 'form-control'}),
         }
 
