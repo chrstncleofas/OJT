@@ -227,20 +227,6 @@ def validateAdminPassword(request):
     else:
         return JsonResponse({'status': 'error', 'message': 'Incorrect password'})
 
-# def approveStudent(request, id):
-#     user = request.user
-#     student = DataTableStudents.objects.get(id=id)
-#     student.status = 'Approved'
-#     student.save()
-#     saveActivityLogs(user=user, action='APPROVED', request=request, description='Approve students')
-#     subject = 'Your OJT Management System Account Has Been Approved'
-#     message = render_to_string('app/approval_email.txt', {
-#         'first_name': student.Firstname,
-#         'last_name': student.Lastname,
-#     })
-#     recipient_list = [student.Email]
-#     send_mail(subject, message, settings.EMAIL_HOST_USER, recipient_list, fail_silently=False)
-#     return redirect(reverse('studentManagement'))
 
 def approveStudent(request, id):
     user = request.user
@@ -423,11 +409,9 @@ def timeSheet(request):
 def viewPendingApplication(request, id):
     user = request.user
     try:
-        # Try to fetch the pending application by ID
         students = PendingApplication.objects.get(id=id)
     except PendingApplication.DoesNotExist:
-        # Handle the case where the record does not exist
-        return redirect('studentManagement')  # or render an error page
+        return redirect('studentManagement')
 
     admin = get_object_or_404(CustomUser, id=user.id)
     firstName = admin.first_name
