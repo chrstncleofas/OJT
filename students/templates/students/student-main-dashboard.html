@@ -46,7 +46,7 @@
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="{% url 'students:studentPage' %}">
+        <a class="navbar-brand" href="{% url 'students:main-page' %}">
             <img src="{% static 'img/Logo.png' %}" alt="Logo" style="width:50px; height: 50px; margin-left: 15px;">
             <p>OJT Management System</p>
         </a>
@@ -56,7 +56,7 @@
         <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ml-auto">
             <li class="nav-item">
-                <a class="nav-link text-color-dark" href="{% url 'students:Dashboard' %}">Dashboard</a>
+                <a class="nav-link text-color-dark" href="{% url 'students:dashboard' %}">Dashboard</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link text-color-dark" href="{% url 'students:announcement' %}">Announcement</a>

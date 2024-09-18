@@ -4,14 +4,13 @@ from io import BytesIO
 from datetime import datetime
 from django.urls import reverse
 from django.conf import settings
-from django.contrib import messages
 from django.utils import timezone
+from django.contrib import messages
 from django.core.mail import send_mail
 from django.shortcuts import render, redirect
 from django.shortcuts import get_object_or_404
 from django.utils.timezone import now, localtime
 from django.template.loader import render_to_string
-from django.contrib.auth.hashers import make_password
 from django.contrib.auth.hashers import check_password
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
@@ -19,7 +18,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from app.models import TableAnnouncement, TableRequirements
 from django.contrib.auth import authenticate, login, logout
 from students.models import DataTableStudents, TimeLog, Schedule, TableSubmittedReport, TableSubmittedRequirement, PendingApplication
-from students.forms import StudentRegistrationForm, UserForm, ChangePasswordForm, StudentProfileForm, ScheduleSettingForm, FillUpPDFForm, SubmittedRequirement, PendingStudentRegistrationForm, TimeLogForm
+from students.forms import ChangePasswordForm, StudentProfileForm, ScheduleSettingForm, FillUpPDFForm, SubmittedRequirement, PendingStudentRegistrationForm, TimeLogForm
 
 def studentHome(request) -> HttpResponse:
     return render(request, 'students/student-base.html')
@@ -237,7 +236,7 @@ def TimeInAndTimeOut(request):
                 time_log.student = student
                 time_log.timestamp = timezone.now()
                 time_log.save()
-                return redirect('students:TimeInAndTimeOut')
+                return redirect('students:clockin')
         else:
             form = TimeLogForm()
 
@@ -271,7 +270,7 @@ def studentProfile(request):
         if form.is_valid():
             form.save()
             messages.success(request, 'Profile updated successfully.')
-            return redirect('students:Dashboard')
+            return redirect('students:dashboard')
     else:
         form = StudentProfileForm(instance=student)
 
@@ -407,7 +406,7 @@ def studentLogin(request):
                 else:
                     if user.is_active:
                         login(request, user)
-                        return redirect('students:studentPage')
+                        return redirect('students:main-page')
                     else:
                         messages.error(request, 'Your account is disabled.')
             except DataTableStudents.DoesNotExist:
@@ -450,7 +449,7 @@ def scheduleSettings(request):
                         end_time=end_time
                     )
 
-            return redirect('students:scheduleSettings')
+            return redirect('students:schedule')
     else:
         form = ScheduleSettingForm()
 

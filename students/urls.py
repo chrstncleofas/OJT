@@ -11,16 +11,15 @@ urlpatterns = [
     path('logout/', views.studentLogout, name='logout'),
     path('profile/', views.studentProfile, name='profile'),
     path('register/', views.studentRegister, name='register'),
-    path('dashboard/', views.studentDashboard, name='dashboard'),
     path('announcement/', views.getAnnouncement, name='announcement'),
-    path('Dashboard/', views.mainPageForDashboard, name='Dashboard'),
-    path('studentPage/', views.welcomeDashboard, name='studentPage'),
+    path('dashboard/', views.mainPageForDashboard, name='dashboard'),
+    path('main-page/', views.welcomeDashboard, name='main-page'),
     path('progressReport', views.progressReport, name='progressReport'),
     path('changePassword/', views.changePassword, name='changePassword'),
-    path('TimeInAndTimeOut/', views.TimeInAndTimeOut, name='TimeInAndTimeOut'),
-    path('scheduleSettings/', views.scheduleSettings, name='scheduleSettings'),
+    path('clockin/', views.TimeInAndTimeOut, name='clockin'),
+    path('schedule/', views.scheduleSettings, name='schedule'),
     path('requirements/', views.requirements, name='requirements'),
-    path('getAllSubmittedDocuments/', views.getAllSubmittedDocuments, name='getAllSubmittedDocuments'),
+    path('documents/', views.getAllSubmittedDocuments, name='documents'),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)
