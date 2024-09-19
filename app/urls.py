@@ -33,9 +33,11 @@ urlpatterns = [
     # 
     path('announcement', views.postAnnouncement, name='announcement'),
     path('listOfAnnouncement', views.listOfAnnouncement, name='listOfAnnouncement'),
+    path('grading', views.getAllStudentsForGrading, name='grading'),
     path('editAnnouncement/<int:id>/', views.editAnnouncement, name='editAnnouncement'),
     path('deleteAnnouncement/<int:id>/', views.deleteAnnouncement, name='deleteAnnouncement'),
     path('deleteRequirementDocuments/<int:id>/', views.deleteRequirementDocuments, name='deleteRequirementDocuments'),
+    path('compute_grade_view/<int:id>/', views.compute_grade_view, name='compute_grade_view'),
     #
     path('set_rendering_hours/', views.set_rendering_hours, name='set_rendering_hours'),
 ]

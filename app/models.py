@@ -44,3 +44,4 @@ class TableRequirements(models.Model):
 
     def __str__(self):
         return self.nameOfFile
+    

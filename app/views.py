@@ -2,9 +2,9 @@ import re
 import os
 import json
 from typing import Union
+from django.urls import reverse
 from datetime import timedelta
 from django.db.models import Q
-from django.urls import reverse
 from django.conf import settings
 from django.contrib import messages
 from django.core.mail import send_mail
@@ -23,11 +23,11 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import user_passes_test
 from app.models import RenderingHoursTable, TableRequirements
-from students.forms import EditStudentForm, ScheduleSettingForm
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from students.forms import EditStudentForm, ScheduleSettingForm, GradeForm
 from app.forms import EditProfileForm, AnnouncementForm, UploadRequirementForm
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponsePermanentRedirect, JsonResponse
-from students.models import DataTableStudents, TimeLog, Schedule, TableSubmittedReport, TableSubmittedRequirement, PendingApplication, RejectApplication
+from students.models import DataTableStudents, TimeLog, Schedule, TableSubmittedReport, TableSubmittedRequirement, PendingApplication, RejectApplication, Grade
 
 HOME_URL_PATH = 'app/base.html'
 DASHBOARD = 'app/dashboard.html'
@@ -226,7 +226,6 @@ def validateAdminPassword(request):
         return JsonResponse({'status': 'success'})
     else:
         return JsonResponse({'status': 'error', 'message': 'Incorrect password'})
-
 
 def approveStudent(request, id):
     user = request.user
@@ -465,6 +464,8 @@ def viewTimeLogs(request, student_id):
     remaining_hours_seconds = required_hours_seconds - total_work_seconds
     full_schedule = Schedule.objects.filter(student=student, day__in=['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']).order_by('id')
 
+    grades = Grade.objects.all().order_by('id')
+
     # Retrieve all submitted reports for the student
     progress_reports = TableSubmittedReport.objects.filter(student=selected_student).order_by('-date_submitted', 'id')
     requirements = TableSubmittedRequirement.objects.filter(student=selected_student).order_by('-submission_date', 'id')
@@ -497,7 +498,8 @@ def viewTimeLogs(request, student_id):
         'studentLastname': studentLastname,
         'full_schedule': full_schedule,
         'cleaned_reports': cleaned_reports,
-        'requirements': requirements
+        'requirements': requirements,
+        'grades': grades
     }
     return render(request, 'app/TimeLogs.html', context)
 
@@ -771,5 +773,100 @@ def editStudentDetails(request, id):
         'lastName': lastName,
     })
 
-def computationOfGrades(request):
-    pass
+def getAllStudentsForGrading(request):
+    user = request.user
+    admin = get_object_or_404(CustomUser, id=user.id)
+    firstName = admin.first_name
+    lastName = admin.last_name
+
+    search_query = request.GET.get('search', '')
+
+    students = DataTableStudents.objects.filter(status='Approved', archivedStudents='NotArchive').order_by('id')
+
+    if search_query:
+        students = students.filter(
+            Q(Title__icontains=search_query)
+        )
+    
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return render(request, 'app/grading.html', {'listOfStudents': students})
+    
+    # Pagination logic
+    page = request.GET.get('page', 1)  # Get the current page number from the request
+    per_page = request.GET.get('per_page', 5)  # Default items per page is set to 5
+
+    paginator = Paginator(students, per_page)  # Create paginator object
+
+    try:
+        students = paginator.page(page)  # Get the current page of results
+    except PageNotAnInteger:
+        students = paginator.page(1)  # If page is not an integer, deliver first page
+    except EmptyPage:
+        students = paginator.page(paginator.num_pages)  # If page is out of range, deliver last page
+
+    return render(request, 'app/grading.html', {
+        'listOfStudents': students,
+        'firstName': firstName,
+        'lastName': lastName
+    })
+
+def calculate_final_grade(evaluation, docs, oral_interview):
+    eval_score = (evaluation / 30 * 50 + 50) * 0.60
+    docs_score = (docs / 40 * 50 + 50) * 0.30
+    oral_score = (oral_interview / 30 * 50 + 50) * 0.10
+    final_grade = eval_score + docs_score + oral_score
+    return round(final_grade, 1)  # rounding to 1 decimal place
+
+def compute_grade_view(request, id):
+    user = request.user
+    admin = get_object_or_404(CustomUser, id=user.id)
+    firstName = admin.first_name
+    lastName = admin.last_name
+
+    final_grade = None
+    status = None
+
+    student = get_object_or_404(DataTableStudents, id=id)
+    gradesResult = Grade.objects.all().order_by('id')
+    
+    if request.method == 'POST':
+        form = GradeForm(request.POST)
+        if form.is_valid():
+            grade = form.save(commit=False)
+            grade.student = student
+
+            # Compute the final grade
+            final_grade = calculate_final_grade(
+                form.cleaned_data['evaluation'], 
+                form.cleaned_data['docs'], 
+                form.cleaned_data['oral_interview']
+            )
+            grade.final_grade = final_grade
+
+            # Determine status (Pass or Fail)
+            grade.status = 'Passed' if final_grade > 74 else 'Failed'
+            grade.save()
+
+            return render(request, 'app/computeGradePage.html', {
+                'form': form,
+                'student': student,
+                'final_grade': final_grade,
+                'status': status,
+                'gradesResult': gradesResult
+            })
+    else:
+        form = GradeForm()
+
+    return render(
+        request,
+        'app/computeGradePage.html',
+        {
+            'form': form,
+            'final_grade': final_grade,
+            'student': student,
+            'status' : status,
+            'firstName': firstName,
+            'lastName': lastName,
+            'gradesResult': gradesResult
+        }
+    )

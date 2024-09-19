@@ -1,9 +1,5 @@
-import uuid
-import base64
 from django.db import models
-from django.utils import timezone
-from django.core.files.base import ContentFile
-from app.models import CustomUser, RenderingHoursTable, TableRequirements
+from app.models import CustomUser, RenderingHoursTable
 
 class DataTableStudents(models.Model):
     ARCHIVED_STATUS = [
@@ -117,3 +113,14 @@ class TableSubmittedRequirement(models.Model):
 
     def __str__(self):
         return f"{self.student.username} - {self.nameOfDocs}"
+
+class Grade(models.Model):
+    student = models.ForeignKey(DataTableStudents, on_delete=models.CASCADE)
+    evaluation = models.FloatField()
+    docs = models.FloatField()
+    oral_interview = models.FloatField()
+    final_grade = models.FloatField(null=True, blank=True)
+    status = models.CharField(max_length=10, default='Pending')
+
+    def __str__(self):
+        return f"Grade for {self.student.full_name}"

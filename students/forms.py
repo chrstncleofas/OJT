@@ -1,7 +1,7 @@
 from django import forms
-from app.models import CustomUser, TableRequirements
+from app.models import CustomUser
 from students.custom_widgets import CustomClearableFileInput
-from students.models import DataTableStudents, TimeLog, TableSubmittedRequirement, PendingApplication
+from students.models import DataTableStudents, TimeLog, TableSubmittedRequirement, PendingApplication, Grade
 
 COURSE_CHOICES = [
     ('', '--- Select Course ---'),
@@ -353,3 +353,19 @@ class SubmittedRequirement(forms.ModelForm):
         # Set the submitted_file field attributes
         self.fields['submitted_file'].required = True
         self.fields['submitted_file'].widget.attrs.update({'accept': 'application/pdf', 'class': 'form-control-file'})
+
+class GradeForm(forms.ModelForm):
+    class Meta:
+        model = Grade
+        fields = ['evaluation', 'docs', 'oral_interview']
+        widgets = {
+            'evaluation': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Enter evaluation score'}),
+            'docs': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Enter docs score'}),
+            'oral_interview': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Enter oral interview score'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(GradeForm, self).__init__(*args, **kwargs)
+        self.fields['evaluation'].required = True
+        self.fields['docs'].required = False
+        self.fields['oral_interview'].required = True
