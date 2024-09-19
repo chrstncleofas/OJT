@@ -50,7 +50,7 @@ def mainDashboard(request):
     firstName = admin.first_name
     lastName = admin.last_name
     # Approve
-    approve = DataTableStudents.objects.filter(status='Approved', archivedStudents='NotArchive')
+    approve = DataTableStudents.objects.filter(status='Approved', archivedStudents='NotArchive').order_by('id')
     approve_count = approve.count()
     # Pending
     pending = PendingApplication.objects.filter(StatusApplication='PendingApplication', PendingStatusArchive='NotArchive').order_by('id')
@@ -770,3 +770,6 @@ def editStudentDetails(request, id):
         'firstName': firstName,
         'lastName': lastName,
     })
+
+def computationOfGrades(request):
+    pass
