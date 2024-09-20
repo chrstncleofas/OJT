@@ -109,12 +109,10 @@ def studentManagement(request):
     rejected = RejectApplication.objects.filter(RejectStatus='RejectedApplication')
     archive = DataTableStudents.objects.filter(archivedStudents='Archive')
     
-    # Get the active tab and pagination parameters
-    active_tab = request.GET.get('tab', 'approved-students')  # Default to 'approved-students' tab
+    active_tab = request.GET.get('tab', 'approved-students')
     page = request.GET.get('page', 1)
-    per_page = int(request.GET.get('per_page', 10))  # Default items per page
+    per_page = int(request.GET.get('per_page', 10))
 
-    # Determine which list to paginate based on the active tab
     if active_tab == 'approved-students':
         students_list = approved
     elif active_tab == 'pending-application':
@@ -124,7 +122,6 @@ def studentManagement(request):
     else:  # Archive tab
         students_list = archive
 
-    # Setup paginator and handle pagination
     paginator = Paginator(students_list, per_page)
     try:
         students = paginator.page(page)
@@ -133,11 +130,10 @@ def studentManagement(request):
     except EmptyPage:
         students = paginator.page(paginator.num_pages)
     
-    # Include last_login in the student data with timezone conversion
     for student in approved:
         last_login = student.user.last_login
         if last_login:
-            local_last_login = timezone.localtime(last_login)  # Convert to local timezone
+            local_last_login = timezone.localtime(last_login)
             last_login_formatted = local_last_login.strftime('%b. %d, %Y, %I:%M %p')
         else:
             last_login_formatted = 'No login recorded'
@@ -251,20 +247,18 @@ def getAllTheUserAccount(request):
             Q(email__icontains=search_query)
         )
 
-    # Pagination logic
-    page = request.GET.get('page', 1)  # Get the current page number from the request
-    per_page = request.GET.get('per_page', 5)  # Default items per page is set to 5
+    page = request.GET.get('page', 1)
+    per_page = request.GET.get('per_page', 5)
 
-    paginator = Paginator(admin_users, per_page)  # Create paginator object
+    paginator = Paginator(admin_users, per_page)
 
     try:
-        admin_users = paginator.page(page)  # Get the current page of results
+        admin_users = paginator.page(page)
     except PageNotAnInteger:
-        admin_users = paginator.page(1)  # If page is not an integer, deliver first page
+        admin_users = paginator.page(1)
     except EmptyPage:
         admin_users = paginator.page(paginator.num_pages)  
 
-    # Check if the request is an AJAX request
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         return render(request, 'superapp/users.html', {'getAllTheUserAccount': admin_users})
     # 
@@ -283,10 +277,8 @@ def getActivityLogs(request):
 
     search_query = request.GET.get('search', '')
 
-    # Fetch all activity logs ordered by timestamp
     admin_users = StoreActivityLogs.objects.all().order_by('-timestamp', 'id')
 
-    # Apply search filters if a search query is provided
     if search_query:
         admin_users = admin_users.filter(
             Q(first_name__icontains=search_query) |
@@ -296,18 +288,17 @@ def getActivityLogs(request):
         )
 
     # Pagination logic
-    page = request.GET.get('page', 1)  # Get the current page number from the request
-    per_page = request.GET.get('per_page', 5)  # Default items per page is set to 5
+    page = request.GET.get('page', 1)
+    per_page = request.GET.get('per_page', 5)
 
-    paginator = Paginator(admin_users, per_page)  # Create paginator object
+    paginator = Paginator(admin_users, per_page)
     try:
-        admin_users = paginator.page(page)  # Get the current page of results
+        admin_users = paginator.page(page)
     except PageNotAnInteger:
-        admin_users = paginator.page(1)  # If page is not an integer, deliver first page
+        admin_users = paginator.page(1)
     except EmptyPage:
-        admin_users = paginator.page(paginator.num_pages)  # If page is out of range, deliver last page
+        admin_users = paginator.page(paginator.num_pages)
 
-    # Check if the request is an AJAX request
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         return render(request, 'superapp/activitylogs.html', {'getActivityLogs': admin_users})
 
@@ -337,17 +328,17 @@ def getAllTheListAnnouncement(request):
         return render(request, 'superapp/announcement.html', {'getAllTheListAnnouncement': listOfAnnouncementInTheTable})
     
     # Pagination logic
-    page = request.GET.get('page', 1)  # Get the current page number from the request
-    per_page = request.GET.get('per_page', 5)  # Default items per page is set to 5
+    page = request.GET.get('page', 1)
+    per_page = request.GET.get('per_page', 5)
 
-    paginator = Paginator(listOfAnnouncementInTheTable, per_page)  # Create paginator object
+    paginator = Paginator(listOfAnnouncementInTheTable, per_page)
 
     try:
-        listOfAnnouncementInTheTable = paginator.page(page)  # Get the current page of results
+        listOfAnnouncementInTheTable = paginator.page(page)
     except PageNotAnInteger:
-        listOfAnnouncementInTheTable = paginator.page(1)  # If page is not an integer, deliver first page
+        listOfAnnouncementInTheTable = paginator.page(1)
     except EmptyPage:
-        listOfAnnouncementInTheTable = paginator.page(paginator.num_pages)  # If page is out of range, deliver last page
+        listOfAnnouncementInTheTable = paginator.page(paginator.num_pages)
     
     return render(request, 'superapp/announcement.html', {
         'getAllTheListAnnouncement': listOfAnnouncementInTheTable,

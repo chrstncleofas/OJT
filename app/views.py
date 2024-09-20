@@ -82,22 +82,18 @@ def studentManagement(request):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
 
-    # Retrieve admin details
     firstName = admin.first_name
     lastName = admin.last_name
 
-    # Filter data based on student status
     approved = DataTableStudents.objects.filter(status='Approved', archivedStudents='NotArchive').order_by('id')
     pending = PendingApplication.objects.filter(StatusApplication='PendingApplication', PendingStatusArchive='NotArchive').order_by('id')
     rejected = RejectApplication.objects.filter(RejectStatus='RejectedApplication', RejectStatusArchive='NotArchive').order_by('id')
     archive = DataTableStudents.objects.filter(archivedStudents='Archive').order_by('id')
 
-    # Get the active tab and pagination parameters
-    active_tab = request.GET.get('tab', 'approved-students')  # Default to 'approved-students' tab
+    active_tab = request.GET.get('tab', 'approved-students')
     page = request.GET.get('page', 1)
-    per_page = int(request.GET.get('per_page', 5))  # Default items per page
+    per_page = int(request.GET.get('per_page', 5))
 
-    # Determine which list to paginate based on the active tab
     if active_tab == 'approved-students':
         students_list = approved
     elif active_tab == 'pending-application':
@@ -109,7 +105,6 @@ def studentManagement(request):
     else:
         students_list = []
 
-    # Setup paginator and handle pagination
     paginator = Paginator(students_list, per_page)
     try:
         students = paginator.page(page)
@@ -118,7 +113,6 @@ def studentManagement(request):
     except EmptyPage:
         students = paginator.page(paginator.num_pages)
 
-    # Context for the template
     context = {
         'students': students,
         'pending': pending,
@@ -230,22 +224,18 @@ def validateAdminPassword(request):
 def approveStudent(request, id):
     user = request.user
 
-    # Get the pending application by ID
     pending_student = get_object_or_404(PendingApplication, id=id)
 
-    # Create a new user in CustomUser model
     new_user = CustomUser.objects.create(
         username=pending_student.PendingUsername,
         email=pending_student.PendingEmail,
-        password=make_password(pending_student.PendingPassword),  # Hash the password
+        password=make_password(pending_student.PendingPassword),
         first_name=pending_student.PendingFirstname,
         last_name=pending_student.PendingLastname,
     )
     
-    # Save the new user to the database
     new_user.save()
 
-    # Create a new student in DataTableStudents linked to the new CustomUser
     new_student = DataTableStudents.objects.create(
         user=new_user,
         StudentID=pending_student.PendingStudentID,
@@ -258,21 +248,17 @@ def approveStudent(request, id):
         Course=pending_student.PendingCourse,
         Year=pending_student.PendingYear,
         Username=pending_student.PendingUsername,
-        Password=new_user.password,  # Use the hashed password from CustomUser
+        Password=new_user.password,
         status='Approved',
         archivedStudents='NotArchive',
     )
     
-    # Save the new student to the database
     new_student.save()
 
-    # Delete the pending application after approval
     pending_student.delete()
 
-    # Log the approval action
     saveActivityLogs(user=user, action='APPROVED', request=request, description=f"Approved student {new_student.Firstname} {new_student.Lastname}")
 
-    # Send approval email to the student
     subject = 'Your OJT Management System Account Has Been Approved'
     message = render_to_string('app/approval_email.txt', {
         'first_name': new_student.Firstname,
@@ -280,11 +266,9 @@ def approveStudent(request, id):
     })
     recipient_list = [new_student.Email]
     send_mail(subject, message, settings.EMAIL_HOST_USER, recipient_list, fail_silently=False)
-
-    # Display a success message to the admin
+    
     messages.success(request, f"{new_student.Firstname} {new_student.Lastname} has been approved and added to the student list.")
 
-    # Redirect back to the student management page
     return redirect('studentManagement')
 
 @csrf_exempt
@@ -292,18 +276,14 @@ def rejectStudent(request, id):
     user = request.user
     if request.method == 'POST':
         try:
-            # Step 1: Try to fetch the pending application by ID
             try:
                 pending_application = PendingApplication.objects.get(id=id)
             except PendingApplication.DoesNotExist:
-                # If already deleted, just return success
                 return JsonResponse({'status': 'success', 'message': 'Pending application was already deleted.'})
 
-            # Step 2: Get the rejection reason from the request body
             data = json.loads(request.body)
             reason = data.get('reason', 'No reason provided')
 
-            # Step 3: Create a new entry in RejectApplication with data from PendingApplication
             rejected = RejectApplication.objects.create(
                 RejectStudentID=pending_application.PendingStudentID,
                 RejectFirstname=pending_application.PendingFirstname,
@@ -320,13 +300,10 @@ def rejectStudent(request, id):
                 RejectStatus='RejectedApplication'
             )
 
-            # Step 4: Save the rejected application
             rejected.save()
 
-            # Step 5: Log the rejection activity
             saveActivityLogs(user=user, action='REJECTED', request=request, description='Rejected pending student application')
 
-            # Step 6: Send a rejection email
             subject = 'Account Rejected'
             message = render_to_string('app/rejection_email.txt', {
                 'first_name': pending_application.PendingFirstname,
@@ -336,17 +313,13 @@ def rejectStudent(request, id):
             recipient_list = [pending_application.PendingEmail]
             send_mail(subject, message, settings.EMAIL_HOST_USER, recipient_list, fail_silently=False)
 
-            # Step 7: Now, delete the pending application after everything else is successful
             pending_application.delete()
 
-            # Step 8: Return success response
             return JsonResponse({'status': 'success', 'message': 'Student successfully rejected.'})
 
         except Exception as e:
-            # Catch any other errors and return failure
             return JsonResponse({'status': 'failed', 'message': str(e)}, status=400)
 
-    # Handle non-POST requests
     return redirect('studentManagement')
 
 def unArchivedStudent(request, id):
@@ -399,7 +372,6 @@ def viewPendingApplication(request, id):
 def clean_filename(filename):
     """Remove timestamp from the filename."""
     if filename:
-        # Remove timestamp pattern from the filename
         return re.sub(r'^\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}_', '', filename)
     return filename
 
@@ -436,15 +408,12 @@ def viewTimeLogs(request, student_id):
 
     grades = Grade.objects.filter(student=student)
 
-    # Retrieve all submitted reports for the student
     progress_reports = TableSubmittedReport.objects.filter(student=selected_student).order_by('-date_submitted', 'id')
     requirements = TableSubmittedRequirement.objects.filter(student=selected_student).order_by('-submission_date', 'id')
 
-    # Check if any reports have missing files and clean them up
     for report in progress_reports:
         file_path = os.path.join(settings.MEDIA_ROOT, report.report_file.name)
         if not os.path.isfile(file_path):
-            # File does not exist; delete the report
             report.delete()
 
     cleaned_reports = [(report, clean_filename(report.report_file.name)) for report in progress_reports]
@@ -590,19 +559,18 @@ def listOfAnnouncement(request):
     
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         return render(request, LIST_ANNOUNCEMENT, {'listOfAnnouncement': announcements})
-    
-    # Pagination logic
-    page = request.GET.get('page', 1)  # Get the current page number from the request
-    per_page = request.GET.get('per_page', 5)  # Default items per page is set to 5
 
-    paginator = Paginator(announcements, per_page)  # Create paginator object
+    page = request.GET.get('page', 1)
+    per_page = request.GET.get('per_page', 5)
+
+    paginator = Paginator(announcements, per_page)
 
     try:
-        announcements = paginator.page(page)  # Get the current page of results
+        announcements = paginator.page(page)
     except PageNotAnInteger:
-        announcements = paginator.page(1)  # If page is not an integer, deliver first page
+        announcements = paginator.page(1)
     except EmptyPage:
-        announcements = paginator.page(paginator.num_pages)  # If page is out of range, deliver last page
+        announcements = paginator.page(paginator.num_pages)
 
     return render(request, LIST_ANNOUNCEMENT, {
         'listOfAnnouncement': announcements,
@@ -685,7 +653,6 @@ def setSchedule(request, id):
     if request.method == 'POST':
         form = ScheduleSettingForm(request.POST)
         if form.is_valid():
-            # Clearing existing schedule for the student
             Schedule.objects.filter(student=student).delete()
 
             days_times = {
@@ -760,15 +727,13 @@ def getAllStudentsForGrading(request):
             Q(Firstname__icontains=search_query)
         )
     
-    name_parts = searchgrade.split()  # Split the search term by spaces
+    name_parts = searchgrade.split()
     if len(name_parts) == 2:
-        # Assuming the search is in the form "Firstname Lastname"
         withGrade = withGrade.filter(
             Q(student__Firstname__icontains=name_parts[0]) &
             Q(student__Lastname__icontains=name_parts[1])
         )
     else:
-        # If only one part of the name is entered, search both first and last names
         withGrade = withGrade.filter(
             Q(student__Firstname__icontains=searchgrade) |
             Q(student__Lastname__icontains=searchgrade)
@@ -778,17 +743,17 @@ def getAllStudentsForGrading(request):
         return render(request, 'app/grading.html', {'listOfStudents': students})
     
     # Pagination logic
-    page = request.GET.get('page', 1)  # Get the current page number from the request
-    per_page = request.GET.get('per_page', 5)  # Default items per page is set to 5
+    page = request.GET.get('page', 1)
+    per_page = request.GET.get('per_page', 5)
 
-    paginator = Paginator(students, per_page)  # Create paginator object
+    paginator = Paginator(students, per_page)
 
     try:
-        students = paginator.page(page)  # Get the current page of results
+        students = paginator.page(page)
     except PageNotAnInteger:
-        students = paginator.page(1)  # If page is not an integer, deliver first page
+        students = paginator.page(1)
     except EmptyPage:
-        students = paginator.page(paginator.num_pages)  # If page is out of range, deliver last page
+        students = paginator.page(paginator.num_pages)
 
     return render(request, 'app/grading.html', {
         'listOfStudents': students,
@@ -802,7 +767,7 @@ def gradeFormula(evaluation, docs, oral_interview):
     docs_score = (docs / 40 * 50 + 50) * 0.30
     oral_score = (oral_interview / 30 * 50 + 50) * 0.10
     final_grade = eval_score + docs_score + oral_score
-    return round(final_grade, 1)  # rounding to 1 decimal place
+    return round(final_grade, 1)
 
 def gradeCalculator(request, id):
     user = request.user
@@ -822,7 +787,6 @@ def gradeCalculator(request, id):
             grade = form.save(commit=False)
             grade.student = student
 
-            # Compute the final grade
             final_grade = gradeFormula(
                 form.cleaned_data['evaluation'], 
                 form.cleaned_data['docs'], 
@@ -830,7 +794,6 @@ def gradeCalculator(request, id):
             )
             grade.final_grade = final_grade
 
-            # Determine status (Pass or Fail)
             grade.status = 'Passed' if final_grade > 74 else 'Failed'
             grade.save()
 

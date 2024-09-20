@@ -208,10 +208,8 @@ def TimeInAndTimeOut(request):
     user = request.user
     student = get_object_or_404(DataTableStudents, user=user)
 
-    # Check if the student has set a schedule
     schedule_exists = Schedule.objects.filter(student=student).exists()
     
-    # Check if the student has submitted requirements
     requirements_submitted = TableSubmittedRequirement.objects.filter(student=student).exists()
 
     if not schedule_exists or not requirements_submitted:
@@ -320,7 +318,6 @@ def studentRegister(request):
     if request.method == 'POST':
         pending_registration_form = PendingStudentRegistrationForm(request.POST)
         if pending_registration_form.is_valid():
-            # Create a new PendingRegistration entry (no storing in actual students table)
             pending_registration = PendingApplication(
                 PendingEmail=pending_registration_form.cleaned_data['PendingEmail'],
                 PendingUsername=pending_registration_form.cleaned_data['PendingUsername'],
@@ -336,7 +333,6 @@ def studentRegister(request):
                 PendingYear=pending_registration_form.cleaned_data['PendingYear'],
             )
             pending_registration.save()
-            # Sending email notification to the student
             subject = 'Registration Pending Approval'
             message = render_to_string('students/registration_email.txt', {
                 'first_name': pending_registration.PendingFirstname,
@@ -427,7 +423,6 @@ def scheduleSettings(request):
     if request.method == 'POST':
         form = ScheduleSettingForm(request.POST)
         if form.is_valid():
-            # Clearing existing schedule for the student
             Schedule.objects.filter(student=student).delete()
 
             days_times = {
