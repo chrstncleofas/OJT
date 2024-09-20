@@ -9,7 +9,6 @@ urlpatterns = [
     path('profile', views.profile, name='profile'),
     path('logout', views.logoutView, name='logout'),
     path('dashboard', views.dashboard, name='dashboard'),
-    path('timeSheet', views.timeSheet, name='timeSheet'),
     # 
     path('viewTimeLogs/<int:student_id>/', views.viewTimeLogs, name='viewTimeLogs'),
     path('viewStudentInformation/<int:student_id>/', views.viewStudentInformation, name='viewStudentInformation'),

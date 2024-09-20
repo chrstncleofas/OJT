@@ -375,36 +375,6 @@ def isAdmin(user):
     user_staff = user.is_staff
     return user_admin or user_staff
 
-@user_passes_test(isAdmin)
-def timeSheet(request):
-    students = DataTableStudents.objects.filter(status='Approved', archivedStudents='NotArchive')
-    user = request.user
-    admin = get_object_or_404(CustomUser, id=user.id)
-    firstName = admin.first_name
-    lastName = admin.last_name
-
-    # Pagination logic
-    page = request.GET.get('page', 1)  # Get the current page number from the request
-    per_page = request.GET.get('per_page', 5)  # Default items per page is set to 5
-
-    paginator = Paginator(students, per_page)  # Create paginator object
-    try:
-        students = paginator.page(page)  # Get the current page of results
-    except PageNotAnInteger:
-        students = paginator.page(1)  # If page is not an integer, deliver first page
-    except EmptyPage:
-        students = paginator.page(paginator.num_pages)  # If page is out of range, deliver last page
-
-    return render(
-        request,
-        'app/timeSheet.html',
-        {
-            'students': students,
-            'firstName': firstName,
-            'lastName': lastName
-        }
-    )
-
 def viewPendingApplication(request, id):
     user = request.user
     try:
