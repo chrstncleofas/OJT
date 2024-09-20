@@ -420,7 +420,7 @@ def studentInformation(request, id):
         
     full_schedule = Schedule.objects.filter(student=student, day__in=['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']).order_by('id')
 
-    grades = Grade.objects.filter(student=student)
+    grades = Grade.objects.filter(student=student).order_by('id')
     progress_reports = TableSubmittedReport.objects.filter(student=selected_student).order_by('-date_submitted', 'id')
     requirements = TableSubmittedRequirement.objects.filter(student=selected_student).order_by('-submission_date', 'id')
 

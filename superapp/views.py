@@ -1,3 +1,4 @@
+import re
 from typing import Union
 from datetime import timedelta
 from django.db.models import Q
@@ -18,9 +19,9 @@ from django.contrib.auth import authenticate, login, logout
 from students.models import DataTableStudents, TimeLog, Schedule
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from app.models import TableAnnouncement, StoreActivityLogs, TableRequirements
-from students.models import PendingApplication, RejectApplication
 from app.forms import EditUsersDetailsForm, AnnouncementForm, UploadRequirementForm
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponsePermanentRedirect, JsonResponse
+from students.models import PendingApplication, RejectApplication, Grade, TableSubmittedRequirement, TableSubmittedReport
 
 DASHBOARD = 'superapp/dashboard.html'
 MAIN_DASHBOARD = 'superapp/main-dashboard.html'
@@ -156,6 +157,12 @@ def studentManagement(request):
         }
     )
 
+def clean_filename(filename):
+    """Remove timestamp from the filename."""
+    if filename:
+        return re.sub(r'^\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}_', '', filename)
+    return filename
+
 def viewStudent(request, id):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
@@ -187,6 +194,11 @@ def viewStudent(request, id):
     remaining_hours_seconds = required_hours_seconds - total_work_seconds
     full_schedule = Schedule.objects.filter(student=student, day__in=['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']).order_by('id')
 
+    grades = Grade.objects.filter(student=student).order_by('id')
+    progress_reports = TableSubmittedReport.objects.filter(student=selected_student).order_by('-date_submitted', 'id')
+    requirements = TableSubmittedRequirement.objects.filter(student=selected_student).order_by('-submission_date', 'id')
+    cleaned_reports = [(report, clean_filename(report.report_file.name)) for report in progress_reports]
+
     def format_seconds(seconds):
         hours, remainder = divmod(seconds, 3600)
         minutes, seconds = divmod(remainder, 60)
@@ -205,6 +217,9 @@ def viewStudent(request, id):
         'studentFirstname': studentFirstname,
         'studentLastname': studentLastname,
         'full_schedule': full_schedule,
+        'cleaned_reports': cleaned_reports,
+        'requirements': requirements,
+        'grades': grades
     }
     return render(request, 'superapp/TimeLogs.html', context)
 
@@ -270,8 +285,6 @@ def viewPendingApplication(request, id):
         }
     )
 
-from math import ceil
-
 def getActivityLogs(request):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
@@ -325,7 +338,7 @@ def getActivityLogs(request):
         'firstName': firstName,
         'lastName': lastName,
         'per_page': per_page,
-        'pagination_range': pagination_range,  # Pass the pagination range to the template
+        'pagination_range': pagination_range,
         'total_pages': total_pages
     })
 

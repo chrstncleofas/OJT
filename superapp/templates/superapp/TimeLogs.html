@@ -155,6 +155,64 @@
                                 {% endfor %}
                             </tbody>
                         </table>
+                        <h6 class="mt-4 ml-1 mb-3">Progress Report</h6>
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Filename</th>
+                                    <th>Date Submitted</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if cleaned_reports %}
+                                    {% for report, cleaned_filename in cleaned_reports %}
+                                        <tr>
+                                            <td>{{ report.report_file.name|slice:"8:" }}</td>
+                                            <td>{{ report.date_submitted|slice:"0:-5"}}</td>
+                                            <td>
+                                                <a href="{{ report.report_file.url }}" class="btn btn-primary" target="_blank">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="4">No progress report submitted.</td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                        <h6 class="mt-4 ml-1 mb-3">Requirements</h6>
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Filename</th>
+                                    <th>Date Submitted</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if requirements %}
+                                    {% for docs in requirements %}
+                                        <tr>
+                                            <td>{{ docs.nameOfDocs }}</td>
+                                            <td>{{ docs.submission_date }}</td>
+                                            <td>
+                                                <a href="{{ docs.submitted_file.url }}" class="btn btn-primary" target="_blank">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="4">No progress report submitted.</td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
                     </div>
                     <div class="card col-md-3 mt-3">
                         <div class="card-header bg-primary text-white p-3 mt-3">
@@ -171,6 +229,25 @@
                         </ul>
                         {% else %}
                             <p class="text-center text-muted mt-3">No schedule available.</p>
+                        {% endif %}
+                        <div class="card-header bg-primary text-white p-3 mt-3">
+                            <h5 class="card-title mb-0">Grades</h5>
+                        </div>
+                        {% if grades %}
+                        <ul class="list-group list-group-flush">
+                            {% for grade in grades %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span>Grades: </span>
+                                <span class="text-muted">{{ grade.final_grade }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span>Remarks: </span>
+                                <span class="text-muted">{{ grade.status }}</span>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        {% else %}
+                        <p class="text-center text-muted mt-3">No grades show.</p>
                         {% endif %}                    
                     </div> 
                 </div>
