@@ -162,6 +162,10 @@
                                 <td style="text-transform: capitalize;">{{ grade.final_grade }}</td>
                                 <td style="text-transform: capitalize;">{{ grade.status }}</td>
                             </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="7" class="text-center">No inputted grade.</td>
+                            </tr>
                             {% endfor %}
                         </tbody>
                     </table>
