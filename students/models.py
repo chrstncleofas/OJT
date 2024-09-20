@@ -120,7 +120,11 @@ class Grade(models.Model):
     docs = models.FloatField()
     oral_interview = models.FloatField()
     final_grade = models.FloatField(null=True, blank=True)
-    status = models.CharField(max_length=10, default='Pending')
+    status = models.CharField(max_length=10, default='No Remarks')
+
+    @property
+    def full_name(self):
+        return f"{self.student.Firstname} {self.student.Lastname}"
 
     def __str__(self):
-        return f"Grade for {self.student.full_name}"
+        return f"Grade for {self.full_name}"

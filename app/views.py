@@ -782,6 +782,7 @@ def getAllStudentsForGrading(request):
     search_query = request.GET.get('search', '')
 
     students = DataTableStudents.objects.filter(status='Approved', archivedStudents='NotArchive').order_by('id')
+    withGrade = Grade.objects.all().order_by('id')
 
     if search_query:
         students = students.filter(
@@ -806,6 +807,7 @@ def getAllStudentsForGrading(request):
 
     return render(request, 'app/grading.html', {
         'listOfStudents': students,
+        'withGrade': withGrade,
         'firstName': firstName,
         'lastName': lastName
     })
