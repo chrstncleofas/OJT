@@ -189,7 +189,7 @@
                                 <td style="text-transform: capitalize;">{{ student.Lastname }}</td>
                                 <td style="text-transform: capitalize;">{{ student.Course }} & {{ student.Year }}</td>
                                 <td>
-                                    <a href="{% url 'compute_grade_view' student.id %}" class="btn btn-primary"><i class="fas fa-eye"></i></a>
+                                    <a href="{% url 'gradeCalculator' student.id %}" class="btn btn-primary"><i class="fas fa-eye"></i></a>
                                 </td>
                             </tr>
                             {% endfor %}
@@ -254,7 +254,7 @@
                 <div class="d-flex justify-content-between mb-3 mt-3">
                     <form class="form-inline">
                         <div class="input-group">
-                            <input type="search" name="search" class="form-control" placeholder="Search....." aria-label="Search" aria-describedby="search-icon" id="search-input">
+                            <input type="search" name="search-items" class="form-control" placeholder="Search....." aria-label="Search" aria-describedby="search-icon" id="search-input">
                             <div class="input-group-prepend" style="cursor: pointer;">
                                 <span class="input-group-text" id="search-icon">
                                     <i class="fas fa-search"></i>
@@ -263,21 +263,33 @@
                         </div>
                     </form>
                 </div>
+                <div class="d-flex justify-content-end mb-3 mt-3">
+                    <label for="courseFilter" class="form-label mr-2 align-self-center">Filter by Course:</label>
+                    <select id="courseFilter" class="form-control w-auto">
+                        <option value="all">All</option>
+                        <option value="BS Information Technology">BS Information Technology</option>
+                        <option value="BS Computer Science">BS Computer Science</option>
+                    </select>
+                </div>
                 <table class="table">
                     <thead>
                         <tr>
                             <th>Fullname</th>
-                            <th>Evaluation Grade</th>
-                            <th>Document Grade</th>
-                            <th>Oral Interview Grade</th>
+                            <th>Course</th>
+                            <th>Year</th>
+                            <th>Evaluation</th>
+                            <th>Document</th>
+                            <th>Oral</th>
                             <th>Total Grade</th>
                             <th>Remarks</th>
                         </tr>
                     </thead>
-                    <tbody id="announcementList">
+                    <tbody id="studentTableBody">
                         {% for student in withGrade %}
-                        <tr>
+                        <tr data-course="{{ student.course }}">
                             <td>{{ student.full_name }}</td>
+                            <td>{{ student.course }}</td>
+                            <td>{{ student.year }}</td>
                             <td>{{ student.evaluation }}</td>
                             <td>{{ student.docs }}</td>
                             <td>{{ student.oral_interview }}</td>
@@ -348,5 +360,18 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        document.getElementById('courseFilter').addEventListener('change', function() {
+            var selectedCourse = this.value;
+            var rows = document.querySelectorAll('#studentTableBody tr');
+            rows.forEach(function(row) {
+                if (selectedCourse === 'all' || row.getAttribute('data-course') === selectedCourse) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    </script>
 </body>
 </html>

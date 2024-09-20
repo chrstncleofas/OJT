@@ -374,9 +374,9 @@ def requirements(request):
 
     form = SubmittedRequirement()
 
-    requirements = TableRequirements.objects.all()
+    requirements = TableRequirements.objects.all().order_by('id')
 
-    submittedDocs = TableSubmittedRequirement.objects.all()
+    submittedDocs = TableSubmittedRequirement.objects.filter(student=student)
 
     return render(request, 'students/requirements.html', {
         'form': form,
@@ -465,7 +465,7 @@ def getAllSubmittedDocuments(request):
     firstName = student.Firstname
     lastName = student.Lastname
     progress_report = TableSubmittedReport.objects.filter(student=student).order_by('-date_submitted', 'id')
-    submittedDocs = TableSubmittedRequirement.objects.all()
+    submittedDocs = TableSubmittedRequirement.objects.filter(student=student)
     return render(request, 'students/submitted-docs.html', {
         'firstName' : firstName,
         'lastName' : lastName,

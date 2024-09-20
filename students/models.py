@@ -125,6 +125,14 @@ class Grade(models.Model):
     @property
     def full_name(self):
         return f"{self.student.Firstname} {self.student.Lastname}"
+    
+    @property
+    def course(self):
+        return self.student.Course 
+
+    @property
+    def year(self):
+        return self.student.Year
 
     def __str__(self):
         return f"Grade for {self.full_name}"

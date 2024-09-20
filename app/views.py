@@ -464,7 +464,7 @@ def viewTimeLogs(request, student_id):
     remaining_hours_seconds = required_hours_seconds - total_work_seconds
     full_schedule = Schedule.objects.filter(student=student, day__in=['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']).order_by('id')
 
-    grades = Grade.objects.all().order_by('id')
+    grades = Grade.objects.filter(student=student)
 
     # Retrieve all submitted reports for the student
     progress_reports = TableSubmittedReport.objects.filter(student=selected_student).order_by('-date_submitted', 'id')
@@ -780,13 +780,28 @@ def getAllStudentsForGrading(request):
     lastName = admin.last_name
 
     search_query = request.GET.get('search', '')
+    searchgrade= request.GET.get('search-items', '')
 
     students = DataTableStudents.objects.filter(status='Approved', archivedStudents='NotArchive').order_by('id')
     withGrade = Grade.objects.all().order_by('id')
 
     if search_query:
         students = students.filter(
-            Q(Title__icontains=search_query)
+            Q(Firstname__icontains=search_query)
+        )
+    
+    name_parts = searchgrade.split()  # Split the search term by spaces
+    if len(name_parts) == 2:
+        # Assuming the search is in the form "Firstname Lastname"
+        withGrade = withGrade.filter(
+            Q(student__Firstname__icontains=name_parts[0]) &
+            Q(student__Lastname__icontains=name_parts[1])
+        )
+    else:
+        # If only one part of the name is entered, search both first and last names
+        withGrade = withGrade.filter(
+            Q(student__Firstname__icontains=searchgrade) |
+            Q(student__Lastname__icontains=searchgrade)
         )
     
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
@@ -812,14 +827,14 @@ def getAllStudentsForGrading(request):
         'lastName': lastName
     })
 
-def calculate_final_grade(evaluation, docs, oral_interview):
+def gradeFormula(evaluation, docs, oral_interview):
     eval_score = (evaluation / 30 * 50 + 50) * 0.60
     docs_score = (docs / 40 * 50 + 50) * 0.30
     oral_score = (oral_interview / 30 * 50 + 50) * 0.10
     final_grade = eval_score + docs_score + oral_score
     return round(final_grade, 1)  # rounding to 1 decimal place
 
-def compute_grade_view(request, id):
+def gradeCalculator(request, id):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
     firstName = admin.first_name
@@ -838,7 +853,7 @@ def compute_grade_view(request, id):
             grade.student = student
 
             # Compute the final grade
-            final_grade = calculate_final_grade(
+            final_grade = gradeFormula(
                 form.cleaned_data['evaluation'], 
                 form.cleaned_data['docs'], 
                 form.cleaned_data['oral_interview']
