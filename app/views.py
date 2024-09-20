@@ -829,7 +829,7 @@ def compute_grade_view(request, id):
     status = None
 
     student = get_object_or_404(DataTableStudents, id=id)
-    gradesResult = Grade.objects.all().order_by('id')
+    gradesResult = Grade.objects.filter(student=student)
     
     if request.method == 'POST':
         form = GradeForm(request.POST)

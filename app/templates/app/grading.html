@@ -283,9 +283,6 @@
                             <td>{{ student.oral_interview }}</td>
                             <td>{{ student.final_grade }}</td>
                             <td>{{ student.status }}</td>
-                            <td>
-                                <a href="{% url 'compute_grade_view' student.id %}" class="btn btn-primary"><i class="fas fa-eye"></i></a>
-                            </td>
                         </tr>
                         {% empty %}
                             <tr>
