@@ -153,42 +153,56 @@
                             <option value="100" {% if per_page == 100 %}selected{% endif %}>100</option>
                         </select>
                     </div>
-                    <!-- Pagination Links -->
                     <ul class="pagination">
                         {% if getActivityLogs.has_previous %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page=1&per_page={{ per_page }}&search={{ request.GET.search }}" aria-label="First">
-                                <span aria-hidden="true">&laquo;&laquo;</span>
-                            </a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ getActivityLogs.previous_page_number }}&per_page={{ per_page }}&search={{ request.GET.search }}" aria-label="Previous">
-                                <span aria-hidden="true">&laquo;</span>
-                            </a>
-                        </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1&per_page={{ per_page }}&search={{ request.GET.search }}" aria-label="First">
+                                    <span aria-hidden="true">&laquo;&laquo;</span>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ getActivityLogs.previous_page_number }}&per_page={{ per_page }}&search={{ request.GET.search }}" aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
                         {% endif %}
-            
-                        {% for num in getActivityLogs.paginator.page_range %}
-                            {% if getActivityLogs.number == num %}
-                            <li class="page-item active" aria-current="page"><span class="page-link">{{ num }}</span></li>
-                            {% else %}
-                            <li class="page-item"><a class="page-link" href="?page={{ num }}&per_page={{ per_page }}&search={{ request.GET.search }}">{{ num }}</a></li>
+                        
+                        {% if pagination_range %}
+                            {% if pagination_range|length > 0 and pagination_range|first > 1 %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page=1&per_page={{ per_page }}&search={{ request.GET.search }}">1</a>
+                                </li>
+                                <li class="page-item"><span class="page-link">...</span></li>
                             {% endif %}
-                        {% endfor %}
-            
+                    
+                            {% for num in pagination_range %}
+                                {% if getActivityLogs.number == num %}
+                                    <li class="page-item active" aria-current="page"><span class="page-link">{{ num }}</span></li>
+                                {% else %}
+                                    <li class="page-item"><a class="page-link" href="?page={{ num }}&per_page={{ per_page }}&search={{ request.GET.search }}">{{ num }}</a></li>
+                                {% endif %}
+                            {% endfor %}
+                            
+                            {% if pagination_range|last < total_pages %}
+                                <li class="page-item"><span class="page-link">...</span></li>
+                                <li class="page-item"><a class="page-link" href="?page={{ total_pages }}&per_page={{ per_page }}&search={{ request.GET.search }}">{{ total_pages }}</a></li>
+                            {% endif %}
+                        {% endif %}
+                    
                         {% if getActivityLogs.has_next %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ getActivityLogs.next_page_number }}&per_page={{ per_page }}&search={{ request.GET.search }}" aria-label="Next">
-                                <span aria-hidden="true">&raquo;</span>
-                            </a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ getActivityLogs.paginator.num_pages }}&per_page={{ per_page }}&search={{ request.GET.search }}" aria-label="Last">
-                                <span aria-hidden="true">&raquo;&raquo;</span>
-                            </a>
-                        </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ getActivityLogs.next_page_number }}&per_page={{ per_page }}&search={{ request.GET.search }}" aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ getActivityLogs.paginator.num_pages }}&per_page={{ per_page }}&search={{ request.GET.search }}" aria-label="Last">
+                                    <span aria-hidden="true">&raquo;&raquo;</span>
+                                </a>
+                            </li>
                         {% endif %}
                     </ul>
+                                                
                 </div>
             </div>
         </div>

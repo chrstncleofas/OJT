@@ -208,6 +208,47 @@ def viewStudent(request, id):
     }
     return render(request, 'superapp/TimeLogs.html', context)
 
+def getAllTheUserAccount(request):
+    user = request.user
+    admin = get_object_or_404(CustomUser, id=user.id)    
+    firstName = admin.first_name
+    lastName = admin.last_name
+    # 
+    search_query = request.GET.get('search', '')
+    # 
+    admin_users = CustomUser.objects.filter(Q(is_staff=True) or Q(is_superuser=True))
+    # 
+    if search_query:
+        admin_users = admin_users.filter(
+            Q(first_name__icontains=search_query) |
+            Q(last_name__icontains=search_query) |
+            Q(position__icontains=search_query) |
+            Q(email__icontains=search_query)
+        )
+
+    # Pagination logic
+    page = request.GET.get('page', 1)  # Get the current page number from the request
+    per_page = request.GET.get('per_page', 5)  # Default items per page is set to 5
+
+    paginator = Paginator(admin_users, per_page)  # Create paginator object
+
+    try:
+        admin_users = paginator.page(page)  # Get the current page of results
+    except PageNotAnInteger:
+        admin_users = paginator.page(1)  # If page is not an integer, deliver first page
+    except EmptyPage:
+        admin_users = paginator.page(paginator.num_pages)  
+
+    # Check if the request is an AJAX request
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return render(request, 'superapp/users.html', {'getAllTheUserAccount': admin_users})
+    # 
+    return render(request, 'superapp/users.html', {
+        'getAllTheUserAccount': admin_users,
+        'firstName': firstName,
+        'lastName': lastName
+    })
+
 def viewPendingApplication(request, id):
     user = request.user
     try:
@@ -229,44 +270,7 @@ def viewPendingApplication(request, id):
         }
     )
 
-def getAllTheUserAccount(request):
-    user = request.user
-    admin = get_object_or_404(CustomUser, id=user.id)    
-    firstName = admin.first_name
-    lastName = admin.last_name
-    # 
-    search_query = request.GET.get('search', '')
-    # 
-    admin_users = CustomUser.objects.filter(Q(is_staff=True) or Q(is_superuser=True))
-    # 
-    if search_query:
-        admin_users = admin_users.filter(
-            Q(first_name__icontains=search_query) |
-            Q(last_name__icontains=search_query) |
-            Q(position__icontains=search_query) |
-            Q(email__icontains=search_query)
-        )
-
-    page = request.GET.get('page', 1)
-    per_page = request.GET.get('per_page', 5)
-
-    paginator = Paginator(admin_users, per_page)
-
-    try:
-        admin_users = paginator.page(page)
-    except PageNotAnInteger:
-        admin_users = paginator.page(1)
-    except EmptyPage:
-        admin_users = paginator.page(paginator.num_pages)  
-
-    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-        return render(request, 'superapp/users.html', {'getAllTheUserAccount': admin_users})
-    # 
-    return render(request, 'superapp/users.html', {
-        'getAllTheUserAccount': admin_users,
-        'firstName': firstName,
-        'lastName': lastName
-    })
+from math import ceil
 
 def getActivityLogs(request):
     user = request.user
@@ -299,6 +303,20 @@ def getActivityLogs(request):
     except EmptyPage:
         admin_users = paginator.page(paginator.num_pages)
 
+    # Limit pagination range to 5 pages at a time
+    max_display_pages = 5
+    current_page = admin_users.number
+    total_pages = paginator.num_pages
+
+    # Determine start and end of the pagination range
+    start_page = max(current_page - 2, 1)
+    end_page = min(start_page + max_display_pages - 1, total_pages)
+
+    if end_page - start_page < max_display_pages:
+        start_page = max(end_page - max_display_pages + 1, 1)
+
+    pagination_range = range(start_page, end_page + 1)
+
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         return render(request, 'superapp/activitylogs.html', {'getActivityLogs': admin_users})
 
@@ -307,6 +325,8 @@ def getActivityLogs(request):
         'firstName': firstName,
         'lastName': lastName,
         'per_page': per_page,
+        'pagination_range': pagination_range,  # Pass the pagination range to the template
+        'total_pages': total_pages
     })
 
 def getAllTheListAnnouncement(request):
