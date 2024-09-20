@@ -254,13 +254,15 @@
                         {% endif %}
                     </div>
                 </div>
-                <div class="mt-4">
+                <form method="POST" action="">
+                    {% csrf_token %}
                     <div class="row">
                         <div class="col-md-4">
                             <div class="card text-white bg-primary mb-3">
                                 <div class="card-header">Total Work Hours</div>
                                 <div class="card-body">
-                                    <h5 class="card-title">{{ total_work_time }}</h5>
+                                    <input type="text" name="total_work_time" class="form-control" value="{{ total_work_time }}" readonly>
+                                    <button type="button" class="btn btn-light mt-2" onclick="toggleEdit(this)">Edit</button>
                                 </div>
                             </div>
                         </div>
@@ -268,7 +270,8 @@
                             <div class="card text-white bg-success mb-3">
                                 <div class="card-header">Required Duration</div>
                                 <div class="card-body">
-                                    <h5 class="card-title">{{ required_hours_time }}</h5>
+                                    <input type="text" name="required_hours_time" class="form-control" value="{{ required_hours_time }}" readonly>
+                                    <button type="button" class="btn btn-light mt-2" onclick="toggleEdit(this)">Edit</button>
                                 </div>
                             </div>
                         </div>
@@ -276,12 +279,13 @@
                             <div class="card text-white bg-warning mb-3">
                                 <div class="card-header">Remaining Hours</div>
                                 <div class="card-body">
-                                    <h5 class="card-title">{{ remaining_hours_time }}</h5>
+                                    <input type="text" name="remaining_hours_time" class="form-control" value="{{ remaining_hours_time }}" readonly>
+                                    <button type="button" class="btn btn-light mt-2" onclick="toggleEdit(this)">Edit</button>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                </form>   
                 {% else %}
                 <p>No logs found for this student.</p>
                 {% endif %}
@@ -292,5 +296,30 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        function toggleEdit(button) {
+            // Get the input field and toggle its readonly state
+            const input = button.previousElementSibling;
+            if (input.readOnly) {
+                // If in readonly mode, allow editing and change button text to "Save"
+                input.readOnly = false;
+                button.textContent = "Save";
+                button.classList.remove("btn-light");
+                button.classList.add("btn-primary");
+        
+                // Show the "Save Changes" button for form submission
+                document.getElementById("saveChanges").classList.remove("d-none");
+            } else {
+                // If in editing mode, set back to readonly and change button text to "Edit"
+                input.readOnly = true;
+                button.textContent = "Edit";
+                button.classList.remove("btn-primary");
+                button.classList.add("btn-light");
+        
+                // Optionally, hide the "Save Changes" button if needed
+                // You could check if all fields are back to readonly before hiding it
+            }
+        }
+    </script>
 </body>
 </html>

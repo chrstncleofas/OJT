@@ -186,7 +186,7 @@
                                     </td>
                                     <td>
                                         <a href="{% url 'editStudentDetails' student.id %}" class="btn btn-primary"><i class="fa-solid fa-pen-to-square"></i></a>
-                                        <a href="{% url 'viewTimeLogs' student.id %}" class="btn btn-secondary"><i class="fas fa-eye"></i></a>
+                                        <a href="{% url 'student-logs' student.id %}" class="btn btn-secondary"><i class="fas fa-eye"></i></a>
                                         <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#passwordModal{{student.id}}"><i class="fa fa-archive"></i></button>     
                                         <!-- Password Modal -->
                                         <div id="passwordModal{{student.id}}" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="passwordModalLabel{{student.id}}" aria-hidden="true">

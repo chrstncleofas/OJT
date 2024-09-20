@@ -375,18 +375,19 @@ def clean_filename(filename):
         return re.sub(r'^\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}_', '', filename)
     return filename
 
-def viewTimeLogs(request, student_id):
+def studentInformation(request, id):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
-    student = get_object_or_404(DataTableStudents, id=student_id)
+    student = get_object_or_404(DataTableStudents, id=id)
     firstName = admin.first_name
     lastName = admin.last_name
 
     studentFirstname = student.Firstname
     studentLastname = student.Lastname
 
-    selected_student = get_object_or_404(DataTableStudents, id=student_id)
+    selected_student = get_object_or_404(DataTableStudents, id=id)
     time_logs = TimeLog.objects.filter(student=selected_student).order_by('timestamp')
+    
     total_work_seconds = 0
     daily_total = timedelta()
     paired_logs = []
@@ -401,20 +402,27 @@ def viewTimeLogs(request, student_id):
                 daily_total += work_period
                 i += 1
         i += 1
+    
     total_work_seconds = daily_total.total_seconds()
     required_hours_seconds = student.get_required_hours() * 3600 if student.get_required_hours() is not None else 0
     remaining_hours_seconds = required_hours_seconds - total_work_seconds
+
+    if request.method == 'POST':
+        # Update values based on form input
+        total_work_time_input = request.POST.get('total_work_time')
+        required_hours_time_input = request.POST.get('required_hours_time')
+        remaining_hours_time_input = request.POST.get('remaining_hours_time')
+
+        # Process the input values (convert back to seconds)
+        total_work_seconds = convert_time_to_seconds(total_work_time_input)
+        required_hours_seconds = convert_time_to_seconds(required_hours_time_input)
+        remaining_hours_seconds = convert_time_to_seconds(remaining_hours_time_input)
+        
     full_schedule = Schedule.objects.filter(student=student, day__in=['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']).order_by('id')
 
     grades = Grade.objects.filter(student=student)
-
     progress_reports = TableSubmittedReport.objects.filter(student=selected_student).order_by('-date_submitted', 'id')
     requirements = TableSubmittedRequirement.objects.filter(student=selected_student).order_by('-submission_date', 'id')
-
-    for report in progress_reports:
-        file_path = os.path.join(settings.MEDIA_ROOT, report.report_file.name)
-        if not os.path.isfile(file_path):
-            report.delete()
 
     cleaned_reports = [(report, clean_filename(report.report_file.name)) for report in progress_reports]
 
@@ -442,23 +450,18 @@ def viewTimeLogs(request, student_id):
     }
     return render(request, 'app/TimeLogs.html', context)
 
-def viewStudentInformation(request, student_id):
-    user = request.user
-    admin = get_object_or_404(CustomUser, id=user.id)
-    firstName = admin.first_name
-    lastName = admin.last_name
-    try:
-        student = DataTableStudents.objects.get(pk=student_id)
-    except DataTableStudents.DoesNotExist:
-        return HttpResponse('Student not found', status=404)
-    return render(
-        request, 'app/student-view-page.html', 
-        {
-            'student': student,
-            'firstName': firstName,
-            'lastName': lastName
-        }
-    )
+def convert_time_to_seconds(time_str):
+    """Convert a time string like '1 hours, 30 minutes' to total seconds."""
+    time_parts = time_str.split(',')
+    total_seconds = 0
+    for part in time_parts:
+        if 'hour' in part:
+            hours = int(part.split()[0])
+            total_seconds += hours * 3600
+        elif 'minute' in part:
+            minutes = int(part.split()[0])
+            total_seconds += minutes * 60
+    return total_seconds
 
 @login_required
 def set_rendering_hours(request):
