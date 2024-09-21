@@ -93,7 +93,7 @@ class ContentForm(forms.ModelForm):
         fields = ['nameOfContent', 'description', 'image']
         widgets = {
             'nameOfContent': forms.TextInput(attrs={'class': 'form-control', 'max_length': 200}),
-            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'max_length': 850}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'max_length': 950}),
             'image': CustomClearableFileInput,
         }
 
