@@ -261,8 +261,12 @@
                             <div class="card text-white bg-primary mb-3">
                                 <div class="card-header">Total Work Hours</div>
                                 <div class="card-body">
-                                    <input type="text" name="total_work_time" class="form-control" value="{{ total_work_time }}" readonly>
-                                    <button type="button" class="btn btn-light mt-2" onclick="toggleEdit(this)">Edit</button>
+                                    <div class="row">
+                                        <input type="text" style="width: 271px;" name="total_work_time" class="form-control ml-1" value="{{ total_work_time }}" readonly>
+                                        <button type="button" class="btn btn-light ml-1 mr-0" onclick="toggleEdit(this)">
+                                            <i class="fa-solid fa-pen-to-square"></i>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -270,8 +274,12 @@
                             <div class="card text-white bg-success mb-3">
                                 <div class="card-header">Required Duration</div>
                                 <div class="card-body">
-                                    <input type="text" name="required_hours_time" class="form-control" value="{{ required_hours_time }}" readonly>
-                                    <button type="button" class="btn btn-light mt-2" onclick="toggleEdit(this)">Edit</button>
+                                    <div class="row">
+                                        <input type="text" style="width: 270px;" name="required_hours_time" class="form-control ml-1" value="{{ required_hours_time }}" readonly>
+                                        <button type="button" class="btn btn-light ml-1 mr-0" onclick="toggleEdit(this)">
+                                            <i class="fa-solid fa-pen-to-square"></i>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -279,12 +287,17 @@
                             <div class="card text-white bg-warning mb-3">
                                 <div class="card-header">Remaining Hours</div>
                                 <div class="card-body">
-                                    <input type="text" name="remaining_hours_time" class="form-control" value="{{ remaining_hours_time }}" readonly>
-                                    <button type="button" class="btn btn-light mt-2" onclick="toggleEdit(this)">Edit</button>
+                                    <div class="row">
+                                        <input type="text" style="width: 271px;" name="remaining_hours_time" class="form-control ml-1" value="{{ remaining_hours_time }}" readonly>
+                                        <button type="button" class="btn btn-light ml-1 mr-0" onclick="toggleEdit(this)">
+                                            <i class="fa-solid fa-pen-to-square"></i>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+                    <button type="submit" id="saveChanges" class="btn btn-success d-none">Save Changes</button>
                 </form>   
                 {% else %}
                 <p>No logs found for this student.</p>
@@ -298,26 +311,32 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
         function toggleEdit(button) {
-            // Get the input field and toggle its readonly state
+            // Get the input field
             const input = button.previousElementSibling;
+            const icon = button.querySelector("i");
+        
             if (input.readOnly) {
-                // If in readonly mode, allow editing and change button text to "Save"
+                // Switch to editing mode
                 input.readOnly = false;
-                button.textContent = "Save";
                 button.classList.remove("btn-light");
                 button.classList.add("btn-primary");
-        
-                // Show the "Save Changes" button for form submission
+                icon.classList.remove("fa-pen-to-square");
+                icon.classList.add("fa-save");
+                
+                // Show the "Save Changes" button
                 document.getElementById("saveChanges").classList.remove("d-none");
             } else {
-                // If in editing mode, set back to readonly and change button text to "Edit"
+                // Switch back to readonly mode
                 input.readOnly = true;
-                button.textContent = "Edit";
                 button.classList.remove("btn-primary");
                 button.classList.add("btn-light");
-        
-                // Optionally, hide the "Save Changes" button if needed
-                // You could check if all fields are back to readonly before hiding it
+                icon.classList.remove("fa-save");
+                icon.classList.add("fa-pen-to-square");
+                
+                // Optionally hide the "Save Changes" button if no more edits
+                if (document.querySelectorAll('input[readonly=false]').length === 0) {
+                    document.getElementById("saveChanges").classList.add("d-none");
+                }
             }
         }
     </script>
