@@ -42,6 +42,13 @@
             margin-top: 10px;
             border-radius: 6px;
         }
+        span.category-class{
+            padding: 5px;
+            border-radius: 51px;           
+            background-color: red;
+            color: #fff;
+            font-size: 10px;
+        }
         /* Style for the navbar */
         .navbar {
             transition: background-color 0.3s ease;
@@ -75,16 +82,19 @@
         <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ml-auto">
             <li class="nav-item">
-                <a class="nav-link text-color-dark" href="{% url 'students:about-page' %}">About</a>
+                <a class="nav-link text-color-dark" href="{% url 'students:home' %}">Home</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link text-color-dark" href="{% url 'students:announcement' %}">Announcement</a>
+                <a class="nav-link text-color-dark" href="{% url 'students:about' %}">About</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link text-color-dark" href="{% url 'students:dashboard' %}">Dashboard</a>
+                <a class="nav-link text-color-dark mr-2" href="{% url 'students:announcement-page' %}">Announcement</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link text-color-dark" href="#" data-toggle="modal" data-target="#logout">Logout</a>
+                <a class="btn btn-dark mr-1" href="{% url 'students:login' %}">Login</a>
+            </li>
+            <li class="nav-item">
+                <a class="btn btn-outline-secondary" href="{% url 'students:register' %}">Register</a>
             </li>
         </ul>
         </div>
@@ -110,58 +120,44 @@
         </div>
     </div>
     <!--Card  -->
-    <div class="container mt-5 mb-5">
-        {% for img in images %}
-            {% if img.image %}
-                <img src="{{ img.image.url }}" class="mt-0" alt="Current Image" style="width: 1113px; height: 350px; border-radius: 6px; box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);" id="current-image"><br>
-            {% endif %}
-        {% endfor %}
+    <div class="container mt-5 mb-4">
         <div class="outer-container">
-            <h5 class="mb-4">All Features</h5>
+            <h3 class="mb-2">Announcement</h3>
+            <p>List of latest announcements</p>
+            <!-- Card design for announcement -->
             <div class="row">
-                <div class="col-lg-4 mb-4">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title"><i class="fas fa-bullhorn"></i> Announcement</h5>
-                            <p class="card-text">Allow the student to check the announcement that will come from the CCIT Building</p>
+                {% for announcement in announcements %}
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100">
+                            {% if announcement.Image %}
+                                <img src="{{ announcement.Image.url }}" class="card-img-top mb-0" alt="{{ announcement.Title }}">
+                            {% endif %}
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <p class="card-text mb-3" style="font-size: 10px; font-weight: bold; color: gray;">
+                                            <span style="font-weight: normal;">Start Date: </span>{{ announcement.StartDate }}
+                                        </p>
+                                    </div>
+                                    <div class="col-6 text-right">
+                                        <p class="card-text mb-3" style="font-size: 10px; font-weight: bold; color: gray;">
+                                            <span style="font-weight: normal;">End Date: </span>{{ announcement.EndDate }}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <h6 style="font-size: 17px;" class="card-title">{{ announcement.Title }}</h6>
+                                    </div>
+                                </div>
+                                <p class="card-text" style="text-align: justify;">{{ announcement.Description }}</p>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="col-lg-4 mb-4">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title"><i class="fas fa-file-alt"></i> Submission of Requirements</h5>
-                            <p class="card-text">Allow the students to submit their requirement to be able to enroll OJT subject.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-4 mb-4">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title"><i class="fas fa-chart-line"></i> Progress Report</h5>
-                            <p class="card-text">Allow the student to input their daily activities using this progress report features.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-4 mb-4">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title"><i class="fas fa-clock"></i> Time In & Time Out</h5>
-                            <p class="card-text">Allow the student to be able to time in and time out with the features of the OJT System accurately</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-4 mb-4">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title"><i class="fas fa-calendar-alt"></i> Set Schedule</h5>
-                            <p class="card-text">Allow the student to input their OJT schedule and accurately time in and out using the system.</p>
-                        </div>
-                    </div>
-                </div>
+                {% endfor %}
             </div>
         </div>
-    </div>
+    </div>    
     <!-- Footer -->
     <footer class="footer mt-auto">
         <div class="container">

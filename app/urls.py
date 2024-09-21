@@ -9,6 +9,7 @@ urlpatterns = [
     path('profile', views.profile, name='profile'),
     path('logout', views.logoutView, name='logout'),
     path('dashboard', views.dashboard, name='dashboard'),
+    path('content/', views.postContent, name='content'),
     path('student-logs/<int:id>/', views.studentInformation, name='student-logs'),
     # 
     path('changePass', views.changePass, name='changePass'),
@@ -30,9 +31,12 @@ urlpatterns = [
     # 
     path('announcement', views.postAnnouncement, name='announcement'),
     path('listOfAnnouncement', views.listOfAnnouncement, name='listOfAnnouncement'),
+    path('all-content', views.listOfContent, name='all-content'),
     path('grading', views.getAllStudentsForGrading, name='grading'),
     path('editAnnouncement/<int:id>/', views.editAnnouncement, name='editAnnouncement'),
+    path('editContent/<int:id>/', views.editContent, name='editContent'),
     path('deleteAnnouncement/<int:id>/', views.deleteAnnouncement, name='deleteAnnouncement'),
+    path('deleteContent/<int:id>/', views.deleteContent, name='deleteContent'),
     path('deleteRequirementDocuments/<int:id>/', views.deleteRequirementDocuments, name='deleteRequirementDocuments'),
     path('gradeCalculator/<int:id>/', views.gradeCalculator, name='gradeCalculator'),
     #

@@ -22,10 +22,10 @@ from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import user_passes_test
-from app.models import RenderingHoursTable, TableRequirements
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from students.forms import EditStudentForm, ScheduleSettingForm, GradeForm
-from app.forms import EditProfileForm, AnnouncementForm, UploadRequirementForm
+from app.models import RenderingHoursTable, TableRequirements, TableContent
+from app.forms import EditProfileForm, AnnouncementForm, UploadRequirementForm, ContentForm
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponsePermanentRedirect, JsonResponse
 from students.models import DataTableStudents, TimeLog, Schedule, TableSubmittedReport, TableSubmittedRequirement, PendingApplication, RejectApplication, Grade
 
@@ -581,6 +581,42 @@ def listOfAnnouncement(request):
         'lastName': lastName
     })
 
+def listOfContent(request):
+    user = request.user
+    admin = get_object_or_404(CustomUser, id=user.id)
+    firstName = admin.first_name
+    lastName = admin.last_name
+
+    search_query = request.GET.get('search', '')
+
+    content = TableContent.objects.all().order_by('id')
+
+    if search_query:
+        content = content.filter(
+            Q(nameOfContent__icontains=search_query)
+        )
+    
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return render(request, 'app/allContentPage.html', {'listOfContent': content})
+
+    page = request.GET.get('page', 1)
+    per_page = request.GET.get('per_page', 5)
+
+    paginator = Paginator(content, per_page)
+
+    try:
+        content = paginator.page(page)
+    except PageNotAnInteger:
+        content = paginator.page(1)
+    except EmptyPage:
+        content = paginator.page(paginator.num_pages)
+
+    return render(request, 'app/allContentPage.html', {
+        'listOfContent': content,
+        'firstName': firstName,
+        'lastName': lastName
+    })
+
 def postAnnouncement(request):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
@@ -595,6 +631,27 @@ def postAnnouncement(request):
     else:
         form = AnnouncementForm()
     return render(request, ANNOUNCEMENT,
+        {
+            'form': form,
+            'firstName': firstName,
+            'lastName': lastName
+        }
+    )
+
+def postContent(request):
+    user = request.user
+    admin = get_object_or_404(CustomUser, id=user.id)
+    firstName = admin.first_name
+    lastName = admin.last_name
+    if request.method == 'POST':
+        form = ContentForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            saveActivityLogs(user=user, action='POST', request=request, description='Post content')
+            return redirect('content')
+    else:
+        form = ContentForm()
+    return render(request, 'app/addContentForm.html',
         {
             'form': form,
             'firstName': firstName,
@@ -626,15 +683,47 @@ def editAnnouncement(request, id):
         'announcement': announcement,
     })
 
+def editContent(request, id):
+    user = request.user
+    admin = get_object_or_404(CustomUser, id=user.id)
+    firstName = admin.first_name
+    lastName = admin.last_name
+
+    content = get_object_or_404(TableContent, id=id)
+
+    if request.method == 'POST':
+        form = ContentForm(request.POST, request.FILES, instance=content)
+        if form.is_valid():
+            form.save()
+            saveActivityLogs(user=user, action='EDIT', request=request, description='Edit content')
+            return redirect('all-content')
+    else:
+        form = ContentForm(instance=content)
+
+    return render(request, 'app/edit-content.html', {
+        'form': form,
+        'firstName': firstName,
+        'lastName': lastName,
+        'content': content,
+    })
+
 def deleteAnnouncement(request, id):
     user = request.user
     announcement = get_object_or_404(TableAnnouncement, id=id)
     if request.method == 'POST':
         announcement.delete()
         saveActivityLogs(user=user, action='DELETE', request=request, description='Delete announcement')
-        messages.success(request, 'Announcement has been deleted successfully.')
         return redirect('listOfAnnouncement')
     return render(request, LIST_ANNOUNCEMENT, {'announcement': announcement})
+
+def deleteContent(request, id):
+    user = request.user
+    content = get_object_or_404(TableContent, id=id)
+    if request.method == 'POST':
+        content.delete()
+        saveActivityLogs(user=user, action='DELETE', request=request, description='Delete content')
+        return redirect('all-content')
+    return render(request, 'app/allContentPage.html', {'content': content})
 
 def deleteRequirementDocuments(request, id):
     user = request.user
@@ -642,7 +731,6 @@ def deleteRequirementDocuments(request, id):
     if request.method == 'POST':
         docs.delete()
         saveActivityLogs(user=user, action='DELETE', request=request, description='Delete documents')
-        messages.success(request, 'Announcement has been deleted successfully.')
         return redirect('set_rendering_hours')
     return render(request, 'app/settings.html', {'docs': docs})
 

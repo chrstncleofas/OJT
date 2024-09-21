@@ -15,16 +15,28 @@ from django.contrib.auth.hashers import check_password
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseRedirect
-from app.models import TableAnnouncement, TableRequirements
 from django.contrib.auth import authenticate, login, logout
+from app.models import TableAnnouncement, TableRequirements, TableContent
 from students.models import DataTableStudents, TimeLog, Schedule, TableSubmittedReport, TableSubmittedRequirement, PendingApplication
 from students.forms import ChangePasswordForm, StudentProfileForm, ScheduleSettingForm, FillUpPDFForm, SubmittedRequirement, PendingStudentRegistrationForm, TimeLogForm
 
 def studentHome(request) -> HttpResponse:
-    return render(request, 'students/student-base.html')
+    images = TableContent.objects.all().order_by('id')
+    return render(
+        request, 'students/student-base.html',
+        {
+            'images': images
+        }
+    )
 
 def studentDashboard(request) -> HttpResponse:
-    return render(request, 'students/student-dashboard.html')
+    images = TableContent.objects.all().order_by('id')
+    return render(
+        request, 'students/student-dashboard.html',
+        {
+            'images': images
+        }
+    )
 
 @login_required
 def welcomeDashboard(request) -> HttpResponse:
@@ -32,12 +44,14 @@ def welcomeDashboard(request) -> HttpResponse:
     student = get_object_or_404(DataTableStudents, user=user)
     firstName = student.Firstname
     lastName = student.Lastname
+    images = TableContent.objects.all().order_by('id')
     return render(
         request,
         'students/student-main-dashboard.html',
         {
             'firstName': firstName,
             'lastName': lastName,
+            'images': images
         }
     )
 
@@ -47,6 +61,33 @@ def getAnnouncement(request):
         request, 'students/announcement.html', 
         {
             'announcements': enabledAnnouncement
+        }
+    )
+
+def getAnnouncementNotLogin(request):
+    enabledAnnouncement = TableAnnouncement.objects.filter(Status='enable')
+    return render(
+        request, 'students/announcementNotLogin.html', 
+        {
+            'announcements': enabledAnnouncement
+        }
+    )
+
+def aboutPage(request):
+    contents = TableContent.objects.all().order_by('id')
+    return render(
+        request, 'students/about.html',
+        {
+            'contents': contents
+        }
+    )
+
+def aboutLogin(request):
+    contents = TableContent.objects.all().order_by('id')
+    return render(
+        request, 'students/aboutLogin.html',
+        {
+            'contents': contents
         }
     )
 

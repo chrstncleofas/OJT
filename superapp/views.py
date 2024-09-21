@@ -18,8 +18,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 from students.models import DataTableStudents, TimeLog, Schedule
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from app.models import TableAnnouncement, StoreActivityLogs, TableRequirements
-from app.forms import EditUsersDetailsForm, AnnouncementForm, UploadRequirementForm
+from app.models import TableAnnouncement, StoreActivityLogs, TableRequirements, TableContent
+from app.forms import EditUsersDetailsForm, AnnouncementForm, UploadRequirementForm, ContentForm
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponsePermanentRedirect, JsonResponse
 from students.models import PendingApplication, RejectApplication, Grade, TableSubmittedRequirement, TableSubmittedReport
 
@@ -424,6 +424,96 @@ def editAnnouncement(request, id):
         'lastName': lastName,
         'announcement': announcement,
     })
+
+def listOfContent(request):
+    user = request.user
+    admin = get_object_or_404(CustomUser, id=user.id)
+    firstName = admin.first_name
+    lastName = admin.last_name
+
+    search_query = request.GET.get('search', '')
+
+    content = TableContent.objects.all().order_by('id')
+
+    if search_query:
+        content = content.filter(
+            Q(nameOfContent__icontains=search_query)
+        )
+    
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return render(request, 'superapp/allContentPage.html', {'listOfContent': content})
+
+    page = request.GET.get('page', 1)
+    per_page = request.GET.get('per_page', 5)
+
+    paginator = Paginator(content, per_page)
+
+    try:
+        content = paginator.page(page)
+    except PageNotAnInteger:
+        content = paginator.page(1)
+    except EmptyPage:
+        content = paginator.page(paginator.num_pages)
+
+    return render(request, 'superapp/allContentPage.html', {
+        'listOfContent': content,
+        'firstName': firstName,
+        'lastName': lastName
+    })
+
+def postContent(request):
+    user = request.user
+    admin = get_object_or_404(CustomUser, id=user.id)
+    firstName = admin.first_name
+    lastName = admin.last_name
+    if request.method == 'POST':
+        form = ContentForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            saveActivityLogs(user=user, action='POST', request=request, description='Post content')
+            return redirect('superapp:content')
+    else:
+        form = ContentForm()
+    return render(request, 'superapp/addContentForm.html',
+        {
+            'form': form,
+            'firstName': firstName,
+            'lastName': lastName
+        }
+    )
+
+def editContent(request, id):
+    user = request.user
+    admin = get_object_or_404(CustomUser, id=user.id)
+    firstName = admin.first_name
+    lastName = admin.last_name
+
+    content = get_object_or_404(TableContent, id=id)
+
+    if request.method == 'POST':
+        form = ContentForm(request.POST, request.FILES, instance=content)
+        if form.is_valid():
+            form.save()
+            saveActivityLogs(user=user, action='EDIT', request=request, description='Edit content')
+            return redirect('superapp:all-content')
+    else:
+        form = ContentForm(instance=content)
+
+    return render(request, 'superapp/edit-content.html', {
+        'form': form,
+        'firstName': firstName,
+        'lastName': lastName,
+        'content': content,
+    })
+
+def deleteContent(request, id):
+    user = request.user
+    content = get_object_or_404(TableContent, id=id)
+    if request.method == 'POST':
+        content.delete()
+        saveActivityLogs(user=user, action='DELETE', request=request, description='Delete content')
+        return redirect('superapp:all-content')
+    return render(request, 'superapp/allContentPage.html', {'content': content})
 
 def deleteAnnouncement(request, id):
     user = request.user

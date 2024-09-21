@@ -44,4 +44,12 @@ class TableRequirements(models.Model):
 
     def __str__(self):
         return self.nameOfFile
+
+class TableContent(models.Model):
+    nameOfContent = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
+    image = models.FileField(upload_to='content/')
+    uploadDate = models.DateTimeField(auto_now_add=True)
     
+    def __str__(self):
+        return self.nameOfContent

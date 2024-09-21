@@ -87,27 +87,30 @@
     <div class="d-flex" id="wrapper">
         <!-- Sidebar -->
         <div class="bg-light border-right vh-100" id="sidebar-wrapper">
-            <a href="{% url 'dashboard' %}" style="text-decoration: none !important; color: black !important;"><div class="sidebar-heading">OJT Management System</div></a>
+            <a href="{% url 'superapp:superAdminDashboard' %}" style="text-decoration: none !important; color: black !important;"><div class="sidebar-heading">OJT Management System</div></a>
             <div class="list-group list-group-flush">
-                <a href="{% url 'mainDashboard' %}" class="list-group-item list-group-item-action bg-light">
+                <a href="{% url 'superapp:mainDashboard' %}" class="list-group-item list-group-item-action bg-light">
                     <i class="fas fa-tachometer-alt"></i> Dashboard
                 </a>
-                <a href="{% url 'listOfAnnouncement' %}" class="list-group-item list-group-item-action bg-light">
+                <a href="{% url 'superapp:getAllTheListAnnouncement' %}" class="list-group-item list-group-item-action bg-light">
                     <i class="fas fa-bullhorn"></i> Announcement
                 </a>
-                <a href="{% url 'all-content' %}" class="list-group-item list-group-item-action bg-light">
+                <a href="{% url 'superapp:all-content' %}" class="list-group-item list-group-item-action bg-light">
                     <i class="fa-solid fa-cube"></i> Content
                 </a>
-                <a href="{% url 'studentManagement' %}" class="list-group-item list-group-item-action bg-light">
+                <a href="{% url 'superapp:studentManagement' %}" class="list-group-item list-group-item-action bg-light">
                     <i class="fas fa-user-graduate"></i> Manage Student
                 </a>
-                <a href="{% url 'grading' %}" class="list-group-item list-group-item-action bg-light">
-                    <i class="fa-solid fa-ranking-star"></i> Grading
+                <a href="{% url 'superapp:getActivityLogs' %}" class="list-group-item list-group-item-action bg-light">
+                    <i class="fas fa-clock"></i> Activity Logs
                 </a>
-                <a href="{% url 'set_rendering_hours' %}" class="list-group-item list-group-item-action bg-light">
+                <a href="{% url 'superapp:getAllTheUserAccount' %}" class="list-group-item list-group-item-action bg-light">
+                    <i class="fa-solid fa-user"></i> Users
+                </a>
+                <a href="{% url 'superapp:set_rendering_hours' %}" class="list-group-item list-group-item-action bg-light">
                     <i class="fas fa-cogs"></i> Settings
                 </a>
-                <a href="{% url 'logout' %}" class="list-group-item list-group-item-action bg-light">
+                <a href="{% url 'superapp:loggingOut' %}" class="list-group-item list-group-item-action bg-light">
                     <i class="fas fa-sign-out-alt"></i> Logout
                 </a>
             </div>
@@ -127,11 +130,11 @@
                                 <i class="fas fa-user mr-2"></i>{{ firstName }} {{ lastName }}
                             </a>
                             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                <a class="dropdown-item" href="{% url 'profile' %}">Profile</a>
+                                <a class="dropdown-item" href="{% url 'superapp:editUserProfile' %}">Profile</a>
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="{% url 'changePass' %}">Change Password</a>
+                                <a class="dropdown-item" href="">Change Password</a>
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
+                                <a class="dropdown-item" href="{% url 'superapp:loggingOut' %}">Logout</a>
                             </div>
                         </li>
                     </ul>
@@ -141,50 +144,36 @@
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-lg-12">
-                        <p class="mt-3 mb-1"><a href="{% url 'listOfAnnouncement' %}" style="cursor: pointer; text-decoration: none; color: black;">Home</a> / Announcement</p>
-                        <h3 class="mt-2 mb-3">Edit Announcement</h3>
+                        <p class="mt-3 mb-1"><a href="{% url 'superapp:all-content' %}" style="cursor: pointer; text-decoration: none; color: black;">Home</a> / Announcement</p>
+                        <h3 class="mt-2 mb-3">Edit Content</h3>
                     </div>
                 </div>
                 <form method="post" enctype="multipart/form-data">
                     {% csrf_token %}
                     <div class="form-group">
                         <label for="Title">Title</label>
-                        {{ form.Title }}
+                        {{ form.nameOfContent }}
                     </div>
                     <div class="form-group">
-                        <label for="Image" style="font-size: 12px;">Preview Image (recommended dimension: 1280 x 400)</label><br>
+                        <label for="Image" style="font-size: 12px;">Preview Image (recommended dimension: 1360 x 1020)</label><br>
                         <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
                             <div id="image-preview" class="preview-box">
-                                {% if announcement.Image %}
-                                    <img src="{{ announcement.Image.url }}" alt="Current Image" style="max-width: 200px;" id="current-image"><br>
+                                {% if content.image %}
+                                    <img src="{{ content.image.url }}" alt="Current Image" style="max-width: 200px;" id="current-image"><br>
                                 {% endif %}
                             </div>
                             <div>
                                 <div class="upload-box">
-                                    {{ form.Image }}
+                                    {{ form.image }}
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="Description">Description</label>
-                        {{ form.Description }}
+                        {{ form.description }}
                     </div>
-                    <div class="row mb-3">
-                        <div class="col-md-4">
-                            <label for="Status">Status</label>
-                            {{ form.Status }}
-                        </div>
-                        <div class="col-md-4">
-                            <label for="StartDate">Start Date</label>
-                            {{ form.StartDate }}
-                        </div>
-                        <div class="col-md-4">
-                            <label for="EndDate">End Date</label>
-                            {{ form.EndDate }}
-                        </div>
-                    </div>
-                    <button type="submit" class="btn btn-primary mb-4">Update Announcement</button>
+                    <button type="submit" class="btn btn-primary mb-4">Update Content</button>
                 </form>
             </div>
         </div>

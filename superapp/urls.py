@@ -7,6 +7,10 @@ app_name = 'superapp'
 
 urlpatterns = [
     path('', views.superHome, name='superHome'),
+    path('content/', views.postContent, name='content'),
+    path('all-content', views.listOfContent, name='all-content'),
+    path('editContent/<int:id>/', views.editContent, name='editContent'),
+    path('deleteContent/<int:id>/', views.deleteContent, name='deleteContent'),
     path('viewStudent/<int:id>/', views.viewStudent, name='viewStudent'),
     path('editUserProfile/', views.editUserProfile, name='editUserProfile'),
     path('editUsers/<int:id>/', views.editUsers, name='editUsers'),

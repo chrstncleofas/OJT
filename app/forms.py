@@ -1,10 +1,9 @@
 from django import forms
-from app.models import TableAnnouncement
-from app.models import RenderingHoursTable, TableRequirements
 from django.contrib.auth import get_user_model
 from app.custom_widgets import CustomClearableFileInput
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.forms import PasswordChangeForm
+from app.models import RenderingHoursTable, TableRequirements, TableAnnouncement, TableContent
 
 STATUS = [
     ('enable', 'Enable'),
@@ -86,6 +85,22 @@ class AnnouncementForm(forms.ModelForm):
         self.fields['Description'].required = True
         self.fields['StartDate'].required = True
         self.fields['EndDate'].required = True
+
+
+class ContentForm(forms.ModelForm):
+    class Meta:
+        model = TableContent
+        fields = ['nameOfContent', 'description', 'image']
+        widgets = {
+            'nameOfContent': forms.TextInput(attrs={'class': 'form-control', 'max_length': 200}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'max_length': 850}),
+            'image': CustomClearableFileInput,
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(ContentForm, self).__init__(*args, **kwargs)
+        self.fields['nameOfContent'].required = True
+        self.fields['description'].required = True
 
 class EditUsersDetailsForm(forms.ModelForm):
 

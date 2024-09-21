@@ -42,6 +42,13 @@
             margin-top: 10px;
             border-radius: 6px;
         }
+        span.category-class{
+            padding: 5px;
+            border-radius: 51px;           
+            background-color: red;
+            color: #fff;
+            font-size: 10px;
+        }
         /* Style for the navbar */
         .navbar {
             transition: background-color 0.3s ease;
@@ -110,58 +117,19 @@
         </div>
     </div>
     <!--Card  -->
-    <div class="container mt-5 mb-5">
-        {% for img in images %}
-            {% if img.image %}
-                <img src="{{ img.image.url }}" class="mt-0" alt="Current Image" style="width: 1113px; height: 350px; border-radius: 6px; box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);" id="current-image"><br>
-            {% endif %}
-        {% endfor %}
+    <div class="container mt-5 mb-4">
         <div class="outer-container">
-            <h5 class="mb-4">All Features</h5>
+            <h3 class="mb-2">About in OJT Management System</h3>
+            <!-- Card design for announcement -->
             <div class="row">
-                <div class="col-lg-4 mb-4">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title"><i class="fas fa-bullhorn"></i> Announcement</h5>
-                            <p class="card-text">Allow the student to check the announcement that will come from the CCIT Building</p>
-                        </div>
+                {% for content in contents %}
+                    <div class="col-lg-12 mb-4">
+                        <p class="mt-2" style="text-align: justify; line-height: 1.9;">{{ content.description }}</p>
                     </div>
-                </div>
-                <div class="col-lg-4 mb-4">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title"><i class="fas fa-file-alt"></i> Submission of Requirements</h5>
-                            <p class="card-text">Allow the students to submit their requirement to be able to enroll OJT subject.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-4 mb-4">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title"><i class="fas fa-chart-line"></i> Progress Report</h5>
-                            <p class="card-text">Allow the student to input their daily activities using this progress report features.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-4 mb-4">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title"><i class="fas fa-clock"></i> Time In & Time Out</h5>
-                            <p class="card-text">Allow the student to be able to time in and time out with the features of the OJT System accurately</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-4 mb-4">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title"><i class="fas fa-calendar-alt"></i> Set Schedule</h5>
-                            <p class="card-text">Allow the student to input their OJT schedule and accurately time in and out using the system.</p>
-                        </div>
-                    </div>
-                </div>
+                {% endfor %}
             </div>
         </div>
-    </div>
+    </div>    
     <!-- Footer -->
     <footer class="footer mt-auto">
         <div class="container">
