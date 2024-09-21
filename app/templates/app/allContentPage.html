@@ -127,7 +127,7 @@
                         {% for content in listOfContent %}
                         <tr>
                             <td>{{ content.nameOfContent }}</td>
-                            <td>{{ content.description }}</td>
+                            <td style="width: 400px;">{{ content.description }}</td>
                             <td>
                                 {% if content.image %}
                                     <img src="{{ content.image.url }}" alt="{{ content.nameOfContent }}" style="max-width: 100px;">
