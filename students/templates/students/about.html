@@ -26,15 +26,8 @@
             color: darkblue;
             font-size: 1.15rem;
         }
-        .footer {
-            background-color: #f8f9fa;
-            padding: 20px 0;
-            text-align: center;
-            margin-top: 26px;
-        }
-        .footer p {
-            margin: 0;
-            color: #6c757d;
+        #footerMain{
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
         }
         .outer-container {
             box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
@@ -134,9 +127,44 @@
         </div>
     </div>    
     <!-- Footer -->
-    <footer class="footer mt-auto">
+    <footer class="bg-light py-4 shadow" id="footerMain">
         <div class="container">
-            <p>&copy; <span id="currentYear"></span> OJT Management System. All Rights Reserved.</p>
+          <div class="row justify-content-between align-items-center">
+            <!-- Logo and description -->
+            <div class="col-md-6 d-flex align-items-center">
+              <a href="">
+                <img src="{% static 'img/Logo.png' %}"
+                     alt="ojt" class="img-fluid grayscale" width="80" height="80">
+              </a>
+              <div class="pl-3">
+                <h5 class="mb-0">OJT</h5>
+                <small>Management System</small>
+              </div>
+            </div>
+            <!-- Social media icon -->
+            <div class="col-md-3 text-md-right text-center mt-3 mt-md-0">
+              <a href="" target="_blank">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-facebook"
+                     viewBox="0 0 24 24">
+                  <path d="M9 8H6v4h3v12h5V12h4l1-4h-5V6c0-1 .334-1 1-1h3V0h-4c-3 0-4 1-4 4v4z"/>
+                </svg>
+                <span class="sr-only">Facebook page</span>
+              </a>
+            </div>
+          </div>    
+          <!-- Divider -->
+          <hr class="my-4">
+          <!-- Links and Copyright -->
+          <div class="row align-items-center">
+            <div class="col-md-6 d-flex flex-wrap justify-content-center justify-content-md-start mb-3 mb-md-0">
+              <a href="" class="mr-3">Privacy Policy</a>
+              <a href="" class="mr-3">Legal Notice</a>
+              <a href="" class="mr-3">Terms of Service</a>
+            </div>
+            <div class="col-md-6 text-center text-md-right">
+              <span>Beta Version - &copy; 2024</span>
+            </div>
+          </div>
         </div>
     </footer>
     <!-- Scripts -->
