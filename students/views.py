@@ -1,15 +1,15 @@
 import os
 import fitz
 from io import BytesIO
-from datetime import datetime
 from django.urls import reverse
 from django.conf import settings
 from django.utils import timezone
 from django.contrib import messages
 from django.core.mail import send_mail
+from datetime import datetime, timedelta
+from django.utils.timezone import localtime
 from django.shortcuts import render, redirect
 from django.shortcuts import get_object_or_404
-from django.utils.timezone import now, localtime
 from django.template.loader import render_to_string
 from django.contrib.auth.hashers import check_password
 from django.contrib.auth import update_session_auth_hash
@@ -244,6 +244,62 @@ def progressReport(request):
             'lastName': lastName,
         }
     )
+
+def exportTimeLogToPDF(request):
+    user = request.user
+    student = get_object_or_404(DataTableStudents, user=user)
+    time_logs = TimeLog.objects.filter(student=student, timestamp__week_day__in=[1, 2, 3, 4, 5, 6, 7]).order_by('timestamp')
+    buffer = BytesIO()
+    pdf_document = fitz.open(os.path.join(settings.PDF_ROOT, 'Internship-TimeSheet.pdf'))
+    page = pdf_document[0]
+    y_position = 100
+    last_time_in = None
+    total_hours_for_week = timedelta()
+    for log in time_logs:
+        local_time = timezone.localtime(log.timestamp)
+        time_formatted = local_time.strftime('%I:%M %p')
+        date = log.timestamp.strftime('%Y-%m-%d')
+        if log.action == 'IN':
+            last_time_in = local_time
+        elif log.action == 'OUT' and last_time_in:
+            duration = local_time - last_time_in
+            total_hours_for_week += duration
+            hours = duration.seconds // 3600
+            minutes = (duration.seconds % 3600) // 60
+
+            if hours == 0 and minutes == 0:
+                total_duration_str = "0h"
+            elif minutes == 0:
+                total_duration_str = f"{hours}h"
+            else:
+                total_duration_str = f"{hours}h {minutes}m"
+
+            page.insert_text((90, y_position + 200), date, fontsize=9, color=(0, 0, 0))
+            page.insert_text((180, y_position + 195), last_time_in.strftime('%I:%M %p'), fontsize=9, color=(0, 0, 0))
+            page.insert_text((255, y_position + 195), time_formatted, fontsize=9, color=(0, 0, 0))
+            page.insert_text((493, y_position + 195), total_duration_str, fontsize=9, color=(0, 0, 0))
+            y_position += 20
+            last_time_in = None
+
+    total_week_hours = total_hours_for_week.seconds // 3600
+    total_week_minutes = (total_hours_for_week.seconds % 3600) // 60
+    if total_week_minutes == 0:
+        total_week_str = f"{total_week_hours}h"
+    else:
+        total_week_str = f"{total_week_hours}h {total_week_minutes}m"
+    page.insert_text((453, y_position + 320), total_week_str, fontsize=12, color=(0, 0, 0))
+
+    # Save PDF to the buffer
+    pdf_document.save(buffer)
+    pdf_document.close()
+    buffer.seek(0)
+
+    fullname = student.Firstname + " " + student.Lastname
+
+    response = HttpResponse(buffer, content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="{fullname} - TimeSheet.pdf"'
+    return response
+
     
 def TimeInAndTimeOut(request):
     user = request.user

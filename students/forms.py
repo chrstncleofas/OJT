@@ -332,10 +332,11 @@ class SubmittedRequirement(forms.ModelForm):
         ('Parent Consent', 'Parent Consent'),
         ('Endorsement Letter', 'Endorsement Letter'),
         ('Notice of Acceptance', 'Notice of Acceptance'),
-        ('Internship Contract Agreement', 'Internship Contract Agreement'),
         ('Medical Certificate', 'Medical Certificate'),
-        ('Student Performance Evaluation', 'Student Performance Evaluation'),
         ('Internship Exit Survey', 'Internship Exit Survey'),
+        ('Internship Time Sheet', 'Internship Time Sheet'),
+        ('Student Performance Evaluation', 'Student Performance Evaluation'),
+        ('Internship Contract Agreement', 'Internship Contract Agreement'),
     ]
 
     nameOfDocs = forms.ChoiceField(

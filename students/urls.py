@@ -15,6 +15,7 @@ urlpatterns = [
     path('about-page/', views.aboutLogin, name='about-page'),
     path('register/', views.studentRegister, name='register'),
     path('schedule/', views.scheduleSettings, name='schedule'),
+    path('download/', views.exportTimeLogToPDF, name='download'),
     path('main-page/', views.welcomeDashboard, name='main-page'),
     path('requirements/', views.requirements, name='requirements'),
     path('dashboard/', views.mainPageForDashboard, name='dashboard'),
