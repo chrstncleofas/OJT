@@ -211,7 +211,7 @@
                                 <a href="{{ requirement.document.url }}" class="btn btn-m btn-info" download>
                                     <i class="fas fa-download"></i>
                                 </a>
-                                <form method="POST" action="{% url 'deleteRequirementDocuments' requirement.id %}" style="display:inline;">
+                                <form method="POST" action="{% url 'superapp:deleteRequirementDocuments' requirement.id %}" style="display:inline;">
                                     {% csrf_token %}
                                     <button type="submit" class="btn btn-m btn-danger" onclick="return confirm('Are you sure you want to delete this announcement?');"><i class="fa-solid fa-trash"></i></button>
                                 </form>

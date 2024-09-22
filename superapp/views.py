@@ -531,6 +531,15 @@ def deleteAnnouncement(request, id):
         }
     )
 
+def deleteRequirementDocuments(request, id):
+    user = request.user
+    docs = get_object_or_404(TableRequirements, id=id)
+    if request.method == 'POST':
+        docs.delete()
+        saveActivityLogs(user=user, action='DELETE', request=request, description='Delete documents')
+        return redirect('superapp:set_rendering_hours')
+    return render(request, 'superap/settings.html', {'docs': docs})
+
 def editUsers(request, id): 
     toEditDetails = admin = get_object_or_404(CustomUser, pk=id)
     # 
