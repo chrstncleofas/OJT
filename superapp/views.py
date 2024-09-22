@@ -662,7 +662,7 @@ def set_rendering_hours(request):
             requirement.save()
             # Log activity for file upload
             saveActivityLogs(user=user, action='UPLOAD', request=request, description='Uploaded new requirement')
-            return redirect('set_rendering_hours')
+            return redirect('superapp:set_rendering_hours')
     else:
         try:
             bsit_hours = RenderingHoursTable.objects.get(course='BS Information Technology').required_hours
