@@ -211,84 +211,105 @@
                                     {% endfor %}
                                 </div>
                             </div>
-                            <!-- Daily progress fields -->
-                            <h5>Monday</h5>
-                            <div class="form-row">
-                                <div class="form-group col-md-4">
-                                    <label for="{{ form.monday_date.id_for_label }}">Date</label>
-                                    <input type="date" id="{{ form.monday_date.id_for_label }}" name="{{ form.monday_date.name }}" class="form-control" value="{{ form.monday_date.value }}">
+                            <!-- Navigation Tabs -->
+                            <ul class="nav nav-tabs" id="progressReportTabs" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="monday-tab" data-bs-toggle="tab" data-bs-target="#monday" type="button" role="tab" aria-controls="monday" aria-selected="true">Monday</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="tuesday-tab" data-bs-toggle="tab" data-bs-target="#tuesday" type="button" role="tab" aria-controls="tuesday" aria-selected="false">Tuesday</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="wednesday-tab" data-bs-toggle="tab" data-bs-target="#wednesday" type="button" role="tab" aria-controls="wednesday" aria-selected="false">Wednesday</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="thursday-tab" data-bs-toggle="tab" data-bs-target="#thursday" type="button" role="tab" aria-controls="thursday" aria-selected="false">Thursday</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="friday-tab" data-bs-toggle="tab" data-bs-target="#friday" type="button" role="tab" aria-controls="friday" aria-selected="false">Friday</button>
+                                </li>
+                            </ul>
+                            <!-- Tab Content -->
+                            <div class="tab-content mt-3">
+                                <div class="tab-pane fade show active" id="monday" role="tabpanel" aria-labelledby="monday-tab">
+                                    <div class="form-row">
+                                        <div class="form-group col-md-4">
+                                            <label for="monday_date">Date</label>
+                                            <input type="date" id="monday_date" name="monday_date" class="form-control">
+                                        </div>
+                                        <div class="form-group col-md-4">
+                                            <label for="monday_description">Description</label>
+                                            <textarea id="monday_description" name="monday_description" class="form-control" rows="3"></textarea>
+                                        </div>
+                                        <div class="form-group col-md-4">
+                                            <label for="monday_hours">Number of Hours</label>
+                                            <input type="number" id="monday_hours" name="monday_hours" class="form-control">
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="form-group col-md-4">
-                                    <label for="{{ form.monday_description.id_for_label }}">Description</label>
-                                    <textarea id="{{ form.monday_description.id_for_label }}" name="{{ form.monday_description.name }}" class="form-control" rows="3"></textarea>
+                                <div class="tab-pane fade" id="tuesday" role="tabpanel" aria-labelledby="tuesday-tab">
+                                    <div class="form-row">
+                                        <div class="form-group col-md-4">
+                                            <label for="tuesday_date">Date</label>
+                                            <input type="date" id="tuesday_date" name="tuesday_date" class="form-control">
+                                        </div>
+                                        <div class="form-group col-md-4">
+                                            <label for="tuesday_description">Description</label>
+                                            <textarea id="tuesday_description" name="tuesday_description" class="form-control" rows="3"></textarea>
+                                        </div>
+                                        <div class="form-group col-md-4">
+                                            <label for="tuesday_hours">Number of Hours</label>
+                                            <input type="number" id="tuesday_hours" name="tuesday_hours" class="form-control">
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="form-group col-md-4">
-                                    <label for="{{ form.monday_hours.id_for_label }}">Number of Hours</label>
-                                    <input type="number" id="{{ form.monday_hours.id_for_label }}" name="{{ form.monday_hours.name }}" class="form-control" value="{{ form.monday_hours.value }}">
+                                <div class="tab-pane fade" id="wednesday" role="tabpanel" aria-labelledby="wednesday-tab">
+                                    <div class="form-row">
+                                        <div class="form-group col-md-4">
+                                            <label for="wednesday_date">Date</label>
+                                            <input type="date" id="wednesday_date" name="wednesday_date" class="form-control">
+                                        </div>
+                                        <div class="form-group col-md-4">
+                                            <label for="wednesday_description">Description</label>
+                                            <textarea id="wednesday_description" name="wednesday_description" class="form-control" rows="3"></textarea>
+                                        </div>
+                                        <div class="form-group col-md-4">
+                                            <label for="wednesday_hours">Number of Hours</label>
+                                            <input type="number" id="wednesday_hours" name="wednesday_hours" class="form-control">
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                            <!-- Daily progress fields -->
-                            <h5>Tuesday</h5>
-                            <div class="form-row">
-                                <div class="form-group col-md-4">
-                                    <label for="{{ form.tuesday_date.id_for_label }}">Date</label>
-                                    <input type="date" id="{{ form.tuesday_date.id_for_label }}" name="{{ form.tuesday_date.name }}" class="form-control" value="{{ form.tuesday_date.value }}">
+                                <div class="tab-pane fade" id="thursday" role="tabpanel" aria-labelledby="thursday-tab">
+                                    <div class="form-row">
+                                        <div class="form-group col-md-4">
+                                            <label for="thursday_date">Date</label>
+                                            <input type="date" id="thursday_date" name="thursday_date" class="form-control">
+                                        </div>
+                                        <div class="form-group col-md-4">
+                                            <label for="thursday_description">Description</label>
+                                            <textarea id="thursday_description" name="thursday_description" class="form-control" rows="3"></textarea>
+                                        </div>
+                                        <div class="form-group col-md-4">
+                                            <label for="thursday_hours">Number of Hours</label>
+                                            <input type="number" id="thursday_hours" name="thursday_hours" class="form-control">
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="form-group col-md-4">
-                                    <label for="{{ form.tuesday_description.id_for_label }}">Description</label>
-                                    <textarea id="{{ form.tuesday_description.id_for_label }}" name="{{ form.tuesday_description.name }}" class="form-control" rows="3"></textarea>
-                                </div>
-                                <div class="form-group col-md-4">
-                                    <label for="{{ form.tuesday_hours.id_for_label }}">Number of Hours</label>
-                                    <input type="number" id="{{ form.tuesday_hours.id_for_label }}" name="{{ form.tuesday_hours.name }}" class="form-control" value="{{ form.tuesday_hours.value }}">
-                                </div>
-                            </div>
-                            <!-- Daily progress fields -->
-                            <h5>Wednesday</h5>
-                            <div class="form-row">
-                                <div class="form-group col-md-4">
-                                    <label for="{{ form.wednesday_date.id_for_label }}">Date</label>
-                                    <input type="date" id="{{ form.wednesday_date.id_for_label }}" name="{{ form.wednesday_date.name }}" class="form-control" value="{{ form.wednesday_date.value }}">
-                                </div>
-                                <div class="form-group col-md-4">
-                                    <label for="{{ form.wednesday_description.id_for_label }}">Description</label>
-                                    <textarea id="{{ form.wednesday_description.id_for_label }}" name="{{ form.wednesday_description.name }}" class="form-control" rows="3"></textarea>
-                                </div>
-                                <div class="form-group col-md-4">
-                                    <label for="{{ form.wednesday_hours.id_for_label }}">Number of Hours</label>
-                                    <input type="number" id="{{ form.wednesday_hours.id_for_label }}" name="{{ form.wednesday_hours.name }}" class="form-control" value="{{ form.wednesday_hours.value }}">
-                                </div>
-                            </div>
-                            <!-- Daily progress fields -->
-                            <h5>Thursday</h5>
-                            <div class="form-row">
-                                <div class="form-group col-md-4">
-                                    <label for="{{ form.thursday_date.id_for_label }}">Date</label>
-                                    <input type="date" id="{{ form.thursday_date.id_for_label }}" name="{{ form.thursday_date.name }}" class="form-control" value="{{ form.thursday_date.value }}">
-                                </div>
-                                <div class="form-group col-md-4">
-                                    <label for="{{ form.thursday_description.id_for_label }}">Description</label>
-                                    <textarea id="{{ form.thursday_description.id_for_label }}" name="{{ form.thursday_description.name }}" class="form-control" rows="3"></textarea>
-                                </div>
-                                <div class="form-group col-md-4">
-                                    <label for="{{ form.thursday_hours.id_for_label }}">Number of Hours</label>
-                                    <input type="number" id="{{ form.thursday_hours.id_for_label }}" name="{{ form.thursday_hours.name }}" class="form-control" value="{{ form.thursday_hours.value }}">
-                                </div>
-                            </div>
-                            <!-- Daily progress fields -->
-                            <h5>Friday</h5>
-                            <div class="form-row">
-                                <div class="form-group col-md-4">
-                                    <label for="{{ form.friday_date.id_for_label }}">Date</label>
-                                    <input type="date" id="{{ form.friday_date.id_for_label }}" name="{{ form.friday_date.name }}" class="form-control" value="{{ form.friday_date.value }}">
-                                </div>
-                                <div class="form-group col-md-4">
-                                    <label for="{{ form.friday_description.id_for_label }}">Description</label>
-                                    <textarea id="{{ form.friday_description.id_for_label }}" name="{{ form.friday_description.name }}" class="form-control" rows="3"></textarea>
-                                </div>
-                                <div class="form-group col-md-4">
-                                    <label for="{{ form.friday_hours.id_for_label }}">Number of Hours</label>
-                                    <input type="number" id="{{ form.friday_hours.id_for_label }}" name="{{ form.friday_hours.name }}" class="form-control" value="{{ form.friday_hours.value }}">
+                                <div class="tab-pane fade" id="friday" role="tabpanel" aria-labelledby="friday-tab">
+                                    <div class="form-row">
+                                        <div class="form-group col-md-4">
+                                            <label for="friday_date">Date</label>
+                                            <input type="date" id="friday_date" name="friday_date" class="form-control">
+                                        </div>
+                                        <div class="form-group col-md-4">
+                                            <label for="friday_description">Description</label>
+                                            <textarea id="friday_description" name="friday_description" class="form-control" rows="3"></textarea>
+                                        </div>
+                                        <div class="form-group col-md-4">
+                                            <label for="friday_hours">Number of Hours</label>
+                                            <input type="number" id="friday_hours" name="friday_hours" class="form-control">
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <button type="submit" name="action" value="preview_report" class="btn btn-primary mt-2">
@@ -305,7 +326,6 @@
                                             <h5 class="modal-title" id="successModalLabel">Submission Status</h5>
                                         </div>
                                         <div class="modal-body">
-                                            <!-- Success message will be inserted here -->
                                             {% if messages %}
                                                 {% for message in messages %}
                                                     <p>{{ message }}</p>
