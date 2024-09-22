@@ -277,7 +277,7 @@ def viewPendingApplication(request, id):
 
     return render(
         request,
-        'app/pending-view-page.html',
+        'superapp/pending-view-page.html',
         {
             'students': students,
             'firstName': firstName,

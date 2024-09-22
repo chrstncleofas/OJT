@@ -64,7 +64,7 @@ class CustomPasswordChangeForm(PasswordChangeForm):
 
 class AnnouncementForm(forms.ModelForm):
     Status = forms.ChoiceField(
-        choices=STATUS,  # Assuming STATUS is defined elsewhere
+        choices=STATUS,
         widget=forms.Select(attrs={'class': 'form-control'})
     )
 
