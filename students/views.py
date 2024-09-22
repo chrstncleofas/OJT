@@ -280,6 +280,7 @@ def exportTimeLogToPDF(request):
             page.insert_text((477, y_position + 195), total_duration_str, fontsize=9, color=(0, 0, 0))
             y_position += 20
             last_time_in = None
+            
     start_month = 4
     end_month = 6
     current_year = datetime.now().year
