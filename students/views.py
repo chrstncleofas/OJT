@@ -250,7 +250,7 @@ def exportTimeLogToPDF(request):
     student = get_object_or_404(DataTableStudents, user=user)
     time_logs = TimeLog.objects.filter(student=student, timestamp__week_day__in=[1, 2, 3, 4, 5, 6, 7]).order_by('timestamp')
     buffer = BytesIO()
-    pdf_document = fitz.open(os.path.join(settings.PDF_ROOT, 'Internship-TimeSheet.pdf'))
+    pdf_document = fitz.open(os.path.join(settings.PDF_ROOT, 'INTERNSHIP-TIME-SHEET.pdf'))
     page = pdf_document[0]
     y_position = 100
     last_time_in = None
@@ -274,12 +274,21 @@ def exportTimeLogToPDF(request):
             else:
                 total_duration_str = f"{hours}h {minutes}m"
 
-            page.insert_text((90, y_position + 200), date, fontsize=9, color=(0, 0, 0))
-            page.insert_text((180, y_position + 195), last_time_in.strftime('%I:%M %p'), fontsize=9, color=(0, 0, 0))
-            page.insert_text((255, y_position + 195), time_formatted, fontsize=9, color=(0, 0, 0))
-            page.insert_text((493, y_position + 195), total_duration_str, fontsize=9, color=(0, 0, 0))
+            page.insert_text((110, y_position + 200), date, fontsize=9, color=(0, 0, 0))
+            page.insert_text((230, y_position + 195), last_time_in.strftime('%I:%M %p'), fontsize=9, color=(0, 0, 0))
+            page.insert_text((345, y_position + 195), time_formatted, fontsize=9, color=(0, 0, 0))
+            page.insert_text((477, y_position + 195), total_duration_str, fontsize=9, color=(0, 0, 0))
             y_position += 20
             last_time_in = None
+    start_month = 4
+    end_month = 6
+    current_year = datetime.now().year
+    months = ", ".join([datetime(current_year, month, 1).strftime("%B") for month in range(start_month, end_month + 1)])
+    quarter = "Q2"
+    fullname = student.Firstname + " " + student.Lastname
+    page.insert_text((140, 225), fullname, fontsize=12, color=(0, 0, 0))
+    page.insert_text((170, 205), quarter, fontsize=12, color=(0, 0, 0))
+    page.insert_text((429, 205), months, fontsize=12, color=(0, 0, 0))
 
     total_week_hours = total_hours_for_week.seconds // 3600
     total_week_minutes = (total_hours_for_week.seconds % 3600) // 60
@@ -287,14 +296,13 @@ def exportTimeLogToPDF(request):
         total_week_str = f"{total_week_hours}h"
     else:
         total_week_str = f"{total_week_hours}h {total_week_minutes}m"
-    page.insert_text((453, y_position + 320), total_week_str, fontsize=12, color=(0, 0, 0))
+    page.insert_text((457, y_position + 395), total_week_str, fontsize=12, color=(0, 0, 0))
 
     # Save PDF to the buffer
     pdf_document.save(buffer)
     pdf_document.close()
     buffer.seek(0)
 
-    fullname = student.Firstname + " " + student.Lastname
 
     response = HttpResponse(buffer, content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="{fullname} - TimeSheet.pdf"'
