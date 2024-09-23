@@ -118,7 +118,7 @@
     <div class="container mt-5 mb-5">
         {% for img in images %}
             {% if img.image %}
-                <img src="{{ img.image.url }}" class="mt-0 d-none d-md-block" alt="Current Image" style="width: 1113px; height: 350px; border-radius: 6px; box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);" id="current-image"><br>
+                <img src="{{ img.image.url }}" class="mt-0 custom-hide-image" alt="Current Image" style="width: 1113px; height: 350px; border-radius: 6px; box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);" id="current-image"><br>
             {% endif %}
         {% endfor %}
         <div class="outer-container">
