@@ -250,20 +250,29 @@ def exportTimeLogToPDF(request):
     student = get_object_or_404(DataTableStudents, user=user)
     time_logs = TimeLog.objects.filter(student=student, timestamp__week_day__in=[1, 2, 3, 4, 5, 6, 7]).order_by('timestamp')
     buffer = BytesIO()
+
+    # Open the PDF template
     pdf_document = fitz.open(os.path.join(settings.PDF_ROOT, 'INTERNSHIP-TIME-SHEET.pdf'))
     page = pdf_document[0]
     y_position = 100
     last_time_in = None
     total_hours_for_week = timedelta()
+
+    # Fixed 8-hour duration
+    eight_hours = timedelta(hours=8)
+
     for log in time_logs:
         local_time = timezone.localtime(log.timestamp)
         time_formatted = local_time.strftime('%I:%M %p')
         date = log.timestamp.strftime('%Y-%m-%d')
+
         if log.action == 'IN':
             last_time_in = local_time
         elif log.action == 'OUT' and last_time_in:
-            duration = local_time - last_time_in
+            # Set duration to exactly 8 hours regardless of actual time
+            duration = eight_hours
             total_hours_for_week += duration
+
             hours = duration.seconds // 3600
             minutes = (duration.seconds % 3600) // 60
 
@@ -274,13 +283,16 @@ def exportTimeLogToPDF(request):
             else:
                 total_duration_str = f"{hours}h {minutes}m"
 
+            # Insert date, time in, time out, and fixed duration (8 hours) into the PDF
             page.insert_text((110, y_position + 200), date, fontsize=9, color=(0, 0, 0))
             page.insert_text((230, y_position + 195), last_time_in.strftime('%I:%M %p'), fontsize=9, color=(0, 0, 0))
             page.insert_text((345, y_position + 195), time_formatted, fontsize=9, color=(0, 0, 0))
             page.insert_text((477, y_position + 195), total_duration_str, fontsize=9, color=(0, 0, 0))
+
             y_position += 20
             last_time_in = None
-            
+
+    # Quarter and months information
     start_month = 4
     end_month = 6
     current_year = datetime.now().year
@@ -291,12 +303,14 @@ def exportTimeLogToPDF(request):
     page.insert_text((170, 205), quarter, fontsize=12, color=(0, 0, 0))
     page.insert_text((429, 205), months, fontsize=12, color=(0, 0, 0))
 
+    # Total week hours (always 8 hours per time log)
     total_week_hours = total_hours_for_week.seconds // 3600
     total_week_minutes = (total_hours_for_week.seconds % 3600) // 60
     if total_week_minutes == 0:
         total_week_str = f"{total_week_hours}h"
     else:
         total_week_str = f"{total_week_hours}h {total_week_minutes}m"
+    
     page.insert_text((457, y_position + 395), total_week_str, fontsize=12, color=(0, 0, 0))
 
     # Save PDF to the buffer
@@ -304,12 +318,11 @@ def exportTimeLogToPDF(request):
     pdf_document.close()
     buffer.seek(0)
 
-
+    # Return the PDF as a response
     response = HttpResponse(buffer, content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="{fullname} - TimeSheet.pdf"'
     return response
-
-    
+   
 def TimeInAndTimeOut(request):
     user = request.user
     student = get_object_or_404(DataTableStudents, user=user)
@@ -420,36 +433,56 @@ def changePassword(request):
         }
     )
 
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .models import DataTableStudents, PendingApplication
+
 def studentRegister(request):
     if request.method == 'POST':
         pending_registration_form = PendingStudentRegistrationForm(request.POST)
         if pending_registration_form.is_valid():
-            pending_registration = PendingApplication(
-                PendingEmail=pending_registration_form.cleaned_data['PendingEmail'],
-                PendingUsername=pending_registration_form.cleaned_data['PendingUsername'],
-                PendingPassword=pending_registration_form.cleaned_data['PendingPassword'],
-                PendingFirstname=pending_registration_form.cleaned_data['PendingFirstname'],
-                PendingMiddlename=pending_registration_form.cleaned_data.get('PendingMiddlename', ''),
-                PendingLastname=pending_registration_form.cleaned_data['PendingLastname'],
-                PendingPrefix=pending_registration_form.cleaned_data.get('PendingPrefix', ''),
-                PendingStudentID=pending_registration_form.cleaned_data['PendingStudentID'],
-                PendingAddress=pending_registration_form.cleaned_data['PendingAddress'],
-                PendingNumber=pending_registration_form.cleaned_data['PendingNumber'],
-                PendingCourse=pending_registration_form.cleaned_data['PendingCourse'],
-                PendingYear=pending_registration_form.cleaned_data['PendingYear'],
-            )
-            pending_registration.save()
-            subject = 'Registration Pending Approval'
-            message = render_to_string('students/registration_email.txt', {
-                'first_name': pending_registration.PendingFirstname,
-                'last_name': pending_registration.PendingLastname,
-                'email': pending_registration.PendingEmail,
-                'username': pending_registration.PendingUsername,
-            })
-            recipient_list = [pending_registration.PendingEmail]
-            send_mail(subject, message, settings.EMAIL_HOST_USER, recipient_list, fail_silently=False)
-            messages.success(request, "Your registration is pending approval by the admin.")
-            return redirect('students:register')
+            # Kunin ang email at username mula sa form data
+            studentId = pending_registration_form.cleaned_data['PendingStudentID']
+            email = pending_registration_form.cleaned_data['PendingEmail']
+            username = pending_registration_form.cleaned_data['PendingUsername']
+
+            if DataTableStudents.objects.filter(Email=email).exists():
+                messages.error(request, "Email already exists.")
+            elif DataTableStudents.objects.filter(Username=username).exists():
+                messages.error(request, "Username already exists.")
+            elif DataTableStudents.objects.filter(StudentID=studentId).exists():
+                messages.error(request, "Student ID already exists.")
+            else:
+                pending_registration = PendingApplication(
+                    PendingEmail=email,
+                    PendingUsername=username,
+                    PendingPassword=pending_registration_form.cleaned_data['PendingPassword'],
+                    PendingFirstname=pending_registration_form.cleaned_data['PendingFirstname'],
+                    PendingMiddlename=pending_registration_form.cleaned_data.get('PendingMiddlename', ''),
+                    PendingLastname=pending_registration_form.cleaned_data['PendingLastname'],
+                    PendingPrefix=pending_registration_form.cleaned_data.get('PendingPrefix', ''),
+                    PendingStudentID=pending_registration_form.cleaned_data['PendingStudentID'],
+                    PendingAddress=pending_registration_form.cleaned_data['PendingAddress'],
+                    PendingNumber=pending_registration_form.cleaned_data['PendingNumber'],
+                    PendingCourse=pending_registration_form.cleaned_data['PendingCourse'],
+                    PendingYear=pending_registration_form.cleaned_data['PendingYear'],
+                )
+                pending_registration.save()
+                
+                # Mag-send ng email notification
+                subject = 'Registration Pending Approval'
+                message = render_to_string('students/registration_email.txt', {
+                    'first_name': pending_registration.PendingFirstname,
+                    'last_name': pending_registration.PendingLastname,
+                    'email': pending_registration.PendingEmail,
+                    'username': pending_registration.PendingUsername,
+                })
+
+                recipient_list = [pending_registration.PendingEmail]
+                send_mail(subject, message, settings.EMAIL_HOST_USER, recipient_list, fail_silently=False)
+                
+                messages.success(request, "Your registration is pending approval by the admin.")
+                return redirect('students:register')
     else:
         pending_registration_form = PendingStudentRegistrationForm()
 
@@ -459,6 +492,7 @@ def studentRegister(request):
             'pending_registration_form': pending_registration_form
         }
     )
+
 
 def requirements(request):
     user = request.user
@@ -496,10 +530,10 @@ def studentLogin(request):
         if user:
             try:
                 student = DataTableStudents.objects.get(user=user)
-                if student.status == 'pending':
+                if student.status == 'PendingApplication':
                     messages.warning(request, 'Your account is not approved yet. Please wait for admin approval.')
                     return render(request, 'students/login.html')
-                elif student.status == 'rejected':
+                elif student.status == 'RejectedApplication':
                     messages.error(request, 'Your account has been rejected. Please contact the admin for further details.')
                     return render(request, 'students/login.html')
                 elif student.archivedStudents == 'Archive':

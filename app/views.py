@@ -25,8 +25,8 @@ from django.contrib.auth.decorators import user_passes_test
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from students.forms import EditStudentForm, ScheduleSettingForm, GradeForm
 from app.models import RenderingHoursTable, TableRequirements, TableContent
-from app.forms import EditProfileForm, AnnouncementForm, UploadRequirementForm, ContentForm
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponsePermanentRedirect, JsonResponse
+from app.forms import EditProfileForm, AnnouncementForm, UploadRequirementForm, ContentForm, CustomUserCreationForm
 from students.models import DataTableStudents, TimeLog, Schedule, TableSubmittedReport, TableSubmittedRequirement, PendingApplication, RejectApplication, Grade
 
 HOME_URL_PATH = 'app/base.html'
@@ -375,6 +375,70 @@ def clean_filename(filename):
         return re.sub(r'^\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}_', '', filename)
     return filename
 
+def submittedRequirementOfStudents(request, id):
+    user = request.user
+    admin = get_object_or_404(CustomUser, id=user.id)
+    student = get_object_or_404(DataTableStudents, id=id)
+    firstName = admin.first_name
+    lastName = admin.last_name
+
+    studentFirstname = student.Firstname
+    studentLastname = student.Lastname
+
+    progress_reports = TableSubmittedReport.objects.filter(student=student).order_by('-date_submitted', 'id')
+    requirements = TableSubmittedRequirement.objects.filter(student=student).order_by('-submission_date', 'id')
+    cleaned_reports = [(report, clean_filename(report.report_file.name)) for report in progress_reports]
+
+    context = {
+        'firstName': firstName,
+        'lastName': lastName,
+        'studentFirstname': studentFirstname,
+        'studentLastname': studentLastname,
+        'cleaned_reports': cleaned_reports,
+        'requirements': requirements,
+    }
+
+    return render(request, 'app/view-submitted-requirement.html', context)
+
+def getTheSubmitRequirements(request):
+    user = request.user
+    admin = get_object_or_404(CustomUser, id=user.id)
+    firstName = admin.first_name
+    lastName = admin.last_name
+
+    search_query = request.GET.get('search', '')
+
+    students = DataTableStudents.objects.filter(status='Approved', archivedStudents='NotArchive').order_by('id')
+
+    if search_query:
+        students = students.filter(
+            Q(Firstname__icontains=search_query)
+        )
+    
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return render(request, 'app/grading.html', {'listOfStudents': students})
+    
+    # Pagination logic
+    page = request.GET.get('page', 1)
+    per_page = request.GET.get('per_page', 5)
+
+    paginator = Paginator(students, per_page)
+
+    try:
+        students = paginator.page(page)
+    except PageNotAnInteger:
+        students = paginator.page(1)
+    except EmptyPage:
+        students = paginator.page(paginator.num_pages)
+
+    return render(request, 'app/list-submission-student.html', {
+        'listOfStudents': students,
+        'firstName': firstName,
+        'lastName': lastName
+    })
+
+
+
 def studentInformation(request, id):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
@@ -391,14 +455,24 @@ def studentInformation(request, id):
     total_work_seconds = 0
     daily_total = timedelta()
     paired_logs = []
+    eight_hours = timedelta(hours=8)  # Fixed 8-hour duration
+    
     i = 0
+    
     while i < len(time_logs):
         if time_logs[i].action == 'IN':
             if i + 1 < len(time_logs) and time_logs[i + 1].action == 'OUT':
                 paired_logs.append((time_logs[i], time_logs[i + 1]))
+                # Calculate actual time difference
                 work_period = time_logs[i + 1].timestamp - time_logs[i].timestamp
+                
+                # Ensure that the computed work period is set to 8 hours regardless
+                work_period = eight_hours
+                
+                # Deduct 1 hour for lunch if applicable
                 if work_period > timedelta(hours=1):
                     work_period -= timedelta(hours=1)
+                    
                 daily_total += work_period
                 i += 1
         i += 1
@@ -449,6 +523,29 @@ def studentInformation(request, id):
         'grades': grades
     }
     return render(request, 'app/TimeLogs.html', context)
+
+def register(request):
+    if request.method == 'POST':
+        form = CustomUserCreationForm(request.POST)
+        if form.is_valid():
+            new_user = form.save(commit=False)
+            new_user.is_staff = True
+            new_user.save()
+            messages.success(request, "Admin user successfully registered.")
+            return redirect('register')
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"{field}: {error}")
+    else:
+        form = CustomUserCreationForm()
+
+    return render(
+        request, 'app/register.html', 
+        {
+            'form': form,
+        }
+    )
 
 def convert_time_to_seconds(time_str):
     """Convert a time string like '1 hours, 30 minutes' to total seconds."""
@@ -909,5 +1006,23 @@ def gradeCalculator(request, id):
             'firstName': firstName,
             'lastName': lastName,
             'gradesResult': gradesResult
+        }
+    )
+
+def getAnnouncementNotLogin(request):
+    enabledAnnouncement = TableAnnouncement.objects.filter(Status='enable')
+    return render(
+        request, 'app/getAnnouncementNotLogin.html', 
+        {
+            'announcements': enabledAnnouncement
+        }
+    )
+
+def getAnnouncement(request):
+    enabledAnnouncement = TableAnnouncement.objects.filter(Status='enable')
+    return render(
+        request, 'app/getAnnouncementLogin.html', 
+        {
+            'announcements': enabledAnnouncement
         }
     )

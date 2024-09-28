@@ -42,10 +42,36 @@
             margin-top: 10px;
             border-radius: 6px;
         }
+        span.category-class{
+            padding: 5px;
+            border-radius: 51px;           
+            background-color: red;
+            color: #fff;
+            font-size: 10px;
+        }
+        /* Style for the navbar */
+        .navbar {
+            transition: background-color 0.3s ease;
+            z-index: 1000;
+        }
+        
+        /* Default background color when at the top */
+        .navbar-scroll {
+            background-color: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Background color when scrolling */
+        .scrolled {
+            background-color: rgba(0, 0, 0, 0.9);
+        }
+        body {
+            padding-top: 70px;
+        }
     </style>
 </head>
-<body>  
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light navbar-scroll fixed-top">
         <a class="navbar-brand" href="{% url 'home' %}">
             <img src="{% static 'img/Logo.png' %}" alt="Logo" style="width:50px; height: 50px; margin-left: 15px;">
             <p>OJT Management System</p>
@@ -59,7 +85,7 @@
                 <a class="nav-link text-color-dark" href="{% url 'home' %}">Home</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link text-color-dark mr-2" href="{% url 'announcementLogin' %}">Announcement</a>
+                <a class="nav-link text-color-dark mr-2" href="{% url 'announcementNotLogin' %}">Announcement</a>
             </li>
             <li class="nav-item">
                 <a class="btn btn-dark" href="#" data-toggle="modal" data-target="#loginModal">Login as Admin</a>
@@ -104,50 +130,84 @@
             </div>
         </div>
     </div>
-     <!--Card  -->
-     <div class="container mt-5 mb-5">
+    <!--Card  -->
+    <div class="container mt-5 mb-4">
         <div class="outer-container">
-            <h5 class="mb-4">All Features</h5>
+            <h3 class="mb-2">Announcement</h3>
+            <p>List of latest announcements</p>
+            <!-- Card design for announcement -->
             <div class="row">
-                <div class="col-lg-4 mb-4">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title"><i class="fas fa-bullhorn"></i> Announcement</h5>
-                            <p class="card-text">Allow the admin and coordinator of OJT to post and manage announcements and reflect to all students page.</p>
+                {% for announcement in announcements %}
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100">
+                            {% if announcement.Image %}
+                                <img src="{{ announcement.Image.url }}" class="card-img-top mb-0" alt="{{ announcement.Title }}">
+                            {% endif %}
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <p class="card-text mb-3" style="font-size: 10px; font-weight: bold; color: gray;">
+                                            <span style="font-weight: normal;">Start Date: </span>{{ announcement.StartDate }}
+                                        </p>
+                                    </div>
+                                    <div class="col-6 text-right">
+                                        <p class="card-text mb-3" style="font-size: 10px; font-weight: bold; color: gray;">
+                                            <span style="font-weight: normal;">End Date: </span>{{ announcement.EndDate }}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <h6 style="font-size: 17px;" class="card-title">{{ announcement.Title }}</h6>
+                                    </div>
+                                </div>
+                                <p class="card-text" style="text-align: justify;">{{ announcement.Description }}</p>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="col-lg-4 mb-4">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title"><i class="fas fa-file-alt"></i> Checking Requirements</h5>
-                            <p class="card-text">Allow the Admin or Coordinator of OJT to check if the requirement of student are valid</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-4 mb-4">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title"><i class="fas fa-user-graduate"></i> Manage Students</h5>
-                            <p class="card-text">Admins and Coordinators can approve or reject applications, and manage student records including archiving.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-4 mb-4">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title"><i class="fas fa-chart-line"></i> Time Sheet Record</h5>
-                            <p class="card-text">Admins and Coordinators can monitor students' time-in and time-out, and track their remaining OJT hours.</p>
-                        </div>
-                    </div>
-                </div>
+                {% endfor %}
             </div>
         </div>
-    </div>
+    </div>    
     <!-- Footer -->
-    <footer class="footer mt-auto">
+    <footer class="bg-light py-4 mt-6" id="footerMain">
         <div class="container">
-            <p>&copy; <span id="currentYear"></span> OJT Management System. All Rights Reserved.</p>
+          <div class="row justify-content-between align-items-center">
+            <!-- Logo and description -->
+            <div class="col-md-6 d-flex align-items-center">
+              <a href="">
+                <img src="{% static 'img/Logo.png' %}"
+                     alt="ojt" class="img-fluid grayscale" width="80" height="80">
+              </a>
+              <div class="pl-3">
+                <h5 class="mb-0">OJT</h5>
+                <small>Management System</small>
+              </div>
+            </div>
+            <!-- Social media icon -->
+            <div class="col-md-3 text-md-right text-center mt-3 mt-md-0">
+              <a href="" target="_blank">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-facebook"
+                     viewBox="0 0 24 24">
+                  <path d="M9 8H6v4h3v12h5V12h4l1-4h-5V6c0-1 .334-1 1-1h3V0h-4c-3 0-4 1-4 4v4z"/>
+                </svg>
+                <span class="sr-only">Facebook page</span>
+              </a>
+            </div>
+          </div>    
+          <!-- Divider -->
+          <hr class="my-4">
+          <!-- Links and Copyright -->
+          <div class="row align-items-center">
+            <div class="col-md-6 d-flex flex-wrap justify-content-center justify-content-md-start mb-3 mb-md-0">
+              <a href="" class="mr-3">Privacy Policy</a>
+              <a href="" class="mr-3">Legal Notice</a>
+              <a href="" class="mr-3">Terms of Service</a>
+            </div>
+            <div class="col-md-6 text-center text-md-right">
+              <span>Beta Version - &copy; 2024</span>
+            </div>
+          </div>
         </div>
     </footer>
     <!-- Scripts -->
@@ -156,6 +216,16 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
         document.getElementById('currentYear').textContent = new Date().getFullYear();
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.navbar');
+    
+            // Change background color when scrolled past 50px
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
     </script>
 </body>
 </html>

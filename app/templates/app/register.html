@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon">
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
-    <title>Register - OJT Management System</title>
+    <title>Admin Register - OJT Management System</title>
     <style>
         .navbar-brand {
             display: flex;
@@ -56,9 +56,15 @@
                         <h5 class="card-title">OMS Admin Registration</h5>
                         {% if messages %}
                             {% for message in messages %}
-                                <div class="alert alert-danger" role="alert">
-                                    {{ message }}
-                                </div>
+                                {% if message.tags == 'success' %}
+                                    <div class="alert alert-success" role="alert">
+                                        {{ message }}
+                                    </div>
+                                {% else %}
+                                    <div class="alert alert-danger" role="alert">
+                                        {{ message }}
+                                    </div>
+                                {% endif %}
                             {% endfor %}
                         {% endif %}
                         <form method="post" action="{% url 'register' %}">
@@ -79,7 +85,7 @@
                             </div>
                             <div class="form-group">
                                 <label for="position">Position</label>
-                                <input type="text" class="form-control" id="position" name="position" required>
+                                {{ form.position}}
                             </div>
                             <div class="form-group">
                                 <label for="username">Username</label>

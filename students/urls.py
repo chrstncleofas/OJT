@@ -24,7 +24,12 @@ urlpatterns = [
     path('documents/', views.getAllSubmittedDocuments, name='documents'),
     path('changePassword/', views.changePassword, name='changePassword'),
     path('announcement-page/', views.getAnnouncementNotLogin, name='announcement-page'),
+    
 ]
+
 if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)
+    urlpatterns += static(settings.STATIC_URL, document_root = settings.STATIC_URL)
+else:
     urlpatterns += static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root = settings.STATIC_URL)

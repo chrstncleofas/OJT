@@ -6,6 +6,7 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('', views.home, name='home'),
     path('login', views.userLoginFunction, name='login'),
+    path('register/', views.register, name='register'),
     path('profile', views.profile, name='profile'),
     path('logout', views.logoutView, name='logout'),
     path('dashboard', views.dashboard, name='dashboard'),
@@ -33,6 +34,8 @@ urlpatterns = [
     path('listOfAnnouncement', views.listOfAnnouncement, name='listOfAnnouncement'),
     path('all-content', views.listOfContent, name='all-content'),
     path('grading', views.getAllStudentsForGrading, name='grading'),
+    path('submission', views.getTheSubmitRequirements, name='submission'),
+    path('view-requirements/<int:id>/', views.submittedRequirementOfStudents, name='view-requirements'),
     path('editAnnouncement/<int:id>/', views.editAnnouncement, name='editAnnouncement'),
     path('editContent/<int:id>/', views.editContent, name='editContent'),
     path('deleteAnnouncement/<int:id>/', views.deleteAnnouncement, name='deleteAnnouncement'),
@@ -41,8 +44,13 @@ urlpatterns = [
     path('gradeCalculator/<int:id>/', views.gradeCalculator, name='gradeCalculator'),
     #
     path('set_rendering_hours/', views.set_rendering_hours, name='set_rendering_hours'),
+    path('announcementNotLogin/', views.getAnnouncementNotLogin, name='announcementNotLogin'),
+    path('announcementLogin/', views.getAnnouncement, name='announcementLogin'),
 ]
 
 if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)
+    urlpatterns += static(settings.STATIC_URL, document_root = settings.STATIC_URL)
+else:
     urlpatterns += static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root = settings.STATIC_URL)
