@@ -6,8 +6,8 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('', include('students.urls')),
     path('admin/', admin.site.urls),
-    path('adminSite/', include('app.urls')),
-    path('super-admin-page/', include('superapp.urls')),
+    path('coordinator/', include('app.urls')),
+    path('secret-page/', include('superapp.urls')),
 ]
 
 if settings.DEBUG:
