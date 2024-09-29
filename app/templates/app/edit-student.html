@@ -153,7 +153,7 @@
                                 <input type="text" class="form-control" id="Year" name="Year" value="{{ student.Year }}" required>
                             </div>
                         </div>
-                        <a href="{% url 'setSchedule' student.id %}" class="btn btn-secondary mb-3">Add Schedule</a>
+                        {% comment %} <a href="{% url 'setSchedule' student.id %}" class="btn btn-secondary mb-3">Add Schedule</a> {% endcomment %}
                         <button type="submit" class="btn btn-primary mb-3">Update Profile</button>
                         <a href="{% url 'studentManagement' %}" class="btn btn-primary mb-3">Back</a>
                     </form>
