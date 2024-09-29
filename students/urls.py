@@ -22,7 +22,9 @@ urlpatterns = [
     path('announcement/', views.getAnnouncement, name='announcement'),
     path('progressReport', views.progressReport, name='progressReport'),
     path('documents/', views.getAllSubmittedDocuments, name='documents'),
+    path('forgot_password/', views.forgot_password, name='forgot_password'),
     path('changePassword/', views.changePassword, name='changePassword'),
+    path('reset_password/<str:token>/', views.reset_password, name='reset_password'),
     path('announcement-page/', views.getAnnouncementNotLogin, name='announcement-page'),
     
 ]

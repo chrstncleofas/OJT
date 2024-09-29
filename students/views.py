@@ -10,6 +10,7 @@ from datetime import datetime, timedelta
 from django.utils.timezone import localtime
 from django.shortcuts import render, redirect
 from django.shortcuts import get_object_or_404
+from django.utils.crypto import get_random_string
 from django.template.loader import render_to_string
 from django.contrib.auth.hashers import check_password
 from django.contrib.auth import update_session_auth_hash
@@ -457,6 +458,43 @@ def changePassword(request):
 
         }
     )
+
+def forgot_password(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        user = DataTableStudents.objects.filter(Email=email).first()
+        if user:
+            token = get_random_string(32)
+            reset_link = request.build_absolute_uri(reverse('students:reset_password', args=[token]))
+            send_mail(
+                'Password Reset Request',
+                f'Click the link to reset your password: {reset_link}',
+                settings.EMAIL_HOST_USER,
+                [email],
+                fail_silently=False
+            )
+            messages.success(request, 'Password reset link has been sent to your email.')
+            return redirect('students:login')
+        else:
+            messages.error(request, 'Email not found.')
+    return render(request, 'students/forgot_password.html')
+
+def reset_password(request, token):
+    if request.method == 'POST':
+        new_password = request.POST.get('new_password')
+        confirm_password = request.POST.get('confirm_password')
+        if new_password == confirm_password:
+            user = DataTableStudents.objects.filter(token=token).first() 
+            if user:
+                user.set_password(new_password)
+                user.save()
+                messages.success(request, 'Your password has been reset successfully.')
+                return redirect('students:login')
+            else:
+                messages.error(request, 'Invalid token.')
+        else:
+            messages.error(request, 'Passwords do not match.')
+    return render(request, 'students/reset_password.html', {'token': token})
 
 def studentRegister(request):
     if request.method == 'POST':
