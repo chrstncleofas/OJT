@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 
 class CustomUser(AbstractUser):
-    position = models.CharField(max_length=100)
+    position = models.CharField(max_length=100, default="Coordinator")
 
 class RenderingHoursTable(models.Model):
     COURSE_CHOICES = [
