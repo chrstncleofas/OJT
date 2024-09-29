@@ -304,12 +304,20 @@ def exportTimeLogToPDF(request):
     response['Content-Disposition'] = f'attachment; filename="{fullname} - TimeSheet.pdf"'
     return response
    
+from django.shortcuts import render, get_object_or_404, redirect
+from django.utils import timezone
+from django.utils.timezone import localtime
+from datetime import timedelta
+from .models import DataTableStudents, TimeLog, Schedule, TableSubmittedRequirement
+from .forms import TimeLogForm
+
 def TimeInAndTimeOut(request):
     user = request.user
-    student = get_object_or_404(DataTableStudents, user=user)  # Fetching student by logged-in user
+    student = get_object_or_404(DataTableStudents, user=user)  # Fetch student by logged-in user
     schedule_exists = Schedule.objects.filter(student=student).exists()
     requirements_submitted = TableSubmittedRequirement.objects.filter(student=student).exists()
     
+    # Check if requirements are submitted
     if not requirements_submitted:
         message = 'Please submit your requirements before you can time in.'
         return render(
@@ -325,6 +333,7 @@ def TimeInAndTimeOut(request):
             }
         )
     
+    # Handle form submission
     if request.method == 'POST':
         form = TimeLogForm(request.POST, request.FILES)
         if form.is_valid():
@@ -336,8 +345,10 @@ def TimeInAndTimeOut(request):
     else:
         form = TimeLogForm()
 
+    # Fetch time logs and order them by timestamp
     time_logs = TimeLog.objects.filter(student=student).order_by('timestamp')
-    
+
+    # Calculate total work hours
     total_work_seconds = 0
     daily_total = timedelta()
     paired_logs = []
@@ -351,7 +362,6 @@ def TimeInAndTimeOut(request):
                 work_period = eight_hours
                 if work_period > timedelta(hours=1):
                     work_period -= timedelta(hours=1)
-                    
                 daily_total += work_period
                 i += 1
         i += 1
@@ -365,8 +375,11 @@ def TimeInAndTimeOut(request):
         minutes, seconds = divmod(remainder, 60)
         return f"{int(hours)} hours, {int(minutes)} minutes, {int(seconds)} seconds"
 
+    # Get last action (Time In or Time Out)
+    last_log = TimeLog.objects.filter(student=student).order_by('-timestamp').first()
+    last_action = last_log.action if last_log else ''
+
     current_time = localtime(timezone.now())
-    last_action = time_logs[0].action if time_logs else ''
     full_schedule = Schedule.objects.filter(student=student, day__in=['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']).order_by('id')
 
     return render(
