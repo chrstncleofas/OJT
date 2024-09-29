@@ -19,7 +19,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth import authenticate, login, logout
 from app.models import TableAnnouncement, TableRequirements, TableContent
 from students.models import DataTableStudents, TimeLog, Schedule, TableSubmittedReport, TableSubmittedRequirement, PendingApplication
-from students.forms import ChangePasswordForm, StudentProfileForm, ScheduleSettingForm, FillUpPDFForm, SubmittedRequirement, PendingStudentRegistrationForm, TimeLogForm
+from students.forms import ChangePasswordForm, StudentProfileForm, ScheduleSettingForm, FillUpPDFForm, SubmittedRequirement, PendingStudentRegistrationForm, TimeLogForm, ResetPasswordForm
 
 def studentHome(request) -> HttpResponse:
     images = TableContent.objects.all().order_by('id')
@@ -304,13 +304,6 @@ def exportTimeLogToPDF(request):
     response = HttpResponse(buffer, content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="{fullname} - TimeSheet.pdf"'
     return response
-   
-from django.shortcuts import render, get_object_or_404, redirect
-from django.utils import timezone
-from django.utils.timezone import localtime
-from datetime import timedelta
-from .models import DataTableStudents, TimeLog, Schedule, TableSubmittedRequirement
-from .forms import TimeLogForm
 
 def TimeInAndTimeOut(request):
     user = request.user
@@ -481,20 +474,24 @@ def forgot_password(request):
 
 def reset_password(request, token):
     if request.method == 'POST':
-        new_password = request.POST.get('new_password')
-        confirm_password = request.POST.get('confirm_password')
-        if new_password == confirm_password:
-            user = DataTableStudents.objects.filter(token=token).first() 
-            if user:
-                user.set_password(new_password)
-                user.save()
-                messages.success(request, 'Your password has been reset successfully.')
-                return redirect('students:login')
-            else:
-                messages.error(request, 'Invalid token.')
+        form = ResetPasswordForm(request.POST)
+        if form.is_valid():
+            new_password = form.cleaned_data['new_password']
+            # Get the user associated with the token
+            user = get_object_or_404(DataTableStudents, reset_token=token)
+            
+            # Update the password
+            user.set_password(new_password)
+            user.reset_token = None  # Clear the token
+            user.save()
+            messages.success(request, 'Your password has been reset successfully.')
+            return redirect('students:login')
         else:
-            messages.error(request, 'Passwords do not match.')
-    return render(request, 'students/reset_password.html', {'token': token})
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = ResetPasswordForm()
+
+    return render(request, 'students/reset_password.html', {'form': form, 'token': token})
 
 def studentRegister(request):
     if request.method == 'POST':

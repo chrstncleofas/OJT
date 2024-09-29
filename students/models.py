@@ -24,6 +24,7 @@ class DataTableStudents(models.Model):
     Password = models.CharField(max_length=100)
     status = models.CharField(max_length=50)
     archivedStudents = models.CharField(max_length=30, choices=ARCHIVED_STATUS, default='NotArchive')
+    reset_token = models.CharField(max_length=100, null=True, blank=True)
 
     def __str__(self):
         return f"{self.Firstname} {self.Lastname}"
