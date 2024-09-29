@@ -479,10 +479,9 @@ def reset_password(request, token):
             new_password = form.cleaned_data['new_password']
             # Get the user associated with the token
             user = get_object_or_404(DataTableStudents, reset_token=token)
-            
             # Update the password
             user.set_password(new_password)
-            user.reset_token = None  # Clear the token
+            user.reset_token = None
             user.save()
             messages.success(request, 'Your password has been reset successfully.')
             return redirect('students:login')
