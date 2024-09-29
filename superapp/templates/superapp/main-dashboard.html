@@ -106,7 +106,7 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-lg-4">
+                    <div class="col-lg-6">
                         <a href="{% url 'superapp:studentManagement' %}?tab=approved-students" style="text-decoration: none;">
                             <div class="card text-white bg-success">
                                 <div class="card-body">
@@ -119,7 +119,7 @@
                             </div>
                         </a>
                     </div>
-                    <div class="col-lg-4">
+                    <div class="col-lg-6">
                         <a href="{% url 'superapp:studentManagement' %}?tab=pending-application" style="text-decoration: none;">
                             <div class="card text-white bg-warning">
                                 <div class="card-body">
@@ -127,19 +127,6 @@
                                     <div>
                                         <div class="count pending">{{ pending_count }}</div>
                                         <div>Pending Registration</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-                    <div class="col-lg-4">
-                        <a href="{% url 'superapp:studentManagement' %}?tab=rejected-application" style="text-decoration: none;">
-                            <div class="card text-white bg-danger">
-                                <div class="card-body">
-                                    <i class="fas fa-close icon"></i>
-                                    <div>
-                                        <div class="count rejected">{{ reject_count }}</div>
-                                        <div>Disapprove Registration</div>
                                     </div>
                                 </div>
                             </div>
