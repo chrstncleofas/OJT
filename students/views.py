@@ -306,9 +306,10 @@ def exportTimeLogToPDF(request):
    
 def TimeInAndTimeOut(request):
     user = request.user
-    student = get_object_or_404(DataTableStudents, user=user)
+    student = get_object_or_404(DataTableStudents, user=user)  # Fetching student by logged-in user
     schedule_exists = Schedule.objects.filter(student=student).exists()
     requirements_submitted = TableSubmittedRequirement.objects.filter(student=student).exists()
+    
     if not requirements_submitted:
         message = 'Please submit your requirements before you can time in.'
         return render(
@@ -323,36 +324,64 @@ def TimeInAndTimeOut(request):
                 'requirements_submitted': requirements_submitted,
             }
         )
+    
+    if request.method == 'POST':
+        form = TimeLogForm(request.POST, request.FILES)
+        if form.is_valid():
+            time_log = form.save(commit=False)
+            time_log.student = student
+            time_log.timestamp = timezone.now()
+            time_log.save()
+            return redirect('students:clockin')
     else:
-        if request.method == 'POST':
-            form = TimeLogForm(request.POST, request.FILES)
-            if form.is_valid():
-                time_log = form.save(commit=False)
-                time_log.student = student
-                time_log.timestamp = timezone.now()
-                time_log.save()
-                return redirect('students:clockin')
-        else:
-            form = TimeLogForm()
+        form = TimeLogForm()
+
+    # Calculate total work time and remaining hours
+    time_logs = TimeLog.objects.filter(student=student).order_by('timestamp')
+    
+    total_work_seconds = 0
+    daily_total = timedelta()
+    paired_logs = []
+    eight_hours = timedelta(hours=9)
+
+    i = 0
+    while i < len(time_logs):
+        if time_logs[i].action == 'IN':
+            if i + 1 < len(time_logs) and time_logs[i + 1].action == 'OUT':
+                paired_logs.append((time_logs[i], time_logs[i + 1]))
+                work_period = eight_hours
+                if work_period > timedelta(hours=1):
+                    work_period -= timedelta(hours=1)  # Subtract lunch break
+                    
+                daily_total += work_period
+                i += 1  # Skip the next log as it is OUT
+        i += 1
+
+    total_work_seconds = daily_total.total_seconds()
+    required_hours_seconds = student.get_required_hours() * 3600 if student.get_required_hours() is not None else 0
+    remaining_hours_seconds = required_hours_seconds - total_work_seconds
+
+    def format_seconds(seconds):
+        hours, remainder = divmod(seconds, 3600)
+        minutes, seconds = divmod(remainder, 60)
+        return f"{int(hours)} hours, {int(minutes)} minutes, {int(seconds)} seconds"
+
     current_time = localtime(timezone.now())
-    time_logs = TimeLog.objects.filter(student=student).order_by('-timestamp')
     last_action = time_logs[0].action if time_logs else ''
     full_schedule = Schedule.objects.filter(student=student, day__in=['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']).order_by('id')
-    # Pairing Time In and Time Out Logs
-    time_logs = TimeLog.objects.filter(student=student).order_by('timestamp')
-    paired_logs = []
-
-    for i in range(0, len(time_logs), 2):  # Assuming IN is followed by OUT
-        if i + 1 < len(time_logs):  # Check if there's a corresponding OUT log
-            paired_logs.append((time_logs[i], time_logs[i + 1]))  # (IN, OUT)
 
     return render(
         request,
         'students/timeIn-timeOut.html',
         {
+            'required_hours_seconds': required_hours_seconds,
+            'remaining_hours_seconds': remaining_hours_seconds,
+            'total_work_time': format_seconds(total_work_seconds),
+            'required_hours_time': format_seconds(required_hours_seconds),
+            'remaining_hours_time': format_seconds(remaining_hours_seconds),
             'firstName': student.Firstname,
             'lastName': student.Lastname,
-            'time_logs': paired_logs,  # Send paired logs to template
+            'time_logs': paired_logs,
             'current_time': current_time,
             'form': form,
             'full_schedule': full_schedule,
@@ -361,6 +390,7 @@ def TimeInAndTimeOut(request):
             'requirements_submitted': requirements_submitted,
         }
     )
+
 
 def studentProfile(request):
     user = request.user

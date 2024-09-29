@@ -188,14 +188,42 @@
                             {% else %}
                                 <h4 class="mt-2 mb-1">TIME IN</h4>
                             {% endif %}
-                            <form method="POST" action="{% url 'students:download' %}" class="ml-auto">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-success">Export <i class="ml-1 fa-solid fa-file-export"></i></button>
-                            </form>
+                        </div>
+                        <div class="row mb-1 ml-1 mr-0">
+                            <div class="col-md-4">
+                                <div class="card text-white bg-primary mb-3">
+                                    <div class="card-header">Total Work Hours</div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <input type="text" style="width: 281px; font-size: 15px;" name="total_work_time" class="form-control ml-0" value="{{ total_work_time }}" readonly>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card text-white bg-success mb-3">
+                                    <div class="card-header">Required Duration</div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <input type="text" style="width: 281px; font-size: 15px;" name="required_hours_time" class="form-control ml-0" value="{{ required_hours_time }}" readonly>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card text-white bg-warning mb-3">
+                                    <div class="card-header">Remaining Hours</div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <input type="text" style="width: 281px; font-size: 15px;" name="remaining_hours_time" class="form-control ml-0" value="{{ remaining_hours_time }}" readonly>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="card col-md-4 ml-2">
-                        <div class="mt-2">
+                    <div class="card col-md-4 ml-2 mt-0">
+                        <div class="mt-1">
                             <form method="POST" enctype="multipart/form-data" id="timeForm">
                                 {% csrf_token %}
                                 <div class="upload-box" id="uploadBox">
@@ -204,9 +232,9 @@
                                 </div>
                                 {% if time_logs %}
                                     {% if time_logs.0.action == 'IN' %}
-                                    <p style="margin-bottom: 2px;">Current login time was</p>
-                                    <p class="time-info" style="margin-bottom: 2px; font-weight: bold;">{{ time_logs.0.timestamp|date:"g:i:s A" }}</p>
-                                    <p>on <span style="font-weight: bold;">{{ time_logs.0.timestamp|date:"l, n/j" }}</span></p>
+                                        <p style="margin-bottom: 2px;">Current login time was</p>
+                                        <p class="time-info" style="margin-bottom: 2px; font-weight: bold;">{{ time_logs.0.timestamp|date:"g:i:s A" }}</p>
+                                        <p>on <span style="font-weight: bold;">{{ time_logs.0.timestamp|date:"l, n/j" }}</span></p>
                                     {% else %}
                                         <p style="margin-bottom: 2px;">Current logging out at</p>
                                         <p style="margin-bottom: 2px; font-weight: bold;" class="time-info">{{ current_time|date:"g:i:s A" }}</p>
@@ -229,8 +257,17 @@
                             </form>
                         </div>
                     </div>
-                    <div class="card fixed-height col-md-9 ml-2">
+            
+                    <!-- Time Logs Section -->
+                    <div class="card fixed-height col-md-9 ml-2 mt-0">
                         <h3>Time Logs</h3>
+                        <!-- Export Button Moved Here -->
+                        <div class="d-flex justify-content-end mb-2">
+                            <form method="POST" action="{% url 'students:download' %}" class="ml-auto">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-success">Export <i class="ml-1 fa-solid fa-file-export"></i></button>
+                            </form>
+                        </div>
                         <table class="table table-bordered mt-2">
                             <thead class="thead-dark">
                                 <tr>
@@ -271,7 +308,8 @@
                         </table>
                     </div>                                                  
                 </div>
-            </div>          
+            </div>
+                 
         </div>
     </div>
     <!-- Scripts -->
