@@ -130,8 +130,46 @@
                             <span style="text-transform: uppercase; font-weight: 500;">{{ studentFirstname }} {{ studentLastname }}</span>
                         </h4>
                     </div>
+                    
                     {% if paired_logs %}
-                    <div class="col-md-9">
+                    <div class="col-md-12 mt-2">
+                        <form method="POST" action="">
+                            {% csrf_token %}
+                            <div class="row mb-3">
+                                <div class="col-md-4">
+                                    <div class="card text-white bg-primary mb-3">
+                                        <div class="card-header">Total Work Hours</div>
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <input type="text" style="width: 309px; font-size: 15px;" name="total_work_time" class="form-control ml-1" value="{{ total_work_time }}" readonly>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="card text-white bg-success mb-3">
+                                        <div class="card-header">Required Duration</div>
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <input type="text" style="width: 309px; font-size: 15px;" name="required_hours_time" class="form-control ml-1" value="{{ required_hours_time }}" readonly>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="card text-white bg-warning mb-3">
+                                        <div class="card-header">Remaining Hours</div>
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <input type="text" style="width: 309px; font-size: 15px;" name="remaining_hours_time" class="form-control ml-1" value="{{ remaining_hours_time }}" readonly>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="submit" id="saveChanges" class="btn btn-success d-none">Save Changes</button>
+                        </form>
+                        {% comment %}  {% endcomment %}
                         <table class="table table-bordered mt-3">
                             <thead class="thead-dark">
                                 <tr>
@@ -164,6 +202,33 @@
                                 {% endfor %}
                             </tbody>
                         </table>
+                        <h6 class="mt-4 ml-1 mb-3">Grades</h6>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Evaluation</th>
+                                    <th>Documents</th>
+                                    <th>Oral Interview</th>
+                                    <th>Final Grade</th>
+                                    <th>Remarks</th>
+                                </tr>
+                            </thead>
+                            <tbody id="announcementList">
+                                {% for grade in gradesResult %}
+                                <tr>
+                                    <td>{{ grade.evaluation }}</td>
+                                    <td style="text-transform: capitalize;">{{ grade.docs }}</td>
+                                    <td style="text-transform: capitalize;">{{ grade.oral_interview }}</td>
+                                    <td style="text-transform: capitalize;">{{ grade.final_grade }}</td>
+                                    <td style="text-transform: capitalize;">{{ grade.status }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="7" class="text-center">No inputted grade.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
                         <h6 class="mt-4 ml-1 mb-3">Progress Report</h6>
                         <table class="table table-striped">
                             <thead>
@@ -188,7 +253,7 @@
                                     {% endfor %}
                                 {% else %}
                                     <tr>
-                                        <td colspan="4">No progress report submitted.</td>
+                                        <td colspan="4" class="text-center">No progress report submitted.</td>
                                     </tr>
                                 {% endif %}
                             </tbody>
@@ -217,98 +282,18 @@
                                     {% endfor %}
                                 {% else %}
                                     <tr>
-                                        <td colspan="4">No progress report submitted.</td>
+                                        <td colspan="4" class="text-center">No progress report submitted.</td>
                                     </tr>
                                 {% endif %}
                             </tbody>
                         </table>
                     </div>
-                    <div class="card col-md-3 mt-3">
-                        <div class="card-header bg-primary text-white p-3 mt-3">
-                            <h5 class="card-title mb-0">Schedule</h5>
-                        </div>
-                        {% if full_schedule %}
-                        <ul class="list-group list-group-flush">
-                            {% for s in full_schedule %}
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <span>{{ s.day }}</span>
-                                <span class="text-muted">{{ s.start_time }} - {{ s.end_time }}</span>
-                            </li>
-                            {% endfor %}
-                        </ul>
-                        {% else %}
-                        <p class="text-center text-muted mt-3">No schedule available.</p>
-                        {% endif %}
-                        <div class="card-header bg-primary text-white p-3 mt-3">
-                            <h5 class="card-title mb-0">Grades</h5>
-                        </div>
-                        {% if grades %}
-                        <ul class="list-group list-group-flush">
-                            {% for grade in grades %}
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <span>Grades: </span>
-                                <span class="text-muted">{{ grade.final_grade }}</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <span>Remarks: </span>
-                                <span class="text-muted">{{ grade.status }}</span>
-                            </li>
-                            {% endfor %}
-                        </ul>
-                        {% else %}
-                        <p class="text-center text-muted mt-3">No grades show.</p>
-                        {% endif %}
-                    </div>
                 </div>
-                <form method="POST" action="">
-                    {% csrf_token %}
-                    <div class="row">
-                        <div class="col-md-4">
-                            <div class="card text-white bg-primary mb-3">
-                                <div class="card-header">Total Work Hours</div>
-                                <div class="card-body">
-                                    <div class="row">
-                                        <input type="text" style="width: 271px;" name="total_work_time" class="form-control ml-1" value="{{ total_work_time }}" readonly>
-                                        <button type="button" class="btn btn-light ml-1 mr-0" onclick="toggleEdit(this)">
-                                            <i class="fa-solid fa-pen-to-square"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="card text-white bg-success mb-3">
-                                <div class="card-header">Required Duration</div>
-                                <div class="card-body">
-                                    <div class="row">
-                                        <input type="text" style="width: 270px;" name="required_hours_time" class="form-control ml-1" value="{{ required_hours_time }}" readonly>
-                                        <button type="button" class="btn btn-light ml-1 mr-0" onclick="toggleEdit(this)">
-                                            <i class="fa-solid fa-pen-to-square"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="card text-white bg-warning mb-3">
-                                <div class="card-header">Remaining Hours</div>
-                                <div class="card-body">
-                                    <div class="row">
-                                        <input type="text" style="width: 271px;" name="remaining_hours_time" class="form-control ml-1" value="{{ remaining_hours_time }}" readonly>
-                                        <button type="button" class="btn btn-light ml-1 mr-0" onclick="toggleEdit(this)">
-                                            <i class="fa-solid fa-pen-to-square"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <button type="submit" id="saveChanges" class="btn btn-success d-none">Save Changes</button>
-                </form>   
                 {% else %}
                 <p>No logs found for this student.</p>
                 {% endif %}
-            </div>      
+            </div>
+                  
         </div>
     </div>
     <!-- Scripts -->

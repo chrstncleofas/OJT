@@ -309,8 +309,8 @@ def TimeInAndTimeOut(request):
     student = get_object_or_404(DataTableStudents, user=user)
     schedule_exists = Schedule.objects.filter(student=student).exists()
     requirements_submitted = TableSubmittedRequirement.objects.filter(student=student).exists()
-    if not schedule_exists or not requirements_submitted:
-        message = 'Please set your schedule and submit your requirements before you can time in.'
+    if not requirements_submitted:
+        message = 'Please submit your requirements before you can time in.'
         return render(
             request,
             'students/timeIn-timeOut.html',
@@ -338,13 +338,21 @@ def TimeInAndTimeOut(request):
     time_logs = TimeLog.objects.filter(student=student).order_by('-timestamp')
     last_action = time_logs[0].action if time_logs else ''
     full_schedule = Schedule.objects.filter(student=student, day__in=['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']).order_by('id')
+    # Pairing Time In and Time Out Logs
+    time_logs = TimeLog.objects.filter(student=student).order_by('timestamp')
+    paired_logs = []
+
+    for i in range(0, len(time_logs), 2):  # Assuming IN is followed by OUT
+        if i + 1 < len(time_logs):  # Check if there's a corresponding OUT log
+            paired_logs.append((time_logs[i], time_logs[i + 1]))  # (IN, OUT)
+
     return render(
         request,
         'students/timeIn-timeOut.html',
         {
             'firstName': student.Firstname,
             'lastName': student.Lastname,
-            'time_logs': time_logs,
+            'time_logs': paired_logs,  # Send paired logs to template
             'current_time': current_time,
             'form': form,
             'full_schedule': full_schedule,

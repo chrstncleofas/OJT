@@ -490,6 +490,8 @@ def studentInformation(request, id):
 
     cleaned_reports = [(report, clean_filename(report.report_file.name)) for report in progress_reports]
 
+    gradesResult = Grade.objects.filter(student=student)
+
     def format_seconds(seconds):
         hours, remainder = divmod(seconds, 3600)
         minutes, seconds = divmod(remainder, 60)
@@ -510,7 +512,8 @@ def studentInformation(request, id):
         'full_schedule': full_schedule,
         'cleaned_reports': cleaned_reports,
         'requirements': requirements,
-        'grades': grades
+        'grades': grades,
+        'gradesResult': gradesResult
     }
     return render(request, 'app/TimeLogs.html', context)
 

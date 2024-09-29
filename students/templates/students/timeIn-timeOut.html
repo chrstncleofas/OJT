@@ -194,24 +194,7 @@
                             </form>
                         </div>
                     </div>
-                    <div class="card col-md-3">
-                        <div class="card-header bg-primary text-white">
-                            <h5 class="card-title mb-0">Schedule</h5>
-                        </div>
-                        {% if full_schedule %}
-                            <ul class="list-group list-group-flush">
-                                {% for s in full_schedule %}
-                                    <li class="list-group-item d-flex justify-content-between align-items-center mt-2">
-                                        <span>{{ s.day }}</span>
-                                        <span class="text-muted"><span style="text-transform: uppercase; font-size: 13px">{{ s.start_time }}</span> - <span style="text-transform: uppercase; font-size: 13px">{{ s.end_time }}</span></span>
-                                    </li>
-                                 {% endfor %}
-                            </ul>
-                        {% else %}
-                            <p class="text-center text-muted mt-3">No schedule available.</p>
-                        {% endif %}
-                    </div>
-                    <div class="card col-md-5 ml-2">
+                    <div class="card col-md-4 ml-2">
                         <div class="mt-2">
                             <form method="POST" enctype="multipart/form-data" id="timeForm">
                                 {% csrf_token %}
@@ -246,46 +229,47 @@
                             </form>
                         </div>
                     </div>
-                    <div class="card fixed-height col-md-6 ml-2">
-                        <h3>Time Card</h3>
-                        <div class="row">
-                            {% for log in time_logs %}
-                            <div class="col-md-12 log-card">
-                                <div class="card">
-                                    <div class="row no-gutters">
-                                        <div class="col-md-4">
-                                            {% if log.image %}
-                                                <img src="{{ log.image.url }}" alt="Time {{ log.action }} Image" class="card-img img-fluid">
-                                            {% else %}
-                                                <img src="{% static 'path/to/default-image.jpg' %}" alt="No Image" class="card-img img-fluid">
-                                            {% endif %}
-                                        </div>
-                                        <div class="col-md-8">
-                                            <div class="card-body text-left">
-                                                <div class="row">
-                                                    <div class="col-12 mb-1">
-                                                        <p class="card-text" style="font-weight: bold; font-size: 13px;">TIME {{ log.action }}</p>
-                                                    </div>
-                                                    <div class="col-12 mb-1">
-                                                        <p class="card-text">
-                                                            <span style="font-weight: 400; font-size: 15px;">{{ log.timestamp|date:"g:i:s A" }}</span>
-                                                        </p>
-                                                    </div>
-                                                    <div class="col-12 mb-1">
-                                                        <p class="card-text">{{ log.timestamp|date:"l" }}</p>
-                                                    </div>
-                                                    <div class="col-12">
-                                                        <p class="card-text">{{ log.timestamp|date:"F j, Y" }}</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            {% endfor %}
-                        </div>
-                    </div>               
+                    <div class="card fixed-height col-md-9 ml-2">
+                        <h3>Time Logs</h3>
+                        <table class="table table-bordered mt-2">
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th>TIME IN</th>
+                                    <th>TIME OUT</th>
+                                    <th>TIME IN IMAGE</th>
+                                    <th>TIME OUT IMAGE</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for in_log, out_log in time_logs %}
+                                <tr>
+                                    <td>
+                                        {{ in_log.timestamp|date:"g:i:s A" }}<br>
+                                        {{ in_log.timestamp|date:"F j, Y" }}
+                                    </td>
+                                    <td>
+                                        {{ out_log.timestamp|date:"g:i:s A" }}<br>
+                                        {{ out_log.timestamp|date:"F j, Y" }}
+                                    </td>
+                                    <td>
+                                        {% if in_log.image %}
+                                            <img src="{{ in_log.image.url }}" alt="Time IN Image" class="img-fluid" style="max-width: 100px;">
+                                        {% else %}
+                                            <img src="{% static 'path/to/default-image.jpg' %}" alt="No Image" class="img-fluid" style="max-width: 100px;">
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if out_log.image %}
+                                            <img src="{{ out_log.image.url }}" alt="Time OUT Image" class="img-fluid" style="max-width: 100px;">
+                                        {% else %}
+                                            <img src="{% static 'path/to/default-image.jpg' %}" alt="No Image" class="img-fluid" style="max-width: 100px;">
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>                                                  
                 </div>
             </div>          
         </div>
