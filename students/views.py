@@ -489,29 +489,36 @@ def studentLogin(request):
     if request.method == 'POST':
         username = request.POST.get('Username')
         password = request.POST.get('Password')
+
+        pending_app = PendingApplication.objects.filter(PendingUsername=username, StatusApplication="PendingApplication").first()
+
+        if pending_app:
+            messages.warning(request, 'Your account is not yet approved. Please wait for admin approval.')
+            return render(request, 'students/login.html')
+
         user = authenticate(request, username=username, password=password)
+        
         if user:
             try:
                 student = DataTableStudents.objects.get(user=user)
-                if student.status == 'PendingApplication':
-                    messages.warning(request, 'Your account is not approved yet. Please wait for admin approval.')
-                    return render(request, 'students/login.html')
-                elif student.status == 'RejectedApplication':
+                if student.status == 'RejectedApplication':
                     messages.error(request, 'Your account has been rejected. Please contact the admin for further details.')
                     return render(request, 'students/login.html')
                 elif student.archivedStudents == 'Archive':
-                    messages.error(request, 'Your account has been lock due to inactivity level. Please contact your admin.')
+                    messages.error(request, 'Your account has been locked due to inactivity. Please contact your admin.')
                     return render(request, 'students/login.html')
+                
+                if user.is_active:
+                    login(request, user)
+                    return redirect('students:main-page')
                 else:
-                    if user.is_active:
-                        login(request, user)
-                        return redirect('students:main-page')
-                    else:
-                        messages.error(request, 'Your account is disabled.')
+                    messages.error(request, 'Your account is disabled.')
+            
             except DataTableStudents.DoesNotExist:
                 messages.error(request, 'Invalid username or password.')
         else:
             messages.error(request, 'Invalid username or password.')
+
     return render(request, 'students/login.html')
 
 def studentLogout(request) -> HttpResponseRedirect:
