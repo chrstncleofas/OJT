@@ -476,7 +476,7 @@ def forgot_password(request):
 
 def reset_password(request, token):
     # Get the user associated with the token
-    user = get_object_or_404(DataTableStudents, reset_token=token)
+    user = get_object_or_404(DataTableStudents, reset_token=token).user
 
     if request.method == 'POST':
         form = ResetPasswordForm(request.POST)
@@ -576,17 +576,21 @@ def studentLogin(request):
         username = request.POST.get('Username')
         password = request.POST.get('Password')
 
+        # Check if the user has a pending application
         pending_app = PendingApplication.objects.filter(PendingUsername=username, StatusApplication="PendingApplication").first()
-
         if pending_app:
             messages.warning(request, 'Your account is not yet approved. Please wait for admin approval.')
             return render(request, 'students/login.html')
 
+        # Authenticate the user
         user = authenticate(request, username=username, password=password)
         
         if user:
             try:
+                # Get the student linked to the authenticated user
                 student = DataTableStudents.objects.get(user=user)
+
+                # Check the student's application status
                 if student.status == 'RejectedApplication':
                     messages.error(request, 'Your account has been rejected. Please contact the admin for further details.')
                     return render(request, 'students/login.html')
@@ -594,6 +598,7 @@ def studentLogin(request):
                     messages.error(request, 'Your account has been locked due to inactivity. Please contact your admin.')
                     return render(request, 'students/login.html')
                 
+                # Log in the user if they are active
                 if user.is_active:
                     login(request, user)
                     return redirect('students:main-page')
