@@ -336,7 +336,6 @@ def TimeInAndTimeOut(request):
     else:
         form = TimeLogForm()
 
-    # Calculate total work time and remaining hours
     time_logs = TimeLog.objects.filter(student=student).order_by('timestamp')
     
     total_work_seconds = 0
@@ -351,10 +350,10 @@ def TimeInAndTimeOut(request):
                 paired_logs.append((time_logs[i], time_logs[i + 1]))
                 work_period = eight_hours
                 if work_period > timedelta(hours=1):
-                    work_period -= timedelta(hours=1)  # Subtract lunch break
+                    work_period -= timedelta(hours=1)
                     
                 daily_total += work_period
-                i += 1  # Skip the next log as it is OUT
+                i += 1
         i += 1
 
     total_work_seconds = daily_total.total_seconds()
@@ -390,7 +389,6 @@ def TimeInAndTimeOut(request):
             'requirements_submitted': requirements_submitted,
         }
     )
-
 
 def studentProfile(request):
     user = request.user
