@@ -12,11 +12,11 @@ from django.shortcuts import render, redirect
 from django.shortcuts import get_object_or_404
 from django.utils.crypto import get_random_string
 from django.template.loader import render_to_string
-from django.contrib.auth.hashers import check_password
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.hashers import check_password, make_password
 from app.models import TableAnnouncement, TableRequirements, TableContent
 from students.models import DataTableStudents, TimeLog, Schedule, TableSubmittedReport, TableSubmittedRequirement, PendingApplication
 from students.forms import ChangePasswordForm, StudentProfileForm, ScheduleSettingForm, FillUpPDFForm, SubmittedRequirement, PendingStudentRegistrationForm, TimeLogForm, ResetPasswordForm
@@ -458,6 +458,8 @@ def forgot_password(request):
         user = DataTableStudents.objects.filter(Email=email).first()
         if user:
             token = get_random_string(32)
+            user.reset_token = token
+            user.save()
             reset_link = request.build_absolute_uri(reverse('students:reset_password', args=[token]))
             send_mail(
                 'Password Reset Request',
@@ -473,15 +475,16 @@ def forgot_password(request):
     return render(request, 'students/forgot_password.html')
 
 def reset_password(request, token):
+    # Get the user associated with the token
+    user = get_object_or_404(DataTableStudents, reset_token=token)
+
     if request.method == 'POST':
         form = ResetPasswordForm(request.POST)
         if form.is_valid():
             new_password = form.cleaned_data['new_password']
-            # Get the user associated with the token
-            user = get_object_or_404(DataTableStudents, reset_token=token)
-            # Update the password
-            user.set_password(new_password)
-            user.reset_token = None
+            # Hash the new password and update the user record
+            user.password = make_password(new_password)  # Hash the password
+            user.reset_token = None  # Clear the token after use
             user.save()
             messages.success(request, 'Your password has been reset successfully.')
             return redirect('students:login')
