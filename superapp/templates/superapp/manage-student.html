@@ -454,7 +454,6 @@
                                     <th>Course</th>
                                     <th>Year</th>
                                     <th>Status</th>
-                                    <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -468,9 +467,6 @@
                                     <td>{{ student.Year }}</td>
                                     <td>
                                         <p class="text-danger">Archive</p>
-                                    </td>
-                                    <td>
-                                        <a href="{% url 'unArchivedStudent' student.id %}" class="btn btn-primary">Unarchive</a>
                                     </td>
                                 </tr>
                                 {% empty %}

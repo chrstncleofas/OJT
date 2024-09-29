@@ -222,11 +222,8 @@ def progressReport(request):
                 response['Content-Disposition'] = 'inline; filename="PROGRESS-REPORT.pdf"'
                 return response
             elif action == 'submit_report':
-                # Generate filename using the current date and time
-                timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')  # Format: YYYY-MM-DD_HH-MM-SS
+                timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
                 file_name = f"{timestamp}_PROGRESS-REPORT.pdf"
-
-                # Use create() to always create a new report instance
                 report_instance = TableSubmittedReport.objects.create(student=student)
                 report_instance.report_file.save(file_name, buffer)
 
@@ -250,17 +247,12 @@ def exportTimeLogToPDF(request):
     student = get_object_or_404(DataTableStudents, user=user)
     time_logs = TimeLog.objects.filter(student=student, timestamp__week_day__in=[1, 2, 3, 4, 5, 6, 7]).order_by('timestamp')
     buffer = BytesIO()
-
-    # Open the PDF template
     pdf_document = fitz.open(os.path.join(settings.PDF_ROOT, 'INTERNSHIP-TIME-SHEET.pdf'))
     page = pdf_document[0]
     y_position = 100
     last_time_in = None
     total_hours_for_week = timedelta()
-
-    # Fixed 8-hour duration
     eight_hours = timedelta(hours=8)
-
     for log in time_logs:
         local_time = timezone.localtime(log.timestamp)
         time_formatted = local_time.strftime('%I:%M %p')
@@ -269,7 +261,6 @@ def exportTimeLogToPDF(request):
         if log.action == 'IN':
             last_time_in = local_time
         elif log.action == 'OUT' and last_time_in:
-            # Set duration to exactly 8 hours regardless of actual time
             duration = eight_hours
             total_hours_for_week += duration
 
@@ -282,8 +273,6 @@ def exportTimeLogToPDF(request):
                 total_duration_str = f"{hours}h"
             else:
                 total_duration_str = f"{hours}h {minutes}m"
-
-            # Insert date, time in, time out, and fixed duration (8 hours) into the PDF
             page.insert_text((110, y_position + 200), date, fontsize=9, color=(0, 0, 0))
             page.insert_text((230, y_position + 195), last_time_in.strftime('%I:%M %p'), fontsize=9, color=(0, 0, 0))
             page.insert_text((345, y_position + 195), time_formatted, fontsize=9, color=(0, 0, 0))
@@ -291,8 +280,6 @@ def exportTimeLogToPDF(request):
 
             y_position += 20
             last_time_in = None
-
-    # Quarter and months information
     start_month = 4
     end_month = 6
     current_year = datetime.now().year
@@ -302,8 +289,6 @@ def exportTimeLogToPDF(request):
     page.insert_text((140, 225), fullname, fontsize=12, color=(0, 0, 0))
     page.insert_text((170, 205), quarter, fontsize=12, color=(0, 0, 0))
     page.insert_text((429, 205), months, fontsize=12, color=(0, 0, 0))
-
-    # Total week hours (always 8 hours per time log)
     total_week_hours = total_hours_for_week.seconds // 3600
     total_week_minutes = (total_hours_for_week.seconds % 3600) // 60
     if total_week_minutes == 0:
@@ -312,13 +297,9 @@ def exportTimeLogToPDF(request):
         total_week_str = f"{total_week_hours}h {total_week_minutes}m"
     
     page.insert_text((457, y_position + 395), total_week_str, fontsize=12, color=(0, 0, 0))
-
-    # Save PDF to the buffer
     pdf_document.save(buffer)
     pdf_document.close()
     buffer.seek(0)
-
-    # Return the PDF as a response
     response = HttpResponse(buffer, content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="{fullname} - TimeSheet.pdf"'
     return response
@@ -326,11 +307,8 @@ def exportTimeLogToPDF(request):
 def TimeInAndTimeOut(request):
     user = request.user
     student = get_object_or_404(DataTableStudents, user=user)
-
     schedule_exists = Schedule.objects.filter(student=student).exists()
-    
     requirements_submitted = TableSubmittedRequirement.objects.filter(student=student).exists()
-
     if not schedule_exists or not requirements_submitted:
         message = 'Please set your schedule and submit your requirements before you can time in.'
         return render(
@@ -356,12 +334,10 @@ def TimeInAndTimeOut(request):
                 return redirect('students:clockin')
         else:
             form = TimeLogForm()
-
     current_time = localtime(timezone.now())
     time_logs = TimeLog.objects.filter(student=student).order_by('-timestamp')
     last_action = time_logs[0].action if time_logs else ''
     full_schedule = Schedule.objects.filter(student=student, day__in=['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']).order_by('id')
-
     return render(
         request,
         'students/timeIn-timeOut.html',
@@ -433,19 +409,13 @@ def changePassword(request):
         }
     )
 
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from .models import DataTableStudents, PendingApplication
-
 def studentRegister(request):
     if request.method == 'POST':
         pending_registration_form = PendingStudentRegistrationForm(request.POST)
         if pending_registration_form.is_valid():
-            # Kunin ang email at username mula sa form data
             studentId = pending_registration_form.cleaned_data['PendingStudentID']
             email = pending_registration_form.cleaned_data['PendingEmail']
             username = pending_registration_form.cleaned_data['PendingUsername']
-
             if DataTableStudents.objects.filter(Email=email).exists():
                 messages.error(request, "Email already exists.")
             elif DataTableStudents.objects.filter(Username=username).exists():
@@ -468,8 +438,6 @@ def studentRegister(request):
                     PendingYear=pending_registration_form.cleaned_data['PendingYear'],
                 )
                 pending_registration.save()
-                
-                # Mag-send ng email notification
                 subject = 'Registration Pending Approval'
                 message = render_to_string('students/registration_email.txt', {
                     'first_name': pending_registration.PendingFirstname,
@@ -499,7 +467,6 @@ def requirements(request):
     student = get_object_or_404(DataTableStudents, user=user)
     firstName = student.Firstname
     lastName = student.Lastname
-
     if request.method == 'POST':
         form = SubmittedRequirement(request.POST, request.FILES)
         if form.is_valid():
@@ -507,13 +474,9 @@ def requirements(request):
             submission.student = student
             submission.save()
             return HttpResponseRedirect(reverse('students:requirements'))
-
     form = SubmittedRequirement()
-
     requirements = TableRequirements.objects.all().order_by('id')
-
     submittedDocs = TableSubmittedRequirement.objects.filter(student=student)
-
     return render(request, 'students/requirements.html', {
         'form': form,
         'requirements': requirements,

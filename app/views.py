@@ -455,7 +455,7 @@ def studentInformation(request, id):
     total_work_seconds = 0
     daily_total = timedelta()
     paired_logs = []
-    eight_hours = timedelta(hours=8)  # Fixed 8-hour duration
+    eight_hours = timedelta(hours=9)
     
     i = 0
     
@@ -463,13 +463,8 @@ def studentInformation(request, id):
         if time_logs[i].action == 'IN':
             if i + 1 < len(time_logs) and time_logs[i + 1].action == 'OUT':
                 paired_logs.append((time_logs[i], time_logs[i + 1]))
-                # Calculate actual time difference
                 work_period = time_logs[i + 1].timestamp - time_logs[i].timestamp
-                
-                # Ensure that the computed work period is set to 8 hours regardless
                 work_period = eight_hours
-                
-                # Deduct 1 hour for lunch if applicable
                 if work_period > timedelta(hours=1):
                     work_period -= timedelta(hours=1)
                     
@@ -480,20 +475,15 @@ def studentInformation(request, id):
     total_work_seconds = daily_total.total_seconds()
     required_hours_seconds = student.get_required_hours() * 3600 if student.get_required_hours() is not None else 0
     remaining_hours_seconds = required_hours_seconds - total_work_seconds
-
     if request.method == 'POST':
-        # Update values based on form input
         total_work_time_input = request.POST.get('total_work_time')
         required_hours_time_input = request.POST.get('required_hours_time')
         remaining_hours_time_input = request.POST.get('remaining_hours_time')
-
-        # Process the input values (convert back to seconds)
         total_work_seconds = convert_time_to_seconds(total_work_time_input)
         required_hours_seconds = convert_time_to_seconds(required_hours_time_input)
         remaining_hours_seconds = convert_time_to_seconds(remaining_hours_time_input)
         
     full_schedule = Schedule.objects.filter(student=student, day__in=['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']).order_by('id')
-
     grades = Grade.objects.filter(student=student).order_by('id')
     progress_reports = TableSubmittedReport.objects.filter(student=selected_student).order_by('-date_submitted', 'id')
     requirements = TableSubmittedRequirement.objects.filter(student=selected_student).order_by('-submission_date', 'id')

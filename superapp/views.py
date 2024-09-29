@@ -600,7 +600,7 @@ def addUsers(request):
             user = form.save(commit=False)
             user.is_staff = True
             user.save()
-            saveActivityLogs(user=user, action='ADD', request=request, description='Create admin/coordinator account')
+            messages.success(request, 'Created account successfully.')
             return redirect('superapp:addUsers')
         else:
             for field, errors in form.errors.items():
@@ -622,6 +622,7 @@ def createUserAdmin(request):
         if form.is_valid():
             user = form.save(commit=False)
             user.is_staff = True
+            user.is_superuser = True
             user.save()
             saveActivityLogs(user=user, action='CREATE', request=request, description='Create super credentials')
             return redirect('superapp:createUserAdmin')
