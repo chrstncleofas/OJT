@@ -307,11 +307,10 @@ def exportTimeLogToPDF(request):
 
 def TimeInAndTimeOut(request):
     user = request.user
-    student = get_object_or_404(DataTableStudents, user=user)  # Fetch student by logged-in user
+    student = get_object_or_404(DataTableStudents, user=user)
     schedule_exists = Schedule.objects.filter(student=student).exists()
     requirements_submitted = TableSubmittedRequirement.objects.filter(student=student).exists()
-    
-    # Check if requirements are submitted
+
     if not requirements_submitted:
         message = 'Please submit your requirements before you can time in.'
         return render(
@@ -326,8 +325,7 @@ def TimeInAndTimeOut(request):
                 'requirements_submitted': requirements_submitted,
             }
         )
-    
-    # Handle form submission
+
     if request.method == 'POST':
         form = TimeLogForm(request.POST, request.FILES)
         if form.is_valid():
@@ -339,10 +337,8 @@ def TimeInAndTimeOut(request):
     else:
         form = TimeLogForm()
 
-    # Fetch time logs and order them by timestamp
     time_logs = TimeLog.objects.filter(student=student).order_by('timestamp')
 
-    # Calculate total work hours
     total_work_seconds = 0
     daily_total = timedelta()
     paired_logs = []
@@ -369,10 +365,8 @@ def TimeInAndTimeOut(request):
         minutes, seconds = divmod(remainder, 60)
         return f"{int(hours)} hours, {int(minutes)} minutes, {int(seconds)} seconds"
 
-    # Get last action (Time In or Time Out)
     last_log = TimeLog.objects.filter(student=student).order_by('-timestamp').first()
     last_action = last_log.action if last_log else ''
-
     current_time = localtime(timezone.now())
     full_schedule = Schedule.objects.filter(student=student, day__in=['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']).order_by('id')
 
@@ -400,7 +394,6 @@ def TimeInAndTimeOut(request):
 def studentProfile(request):
     user = request.user
     student = get_object_or_404(DataTableStudents, user=user)
-
     if request.method == 'POST':
         form = StudentProfileForm(request.POST, request.FILES, instance=student)
         if form.is_valid():
@@ -440,7 +433,6 @@ def changePassword(request):
                 messages.error(request, 'Your current password was entered incorrectly. Please enter it again.')
     else:
         form = ChangePasswordForm()
-    
     return render(
         request,
         'students/changePassword.html',
@@ -475,16 +467,13 @@ def forgot_password(request):
     return render(request, 'students/forgot_password.html')
 
 def reset_password(request, token):
-    # Get the user associated with the token
     user = get_object_or_404(DataTableStudents, reset_token=token).user
-
     if request.method == 'POST':
         form = ResetPasswordForm(request.POST)
         if form.is_valid():
             new_password = form.cleaned_data['new_password']
-            # Hash the new password and update the user record
-            user.password = make_password(new_password)  # Hash the password
-            user.reset_token = None  # Clear the token after use
+            user.password = make_password(new_password)
+            user.reset_token = None
             user.save()
             messages.success(request, 'Your password has been reset successfully.')
             return redirect('students:login')
@@ -492,7 +481,6 @@ def reset_password(request, token):
             messages.error(request, 'Please correct the errors below.')
     else:
         form = ResetPasswordForm()
-
     return render(request, 'students/reset_password.html', {'form': form, 'token': token})
 
 def studentRegister(request):
