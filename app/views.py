@@ -493,8 +493,6 @@ def getTheSubmitRequirements(request):
         'lastName': lastName
     })
 
-
-
 def studentInformation(request, id):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
