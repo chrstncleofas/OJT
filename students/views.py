@@ -556,7 +556,6 @@ def studentRegister(request):
 def requirements(request):
     user = request.user
     student = get_object_or_404(DataTableStudents, user=user)
-    
     if request.method == 'POST':
         form = SubmittedRequirement(request.POST, request.FILES, student=student)
         if form.is_valid():
@@ -564,22 +563,12 @@ def requirements(request):
             submission.student = student
             submission.save()
             return HttpResponseRedirect(reverse('students:requirements'))
-    
-    # Get the form, passing in the student to filter the document choices
     form = SubmittedRequirement(student=student)
-
-    # Get all required documents
     required_docs = ['Application Form', 'Parent Consent', 'Notice of Acceptance / MOA', 
                      'Endorsement Letter', 'Internship Contract Agreement', 'Medical Certificate']
-    
     requirements = TableRequirements.objects.all().order_by('id')
-
-    # Get the student's uploaded documents
     submitted_docs = TableSubmittedRequirement.objects.filter(student=student).values_list('nameOfDocs', flat=True)
-
-    # Determine the remaining documents to be uploaded
     remaining_docs = [doc for doc in required_docs if doc not in submitted_docs]
-
     return render(request, 'students/requirements.html', {
         'form': form,
         'remaining_docs': remaining_docs,
