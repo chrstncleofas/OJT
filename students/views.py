@@ -324,12 +324,8 @@ def log_lunch(request):
         image = request.FILES.get('image')
         user = request.user
         student = get_object_or_404(DataTableStudents, user=user)
-
-        # Create a new LunchLog object
         lunch_log = LunchLog(action=action, image=image, student=student)
         lunch_log.save()
-
-        # Redirect or render as needed
         return redirect('students:clockin')
 
 def TimeInAndTimeOut(request):
