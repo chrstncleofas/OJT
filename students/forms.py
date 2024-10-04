@@ -328,18 +328,18 @@ class FillUpPDFForm(forms.Form):
 class SubmittedRequirement(forms.ModelForm):
     SELECTION = [
         ('', '--- Select Document ---'),
+        ('Application Form', 'Application Form'),
+        ('Endorsement Letter', 'Endorsement Letter'),
+        ('Internship Contract Agreement', 'Internship Contract Agreement'),
+        ('Medical Certificate', 'Medical Certificate'),
+        ('Notice of Acceptance / MOA', 'Notice of Acceptance / MOA'),
         ('Parent Consent', 'Parent Consent'),
         ('Evaluation Form', 'Evaluation Form'),
         ('Progress Report', 'Progress Report'),
-        ('Application Form', 'Application Form'),
-        ('Endorsement Letter', 'Endorsement Letter'),
-        ('Medical Certificate', 'Medical Certificate'),
-        ('Notice of Acceptance', 'Notice of Acceptance'),
         ('Internship Time Sheet', 'Internship Time Sheet'),
         ('Internship Time Sheet', 'Internship Time Sheet'),
         ('Internship Exit Survey', 'Internship Exit Survey'),
         ('Student Performance Evaluation', 'Student Performance Evaluation'),
-        ('Internship Contract Agreement', 'Internship Contract Agreement'),
         ('Supporting Document of Time Sheet', 'Supporting Document of Time Sheet'),
         ('Supporting Document of Progress Report', 'Supporting Document of Progress Report'),
     ]
