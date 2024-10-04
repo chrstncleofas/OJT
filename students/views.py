@@ -308,7 +308,6 @@ def exportTimeLogToPDF(request):
     response['Content-Disposition'] = f'attachment; filename="{fullname} - TimeSheet.pdf"'
     return response
 
-
 def log_lunch(request):
     user = request.user
     student = get_object_or_404(DataTableStudents, user=user)
