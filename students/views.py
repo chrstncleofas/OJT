@@ -333,7 +333,6 @@ def TimeInAndTimeOut(request):
     student = get_object_or_404(DataTableStudents, user=user)
     schedule_exists = Schedule.objects.filter(student=student).exists()
     requirements_submitted = ApprovedDocument.objects.filter(student=student).exists()
-
     if not requirements_submitted:
         message = 'Please submit your requirements before you can time in.'
         return render(
@@ -348,7 +347,6 @@ def TimeInAndTimeOut(request):
                 'requirements_submitted': requirements_submitted,
             }
         )
-
     if request.method == 'POST':
         form = TimeLogForm(request.POST, request.FILES)
         if form.is_valid():
@@ -357,13 +355,10 @@ def TimeInAndTimeOut(request):
             time_log = form.save(commit=False)
             time_log.student = student
             time_log.timestamp = timezone.now()
-            # Your logic for determining actions
             time_log.save()
             return redirect('students:clockin')
     else:
         form = TimeLogForm()
-
-    # Retrieve time logs for calculating totals
     time_logs = TimeLog.objects.filter(student=student).order_by('timestamp')
     daily_total = timedelta()
     paired_logs = []
@@ -376,24 +371,16 @@ def TimeInAndTimeOut(request):
             if i + 1 < len(time_logs) and time_logs[i + 1].action == 'OUT':
                 time_in = time_logs[i].timestamp
                 time_out = time_logs[i + 1].timestamp
-                
-                # Compute work period
                 work_period = time_out - time_in
-
-                # Cap to max work hours
                 work_period = min(work_period, max_work_hours)
-                
                 daily_total += work_period
                 paired_logs.append((time_logs[i], time_logs[i + 1]))
-                i += 1  # Skip the OUT log
+                i += 1
 
-        i += 1  # Move to the next log
-
-    # Compute total work time and remaining hours
-    total_work_seconds = max(0, daily_total.total_seconds())  # Prevent negative total
+        i += 1
+    total_work_seconds = max(0, daily_total.total_seconds())
     required_hours_seconds = student.get_required_hours() * 3600 if student.get_required_hours() is not None else 0
-    remaining_hours_seconds = max(0, required_hours_seconds - total_work_seconds)  # Prevent negative remaining
-
+    remaining_hours_seconds = max(0, required_hours_seconds - total_work_seconds)
     def format_seconds(seconds):
         hours, remainder = divmod(seconds, 3600)
         minutes, seconds = divmod(remainder, 60)
@@ -416,7 +403,7 @@ def TimeInAndTimeOut(request):
             'firstName': student.Firstname,
             'lastName': student.Lastname,
             'time_logs': paired_logs,
-            'lunch_logs': lunch_logs,  # Separate lunch logs
+            'lunch_logs': lunch_logs,
             'current_time': current_time,
             'form': form,
             'full_schedule': full_schedule,
