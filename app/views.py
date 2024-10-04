@@ -27,7 +27,7 @@ from students.forms import EditStudentForm, ScheduleSettingForm, GradeForm
 from app.models import RenderingHoursTable, TableRequirements, TableContent
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponsePermanentRedirect, JsonResponse
 from app.forms import EditProfileForm, AnnouncementForm, UploadRequirementForm, ContentForm, CustomUserCreationForm
-from students.models import DataTableStudents, TimeLog, Schedule, TableSubmittedReport, TableSubmittedRequirement, PendingApplication, RejectApplication, Grade, ReturnToRevisionDocument, ApprovedDocument
+from students.models import DataTableStudents, TimeLog, Schedule, TableSubmittedReport, TableSubmittedRequirement, PendingApplication, RejectApplication, Grade, ReturnToRevisionDocument, ApprovedDocument, LunchLog
 
 HOME_URL_PATH = 'app/base.html'
 DASHBOARD = 'app/dashboard.html'
@@ -512,30 +512,30 @@ def studentInformation(request, id):
 
     selected_student = get_object_or_404(DataTableStudents, id=id)
     time_logs = TimeLog.objects.filter(student=selected_student).order_by('timestamp')
-    
+    lunch_logs = LunchLog.objects.filter(student=student).order_by('timestamp')
     total_work_seconds = 0
     daily_total = timedelta()
     paired_logs = []
-    eight_hours = timedelta(hours=9)
+    max_work_hours = timedelta(hours=9)
     
     i = 0
     
+    i = 0
     while i < len(time_logs):
         if time_logs[i].action == 'IN':
             if i + 1 < len(time_logs) and time_logs[i + 1].action == 'OUT':
-                paired_logs.append((time_logs[i], time_logs[i + 1]))
-                work_period = time_logs[i + 1].timestamp - time_logs[i].timestamp
-                work_period = eight_hours
-                if work_period > timedelta(hours=1):
-                    work_period -= timedelta(hours=1)
-                    
+                time_in = time_logs[i].timestamp
+                time_out = time_logs[i + 1].timestamp
+                work_period = time_out - time_in
+                work_period = min(work_period, max_work_hours)
                 daily_total += work_period
+                paired_logs.append((time_logs[i], time_logs[i + 1]))
                 i += 1
         i += 1
     
-    total_work_seconds = daily_total.total_seconds()
+    total_work_seconds = max(0, daily_total.total_seconds())
     required_hours_seconds = student.get_required_hours() * 3600 if student.get_required_hours() is not None else 0
-    remaining_hours_seconds = required_hours_seconds - total_work_seconds
+    remaining_hours_seconds = max(0, required_hours_seconds - total_work_seconds)
     if request.method == 'POST':
         total_work_time_input = request.POST.get('total_work_time')
         required_hours_time_input = request.POST.get('required_hours_time')
@@ -574,7 +574,8 @@ def studentInformation(request, id):
         'cleaned_reports': cleaned_reports,
         'requirements': requirements,
         'grades': grades,
-        'gradesResult': gradesResult
+        'gradesResult': gradesResult,
+        'lunch_logs': lunch_logs,
     }
     return render(request, 'app/TimeLogs.html', context)
 

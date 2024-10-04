@@ -170,38 +170,86 @@
                             <button type="submit" id="saveChanges" class="btn btn-success d-none">Save Changes</button>
                         </form>
                         {% comment %}  {% endcomment %}
-                        <table class="table table-bordered mt-3">
+                        <table class="table table-bordered mt-2">
                             <thead class="thead-dark">
                                 <tr>
                                     <th>TIME IN</th>
                                     <th>TIME OUT</th>
-                                    <th>IMAGE IN</th>
-                                    <th>IMAGE OUT</th>
+                                    <th>TIME IN IMAGE</th>
+                                    <th>TIME OUT IMAGE</th>
+                                    <th>LUNCH IN</th>
+                                    <th>LUNCH OUT</th>
+                                    <th>LUNCH IN IMAGE</th>
+                                    <th>LUNCH OUT IMAGE</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for in_log, out_log in paired_logs %}
                                 <tr>
-                                    <td>{{ in_log.timestamp }}</td>
-                                    <td>{{ out_log.timestamp }}</td>
+                                    <td>
+                                        {{ in_log.timestamp|date:"g:i:s A" }}<br>
+                                        {{ in_log.timestamp|date:"F j, Y" }}
+                                    </td>
+                                    <td>
+                                        {{ out_log.timestamp|date:"g:i:s A" }}<br>
+                                        {{ out_log.timestamp|date:"F j, Y" }}
+                                    </td>
                                     <td>
                                         {% if in_log.image %}
-                                        <img src="{{ in_log.image.url }}" alt="Time IN Image" class="img-fluid" style="width: 100px; height: 100px;">
+                                            <img src="{{ in_log.image.url }}" alt="Time IN Image" class="img-fluid" style="max-width: 100px;">
                                         {% else %}
-                                        No Image
+                                            <img src="{% static 'path/to/default-image.jpg' %}" alt="No Image" class="img-fluid" style="max-width: 100px;">
                                         {% endif %}
                                     </td>
                                     <td>
                                         {% if out_log.image %}
-                                        <img src="{{ out_log.image.url }}" alt="Time OUT Image" class="img-fluid" style="width: 100px; height: 100px;">
+                                            <img src="{{ out_log.image.url }}" alt="Time OUT Image" class="img-fluid" style="max-width: 100px;">
                                         {% else %}
-                                        No Image
+                                            <img src="{% static 'path/to/default-image.jpg' %}" alt="No Image" class="img-fluid" style="max-width: 100px;">
                                         {% endif %}
+                                    </td>
+                                    <td>
+                                        {% for lunch_log in lunch_logs %}
+                                            {% if lunch_log.action == 'LUNCH IN' %}
+                                                {{ lunch_log.timestamp|date:"g:i:s A" }}<br>
+                                                {{ lunch_log.timestamp|date:"F j, Y" }}
+                                            {% endif %}
+                                        {% endfor %}
+                                    </td>
+                                    <td>
+                                        {% for lunch_log in lunch_logs %}
+                                            {% if lunch_log.action == 'LUNCH OUT' %}
+                                                {{ lunch_log.timestamp|date:"g:i:s A" }}<br>
+                                                {{ lunch_log.timestamp|date:"F j, Y" }}
+                                            {% endif %}
+                                        {% endfor %}
+                                    </td>
+                                    <td>
+                                        {% for lunch_log in lunch_logs %}
+                                            {% if lunch_log.action == 'LUNCH IN' %}
+                                                {% if lunch_log.image %}
+                                                    <img src="{{ lunch_log.image.url }}" alt="Lunch IN Image" class="img-fluid" style="max-width: 100px;">
+                                                {% else %}
+                                                    <img src="{% static 'path/to/default-image.jpg' %}" alt="No Image" class="img-fluid" style="max-width: 100px;">
+                                                {% endif %}
+                                            {% endif %}
+                                        {% endfor %}
+                                    </td>
+                                    <td>
+                                        {% for lunch_log in lunch_logs %}
+                                            {% if lunch_log.action == 'LUNCH OUT' %}
+                                                {% if lunch_log.image %}
+                                                    <img src="{{ lunch_log.image.url }}" alt="Lunch OUT Image" class="img-fluid" style="max-width: 100px;">
+                                                {% else %}
+                                                    <img src="{% static 'path/to/default-image.jpg' %}" alt="No Image" class="img-fluid" style="max-width: 100px;">
+                                                {% endif %}
+                                            {% endif %}
+                                        {% endfor %}
                                     </td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
-                        </table>
+                        </table>                     
                         <h6 class="mt-4 ml-1 mb-3">Grades</h6>
                         <table class="table">
                             <thead>
