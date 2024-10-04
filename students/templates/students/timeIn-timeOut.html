@@ -223,9 +223,9 @@
                         <div class="mt-1">
                             <form method="POST" enctype="multipart/form-data" id="timeForm">
                                 {% csrf_token %}
-                                <div class="text-center">
-                                    <button type="button" id="lunchInBtn" class="btn btn-danger mb-2" onclick="toggleLunchButton()">Lunch In</button>
-                                    <button type="button" id="lunchOutBtn" class="btn btn-success mb-2" style="display:none;" onclick="toggleLunchButton()">Lunch Out</button>
+                                <div class="form-group" style="display: flex; justify-content: space-between;">
+                                    <button type="submit" id="lunchBtnOut" class="btn btn-success" onclick="document.getElementById('id_action').value='LUNCH OUT'" disabled>LUNCH OUT</button>
+                                    <button type="submit" id="lunchBtnIn" class="btn btn-danger" onclick="document.getElementById('id_action').value='LUNCH IN'" disabled>LUNCH IN</button>
                                 </div>
                                 <!-- Lunch In and Lunch Out Buttons Above Image Preview -->
                                 <div class="upload-box" id="uploadBox">
@@ -372,78 +372,76 @@
             const imageInput = document.getElementById('id_image');
             const timeInBtn = document.getElementById('timeInBtn');
             const timeOutBtn = document.getElementById('timeOutBtn');
-            const lastAction = document.getElementById('lastAction').value; // Gets the last action
-            const preview = document.getElementById('preview'); // Image preview element
-
-            // Add event listener for image input change
+            const lastAction = document.getElementById('lastAction').value;
+            const preview = document.getElementById('preview');
             imageInput.addEventListener('change', function () {
-                // Check if an image is uploaded
                 if (imageInput.files.length > 0) {
                     const reader = new FileReader();
-
-                    // Preview image function
                     reader.onload = function (e) {
                         preview.src = e.target.result;
                         preview.style.display = 'block';
                     };
 
                     reader.readAsDataURL(imageInput.files[0]);
-
-                    // Enable the appropriate button based on the last action
                     if (lastAction === 'IN') {
                         timeInBtn.disabled = true;
-                        timeOutBtn.disabled = false; // Enable Time Out button if last action was TIME IN
+                        timeOutBtn.disabled = false;
                     } else {
-                        timeInBtn.disabled = false; // Enable Time In button if no time in today
+                        timeInBtn.disabled = false;
                         timeOutBtn.disabled = true;
                     }
                 } else {
-                    // If no image is uploaded, keep both buttons disabled
                     timeInBtn.disabled = true;
                     timeOutBtn.disabled = true;
-                    preview.style.display = 'none'; // Hide the preview if no file is uploaded
+                    preview.style.display = 'none';
                 }
             });
-
-            // Run the update function on page load to set the initial button state
             if (imageInput.files.length > 0) {
                 imageInput.dispatchEvent(new Event('change'));
             }
         }
 
         function toggleLunchButton() {
-            const lunchInBtn = document.getElementById('lunchInBtn');
-            const lunchOutBtn = document.getElementById('lunchOutBtn');
-            const imageInput = document.getElementById('id_image'); // Assuming the image input has this ID
+            const imageInput = document.getElementById('id_image');
+            const lunchBtnOut = document.getElementById('lunchBtnOut');
+            const lunchBtnIn = document.getElementById('lunchBtnIn');
+            const lastAction = document.getElementById('lastAction').value;
+            const preview = document.getElementById('preview');
         
-            // Check if an image is uploaded
-            if (imageInput.files.length === 0) {
-                alert("Please upload an image before selecting Lunch In or Lunch Out."); // Alert user
-                return; // Exit the function if no image is uploaded
-            }
-        
-            // Check the current state of the Lunch button
-            if (lunchOutBtn.style.display === "none") {
-                // If Lunch Out button is hidden, show it and hide Lunch In
-                lunchOutBtn.style.display = "inline-block"; // Show Lunch Out
-                lunchInBtn.style.display = "none"; // Hide Lunch In
-                lunchOutBtn.disabled = false; // Enable Lunch Out button
-                lunchInBtn.disabled = true; // Disable Lunch In button
-                document.getElementById('id_action').value = 'LUNCH OUT'; // Set action to Lunch Out
-            } else {
-                // If Lunch In button is hidden, show it and hide Lunch Out
-                lunchInBtn.style.display = "inline-block"; // Show Lunch In
-                lunchOutBtn.style.display = "none"; // Hide Lunch Out
-                lunchInBtn.disabled = false; // Enable Lunch In button
-                lunchOutBtn.disabled = true; // Disable Lunch Out button
-                document.getElementById('id_action').value = 'LUNCH IN'; // Set action to Lunch In
+            // Set up event listener for image input change
+            imageInput.addEventListener('change', function () {
+                if (imageInput.files.length > 0) {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        preview.src = e.target.result;
+                        preview.style.display = 'block';
+                    };
+
+                    reader.readAsDataURL(imageInput.files[0]);
+                    if (lastAction === 'LUNCH OUT') {
+                        lunchBtnIn.disabled = true;
+                        lunchBtnOut.disabled = false;
+                    } else {
+                        lunchBtnOut.disabled = false;
+                        lunchBtnIn.disabled = true;
+                    }
+                } else {
+                    lunchBtnOut.disabled = true;
+                    lunchBtnIn.disabled = true;
+                    preview.style.display = 'none';
+                }
+            });
+
+            // Trigger change event on page load if the image input is not empty
+            if (imageInput.files.length > 0) {
+                imageInput.dispatchEvent(new Event('change'));
             }
         }
 
         // Run the button state function on document ready
         document.addEventListener('DOMContentLoaded', function () {
             updateButtonStates();
-            toggleLunchButton(); // Initialize the Lunch button
+            toggleLunchButton();
         });
 
         function handleTimeAction(action) {

@@ -318,7 +318,10 @@ def exportTimeLogToPDF(request):
     response['Content-Disposition'] = f'attachment; filename="{fullname} - TimeSheet.pdf"'
     return response
 
-def TimeInAndTimeOut(request):
+from datetime import datetime, timedelta
+from django.utils import timezone
+
+def TimeInAndTimeOut(request): 
     user = request.user
     student = get_object_or_404(DataTableStudents, user=user)
     schedule_exists = Schedule.objects.filter(student=student).exists()
@@ -344,12 +347,12 @@ def TimeInAndTimeOut(request):
         if form.is_valid():
             time_log = form.save(commit=False)
             time_log.student = student
-            
             time_log.timestamp = timezone.now()
 
             last_log = TimeLog.objects.filter(student=student).order_by('-timestamp').first()
             last_action = last_log.action if last_log else None
 
+            # Set the action based on the last action
             if last_action == 'IN':
                 time_log.action = 'OUT'
             elif last_action == 'OUT':
@@ -362,7 +365,6 @@ def TimeInAndTimeOut(request):
                 time_log.action = 'IN'
 
             time_log.save()
-
             return redirect('students:clockin')
     else:
         form = TimeLogForm()
@@ -373,39 +375,40 @@ def TimeInAndTimeOut(request):
     paired_logs = []
     lunch_logs = []
     max_work_hours = timedelta(hours=8)
-    start_time = time(8, 0)
-    end_time = time(17, 0)
 
     i = 0
     while i < len(time_logs):
         if time_logs[i].action == 'IN':
             if i + 1 < len(time_logs) and time_logs[i + 1].action == 'OUT':
-                paired_logs.append((time_logs[i], time_logs[i + 1]))
-                # Calculate work period
                 time_in = time_logs[i].timestamp
                 time_out = time_logs[i + 1].timestamp
-                time_in_time = time_in.time()
-                time_out_time = time_out.time()
-                if time_in_time < start_time:
-                    time_in_time = start_time
-                if time_out_time > end_time:
-                    time_out_time = end_time
-                work_period = datetime.combine(timezone.now().date(), time_out_time) - datetime.combine(timezone.now().date(), time_in_time)
-                if work_period > max_work_hours:
-                    work_period = max_work_hours
+                
+                # Compute work period
+                work_period = time_out - time_in
+
+                # Cap to max work hours
+                work_period = min(work_period, max_work_hours)
+                
                 daily_total += work_period
-                i += 1
+                paired_logs.append((time_logs[i], time_logs[i + 1]))
+                i += 1  # Skip the OUT log
 
         elif time_logs[i].action == 'LUNCH OUT':
             if i + 1 < len(time_logs) and time_logs[i + 1].action == 'LUNCH IN':
                 lunch_logs.append((time_logs[i], time_logs[i + 1]))
-                i += 1
+                i += 1  # Skip the LUNCH IN log
 
-        i += 1
+        i += 1  # Move to the next log
 
-    total_work_seconds = daily_total.total_seconds()
+    # Compute total work time and remaining hours
+    total_work_seconds = max(0, daily_total.total_seconds())  # Prevent negative total
     required_hours_seconds = student.get_required_hours() * 3600 if student.get_required_hours() is not None else 0
-    remaining_hours_seconds = required_hours_seconds - total_work_seconds
+    remaining_hours_seconds = max(0, required_hours_seconds - total_work_seconds)  # Prevent negative remaining
+
+    # Debugging outputs
+    print(f"Daily Total Work Seconds: {total_work_seconds}")
+    print(f"Required Hours Seconds: {required_hours_seconds}")
+    print(f"Remaining Hours Seconds: {remaining_hours_seconds}")
 
     def format_seconds(seconds):
         hours, remainder = divmod(seconds, 3600)
@@ -438,6 +441,7 @@ def TimeInAndTimeOut(request):
             'requirements_submitted': requirements_submitted,
         }
     )
+
 
 def studentProfile(request):
     user = request.user
