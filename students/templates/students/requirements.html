@@ -181,12 +181,12 @@
                         </table>
                         <!-- Requirement Upload Form -->
                         <!-- Remaining Requirements to Submit -->
-                        <h6 class="mt-2 mb-2">Remaining Requirements to Submit</h6>
+                        <h6 class="mt-2 mb-2" style="font-size: 12px;">Remaining Requirements to Submit</h6>
                         <ul>
                             {% for doc in remaining_docs %}
-                                <li>{{ doc }}</li>
+                                <li style="font-size: 10px; line-height: 2.20;">{{ doc }}</li>
                             {% empty %}
-                                <li>All documents have been submitted.</li>
+                                <li style="font-size: 10px; list-style: none;">All documents have been submitted.</li>
                             {% endfor %}
                         </ul>
                         <h6 class="mt-2 mb-2">Documentary Requirements</h6>

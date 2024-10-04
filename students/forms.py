@@ -338,7 +338,6 @@ class SubmittedRequirement(forms.ModelForm):
         ('Evaluation Form', 'Evaluation Form'),
         ('Progress Report', 'Progress Report'),
         ('Internship Time Sheet', 'Internship Time Sheet'),
-        ('Internship Time Sheet', 'Internship Time Sheet'),
         ('Internship Exit Survey', 'Internship Exit Survey'),
         ('Student Performance Evaluation', 'Student Performance Evaluation'),
         ('Supporting Document of Time Sheet', 'Supporting Document of Time Sheet'),

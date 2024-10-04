@@ -565,7 +565,9 @@ def requirements(request):
             return HttpResponseRedirect(reverse('students:requirements'))
     form = SubmittedRequirement(student=student)
     required_docs = ['Application Form', 'Parent Consent', 'Notice of Acceptance / MOA', 
-                     'Endorsement Letter', 'Internship Contract Agreement', 'Medical Certificate']
+                     'Endorsement Letter', 'Internship Contract Agreement', 'Medical Certificate', 'Evaluation Form',
+                     'Progress Report', 'Internship Time Sheet', 'Internship Exit Survey', 'Student Performance Evaluation',
+                     'Supporting Document of Time Sheet', 'Supporting Document of Progress Report']
     requirements = TableRequirements.objects.all().order_by('id')
     submitted_docs = TableSubmittedRequirement.objects.filter(student=student).values_list('nameOfDocs', flat=True)
     remaining_docs = [doc for doc in required_docs if doc not in submitted_docs]
