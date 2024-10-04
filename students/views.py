@@ -569,7 +569,7 @@ def requirements(request):
     form = SubmittedRequirement(student=student)
 
     # Get all required documents
-    required_docs = ['Application Form', 'Parent Consent', 'Notice of Acceptance', 
+    required_docs = ['Application Form', 'Parent Consent', 'Notice of Acceptance / MOA', 
                      'Endorsement Letter', 'Internship Contract Agreement', 'Medical Certificate']
     
     requirements = TableRequirements.objects.all().order_by('id')
