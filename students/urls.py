@@ -18,6 +18,7 @@ urlpatterns = [
     path('download/', views.exportTimeLogToPDF, name='download'),
     path('main-page/', views.welcomeDashboard, name='main-page'),
     path('requirements/', views.requirements, name='requirements'),
+    path('log_lunch/', views.log_lunch, name='log_lunch'),
     path('dashboard/', views.mainPageForDashboard, name='dashboard'),
     path('announcement/', views.getAnnouncement, name='announcement'),
     path('progressReport', views.progressReport, name='progressReport'),

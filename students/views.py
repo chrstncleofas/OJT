@@ -18,7 +18,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.hashers import check_password, make_password
 from app.models import TableAnnouncement, TableRequirements, TableContent
-from students.models import DataTableStudents, TimeLog, Schedule, TableSubmittedReport, TableSubmittedRequirement, PendingApplication, ApprovedDocument, ReturnToRevisionDocument
+from students.models import DataTableStudents, TimeLog, Schedule, TableSubmittedReport, TableSubmittedRequirement, PendingApplication, ApprovedDocument, ReturnToRevisionDocument, LunchLog
 from students.forms import ChangePasswordForm, StudentProfileForm, ScheduleSettingForm, FillUpPDFForm, SubmittedRequirement, PendingStudentRegistrationForm, TimeLogForm, ResetPasswordForm
 
 def studentHome(request) -> HttpResponse:
@@ -318,7 +318,21 @@ def exportTimeLogToPDF(request):
     response['Content-Disposition'] = f'attachment; filename="{fullname} - TimeSheet.pdf"'
     return response
 
-def TimeInAndTimeOut(request): 
+def log_lunch(request):
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        image = request.FILES.get('image')
+        user = request.user
+        student = get_object_or_404(DataTableStudents, user=user)
+
+        # Create a new LunchLog object
+        lunch_log = LunchLog(action=action, image=image, student=student)
+        lunch_log.save()
+
+        # Redirect or render as needed
+        return redirect('students:clockin')
+
+def TimeInAndTimeOut(request):
     user = request.user
     student = get_object_or_404(DataTableStudents, user=user)
     schedule_exists = Schedule.objects.filter(student=student).exists()
@@ -342,35 +356,22 @@ def TimeInAndTimeOut(request):
     if request.method == 'POST':
         form = TimeLogForm(request.POST, request.FILES)
         if form.is_valid():
+            user = request.user
+            student = get_object_or_404(DataTableStudents, user=user)
             time_log = form.save(commit=False)
             time_log.student = student
             time_log.timestamp = timezone.now()
-
-            last_log = TimeLog.objects.filter(student=student).order_by('-timestamp').first()
-            last_action = last_log.action if last_log else None
-
-            # Set the action based on the last action
-            if last_action == 'IN':
-                time_log.action = 'OUT'
-            elif last_action == 'OUT':
-                time_log.action = 'LUNCH IN'
-            elif last_action == 'LUNCH IN':
-                time_log.action = 'LUNCH OUT'
-            elif last_action == 'LUNCH OUT':
-                time_log.action = 'IN'
-            else:
-                time_log.action = 'IN'
-
+            # Your logic for determining actions
             time_log.save()
             return redirect('students:clockin')
     else:
         form = TimeLogForm()
 
+    # Retrieve time logs for calculating totals
     time_logs = TimeLog.objects.filter(student=student).order_by('timestamp')
-
     daily_total = timedelta()
     paired_logs = []
-    lunch_logs = []
+    lunch_logs = LunchLog.objects.filter(student=student).order_by('timestamp')  # Separate lunch logs
     max_work_hours = timedelta(hours=8)
 
     i = 0
@@ -389,11 +390,6 @@ def TimeInAndTimeOut(request):
                 daily_total += work_period
                 paired_logs.append((time_logs[i], time_logs[i + 1]))
                 i += 1  # Skip the OUT log
-
-        elif time_logs[i].action == 'LUNCH OUT':
-            if i + 1 < len(time_logs) and time_logs[i + 1].action == 'LUNCH IN':
-                lunch_logs.append((time_logs[i], time_logs[i + 1]))
-                i += 1  # Skip the LUNCH IN log
 
         i += 1  # Move to the next log
 
@@ -424,7 +420,7 @@ def TimeInAndTimeOut(request):
             'firstName': student.Firstname,
             'lastName': student.Lastname,
             'time_logs': paired_logs,
-            'lunch_logs': lunch_logs,
+            'lunch_logs': lunch_logs,  # Separate lunch logs
             'current_time': current_time,
             'form': form,
             'full_schedule': full_schedule,
