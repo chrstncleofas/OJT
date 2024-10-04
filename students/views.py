@@ -318,9 +318,6 @@ def exportTimeLogToPDF(request):
     response['Content-Disposition'] = f'attachment; filename="{fullname} - TimeSheet.pdf"'
     return response
 
-from datetime import datetime, timedelta
-from django.utils import timezone
-
 def TimeInAndTimeOut(request): 
     user = request.user
     student = get_object_or_404(DataTableStudents, user=user)
@@ -405,11 +402,6 @@ def TimeInAndTimeOut(request):
     required_hours_seconds = student.get_required_hours() * 3600 if student.get_required_hours() is not None else 0
     remaining_hours_seconds = max(0, required_hours_seconds - total_work_seconds)  # Prevent negative remaining
 
-    # Debugging outputs
-    print(f"Daily Total Work Seconds: {total_work_seconds}")
-    print(f"Required Hours Seconds: {required_hours_seconds}")
-    print(f"Remaining Hours Seconds: {remaining_hours_seconds}")
-
     def format_seconds(seconds):
         hours, remainder = divmod(seconds, 3600)
         minutes, seconds = divmod(remainder, 60)
@@ -441,7 +433,6 @@ def TimeInAndTimeOut(request):
             'requirements_submitted': requirements_submitted,
         }
     )
-
 
 def studentProfile(request):
     user = request.user

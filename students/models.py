@@ -113,6 +113,21 @@ class TimeLog(models.Model):
 
     def __str__(self):
         return f"{self.student} - {self.action} at {self.timestamp}"
+    
+
+class LunchLog(models.Model):
+    ACTION_CHOICES = [
+        ('LUNCH IN', 'Lunch In'),
+        ('LUNCH OUT', 'Lunch Out'),
+    ]
+
+    student = models.ForeignKey(DataTableStudents, on_delete=models.CASCADE)
+    action = models.CharField(max_length=10, choices=ACTION_CHOICES)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    image = models.ImageField(upload_to='lunch_logs/', blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.student} - {self.action} at {self.timestamp}"
 
     
 class Schedule(models.Model):
