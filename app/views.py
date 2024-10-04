@@ -87,19 +87,16 @@ def studentManagement(request):
 
     approved = DataTableStudents.objects.filter(status='Approved', archivedStudents='NotArchive').order_by('id')
     pending = PendingApplication.objects.filter(StatusApplication='PendingApplication', PendingStatusArchive='NotArchive').order_by('id')
-    rejected = RejectApplication.objects.filter(RejectStatus='RejectedApplication', RejectStatusArchive='NotArchive').order_by('id')
     archive = DataTableStudents.objects.filter(archivedStudents='Archive').order_by('id')
 
     active_tab = request.GET.get('tab', 'approved-students')
     page = request.GET.get('page', 1)
-    per_page = int(request.GET.get('per_page', 5))
+    per_page = int(request.GET.get('per_page', 10))
 
     if active_tab == 'approved-students':
         students_list = approved
     elif active_tab == 'pending-application':
         students_list = pending
-    elif active_tab == 'rejected-application':
-        students_list = rejected
     elif active_tab == 'archive':
         students_list = archive
     else:
@@ -116,7 +113,6 @@ def studentManagement(request):
     context = {
         'students': students,
         'pending': pending,
-        'rejected': rejected,
         'archive': archive,
         'firstName': firstName,
         'lastName': lastName,
