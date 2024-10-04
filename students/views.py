@@ -250,60 +250,44 @@ def exportTimeLogToPDF(request):
         student=student,
         timestamp__week_day__in=[1, 2, 3, 4, 5, 6, 7]
     ).order_by('timestamp')
-    
     lunch_logs = LunchLog.objects.filter(student=student).order_by('timestamp')
-    
     buffer = BytesIO()
     pdf_document = fitz.open(os.path.join(settings.PDF_ROOT, 'INTERNSHIP-TIME-SHEET.pdf'))
     page = pdf_document[0]
     y_position = 100
     last_time_in = None
     last_lunch_out = None
-    total_hours_for_week = timedelta()  # Total hours for the week
-
+    total_hours_for_week = timedelta()
     for log in time_logs:
         local_time = timezone.localtime(log.timestamp)
         time_formatted = local_time.strftime('%I:%M %p')
         date = log.timestamp.strftime('%Y-%m-%d')
-
         if log.action == 'IN':
             last_time_in = local_time
         elif log.action == 'OUT' and last_time_in:
-            # Calculate actual work duration between time in and time out
             duration = local_time - last_time_in
-
-            # Update total weekly hours
             total_hours_for_week += duration
-
-            # Convert the duration to hours and minutes
             hours = duration.seconds // 3600
             minutes = (duration.seconds % 3600) // 60
-
-            # Format the total work duration string
             total_duration_str = f"{hours}h {minutes}m" if minutes > 0 else f"{hours}h"
-
-            # Insert the date, time in, time out, and total duration into the PDF
             page.insert_text((105, y_position + 220), date, fontsize=9, color=(0, 0, 0))  # Date
-            page.insert_text((160, y_position + 220), last_time_in.strftime('%I:%M %p'), fontsize=9, color=(0, 0, 0))  # Time In
-            page.insert_text((385, y_position + 220), time_formatted, fontsize=9, color=(0, 0, 0))  # Time Out
-            page.insert_text((477, y_position + 220), total_duration_str, fontsize=9, color=(0, 0, 0))  # Total Work Duration
+            page.insert_text((160, y_position + 220), last_time_in.strftime('%I:%M %p'), fontsize=9, color=(0, 0, 0))
+            page.insert_text((385, y_position + 220), time_formatted, fontsize=9, color=(0, 0, 0))
+            page.insert_text((477, y_position + 220), total_duration_str, fontsize=9, color=(0, 0, 0))
 
-            # Now insert LUNCH IN and LUNCH OUT for this time log
             lunch_in_log = lunch_logs.filter(timestamp__gt=last_time_in, timestamp__lt=local_time, action='LUNCH IN').first()
             lunch_out_log = lunch_logs.filter(timestamp__gt=last_time_in, timestamp__lt=local_time, action='LUNCH OUT').first()
 
             if lunch_out_log:
                 lunch_out_time = timezone.localtime(lunch_out_log.timestamp).strftime('%I:%M %p')
-                page.insert_text((250, y_position + 220), lunch_out_time, fontsize=9, color=(0, 0, 0))  # Lunch Out Time (Right of Time In)
+                page.insert_text((250, y_position + 220), lunch_out_time, fontsize=9, color=(0, 0, 0))
 
             if lunch_in_log:
                 lunch_in_time = timezone.localtime(lunch_in_log.timestamp).strftime('%I:%M %p')
-                page.insert_text((320, y_position + 220), lunch_in_time, fontsize=9, color=(0, 0, 0))  # Lunch In Time (Right of Lunch Out)
+                page.insert_text((320, y_position + 220), lunch_in_time, fontsize=9, color=(0, 0, 0))
 
             y_position += 20
             last_time_in = None
-
-    # Adding student info and weekly summary
     start_month = 4
     end_month = 6
     current_year = datetime.now().year
@@ -313,15 +297,10 @@ def exportTimeLogToPDF(request):
     page.insert_text((140, 245), fullname, fontsize=12, color=(0, 0, 0))
     page.insert_text((170, 205), quarter, fontsize=12, color=(0, 0, 0))
     page.insert_text((429, 205), months, fontsize=12, color=(0, 0, 0))
-
-    # Format the total weekly hours
     total_week_hours = total_hours_for_week.seconds // 3600
     total_week_minutes = (total_hours_for_week.seconds % 3600) // 60
     total_week_str = f"{total_week_hours}h {total_week_minutes}m" if total_week_minutes > 0 else f"{total_week_hours}h"
-
     page.insert_text((462, y_position + 455), total_week_str, fontsize=12, color=(0, 0, 0))
-
-    # Save the PDF to the buffer and return it as a response
     pdf_document.save(buffer)
     pdf_document.close()
     buffer.seek(0)
