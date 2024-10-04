@@ -326,7 +326,8 @@ class FillUpPDFForm(forms.Form):
 
 
 class SubmittedRequirement(forms.ModelForm):
-    SELECTION = [
+    
+    REQUIRED_DOCS = [
         ('', '--- Select Document ---'),
         ('Application Form', 'Application Form'),
         ('Endorsement Letter', 'Endorsement Letter'),
@@ -345,7 +346,7 @@ class SubmittedRequirement(forms.ModelForm):
     ]
 
     nameOfDocs = forms.ChoiceField(
-        choices=SELECTION,
+        choices=[],
         label="Select Requirement",
         widget=forms.Select(attrs={'class': 'form-control'})
     )
@@ -355,9 +356,23 @@ class SubmittedRequirement(forms.ModelForm):
         fields = ['nameOfDocs', 'submitted_file']
 
     def __init__(self, *args, **kwargs):
+        student = kwargs.pop('student', None)
         super(SubmittedRequirement, self).__init__(*args, **kwargs)
-        self.fields['submitted_file'].required = True
-        self.fields['submitted_file'].widget.attrs.update({'accept': 'application/pdf', 'class': 'form-control-file'})
+
+        if student:
+            submitted_docs = TableSubmittedRequirement.objects.filter(student=student).values_list('nameOfDocs', flat=True)
+            remaining_docs = [doc for doc in self.REQUIRED_DOCS if doc[0] not in submitted_docs]
+
+            # Set the available choices for the dropdown
+            self.fields['nameOfDocs'].choices = remaining_docs
+        else:
+            self.fields['nameOfDocs'].choices = self.REQUIRED_DOCS
+
+        # Customize file input
+        self.fields['submitted_file'].widget.attrs.update({
+            'accept': 'application/pdf',
+            'class': 'form-control-file'
+        })
 
 class GradeForm(forms.ModelForm):
     class Meta:

@@ -180,6 +180,15 @@
                             </tbody>
                         </table>
                         <!-- Requirement Upload Form -->
+                        <!-- Remaining Requirements to Submit -->
+                        <h6 class="mt-2 mb-2">Remaining Requirements to Submit</h6>
+                        <ul>
+                            {% for doc in remaining_docs %}
+                                <li>{{ doc }}</li>
+                            {% empty %}
+                                <li>All documents have been submitted.</li>
+                            {% endfor %}
+                        </ul>
                         <h6 class="mt-2 mb-2">Documentary Requirements</h6>
                         <p class="mb-0" style="font-size: 11px; margin-bottom: 8px; margin-right: 0px;">Choose the file you want to submit</p>
                         <div class="row">
