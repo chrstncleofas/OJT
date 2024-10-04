@@ -64,6 +64,42 @@
             width: 100%;
             height: 100%;
         }
+        .upload-box-lunch {
+            border: 2px dashed #ccc;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 216px;
+            margin-bottom: 20px;
+            position: relative;
+            cursor: pointer;
+            overflow: hidden;
+            background-color: #f8f9fa;
+        }
+        .upload-box-lunch input[type="file"] {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+        .upload-box-lunch img {
+            max-width: 100%;
+            max-height: 100%;
+            display: none;
+        }
+        .upload-box-lunch::before {
+            content: 'Choose File';
+            color: #888;
+            font-size: 16px;
+            position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+        }
         a {
             color: white;
             text-decoration: none;
@@ -222,7 +258,6 @@
                     <div class="card col-md-4 ml-2 mt-0">
                         <div class="mt-1">
                             <form method="POST" enctype="multipart/form-data" id="timeForm">
-                                <!-- Lunch Log Button -->
                                 <!-- Lunch In and Lunch Out Buttons Above Image Preview -->
                                 <div class="form-group text-center">
                                     <button type="button" class="btn btn-info" data-toggle="modal" data-target="#lunchLogModal">BREAK</button>
@@ -268,7 +303,7 @@
                                 <button type="submit" class="btn btn-success">Export <i class="ml-1 fa-solid fa-file-export"></i></button>
                             </form>
                         </div>
-                        <div style="max-height: 400px; overflow-y: auto;">
+                        <div style="max-height: 500px; overflow-y: auto;">
                             <table class="table table-bordered mt-2" style="width: 990px;">
                                 <thead class="thead-dark">
                                     <tr>
@@ -353,12 +388,12 @@
                     </div>
                 </div>
             </div>
-            <!-- Lunch Log Modal -->
+            <!-- Lunch Modal -->
             <div class="modal fade" id="lunchLogModal" tabindex="-1" role="dialog" aria-labelledby="lunchLogModalLabel" aria-hidden="true">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="lunchLogModalLabel">Lunch</h5>
+                            <h5 class="modal-title" id="lunchLogModalLabel">Break</h5>
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
@@ -368,9 +403,10 @@
                                 {% csrf_token %}
                                 <input type="hidden" id="lunchLogAction" name="action">
                                 <div class="form-group">
-                                    <label for="lunchImage">Upload Image</label>
-                                    <input type="file" class="form-control-file" id="lunchImage" name="image">
-                                    <img id="lunchPreview" src="#" alt="Preview Image" style="display:none; max-width: 100px; margin-top: 10px;">
+                                    <div class="upload-box-lunch" id="uploadBoxLunch">
+                                        <input type="file" class="form-control-file" id="lunchImage" name="image" id="id_image">
+                                        <img id="lunchPreview" src="#" alt="Preview Image">
+                                    </div>
                                 </div>
                                 <div class="form-group" style="display: flex; justify-content: space-between;">
                                     <button type="submit" class="btn btn-danger" id="lunchOutBtn" onclick="document.getElementById('lunchLogAction').value='LUNCH OUT'">LUNCH OUT</button>

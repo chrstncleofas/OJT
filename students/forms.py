@@ -1,7 +1,7 @@
 from django import forms
 from app.models import CustomUser
 from students.custom_widgets import CustomClearableFileInput
-from students.models import DataTableStudents, TimeLog, TableSubmittedRequirement, PendingApplication, Grade
+from students.models import DataTableStudents, TimeLog, TableSubmittedRequirement, PendingApplication, Grade, LunchLog
 
 COURSE_CHOICES = [
     ('', '--- Select Course ---'),
@@ -210,7 +210,6 @@ class ChangePasswordForm(forms.Form):
 
         return cleaned_data
 
-
 class TimeLogForm(forms.ModelForm):
     class Meta:
         model = TimeLog
@@ -218,6 +217,16 @@ class TimeLogForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(TimeLogForm, self).__init__(*args, **kwargs)
+        self.fields['image'].required = True
+        self.fields['image'].widget.attrs.update({'accept': 'image/*'})
+        self.fields['action'].widget = forms.HiddenInput()
+
+class LunchLogForm(forms.ModelForm):
+    class Meta:
+        model = LunchLog
+        fields = ['image', 'action']
+    def __init__(self, *args, **kwargs):
+        super(LunchLogForm, self).__init__(*args, **kwargs)
         self.fields['image'].required = True
         self.fields['image'].widget.attrs.update({'accept': 'image/*'})
         self.fields['action'].widget = forms.HiddenInput()
