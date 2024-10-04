@@ -362,9 +362,8 @@ def TimeInAndTimeOut(request):
     time_logs = TimeLog.objects.filter(student=student).order_by('timestamp')
     daily_total = timedelta()
     paired_logs = []
-    lunch_logs = LunchLog.objects.filter(student=student).order_by('timestamp')  # Separate lunch logs
+    lunch_logs = LunchLog.objects.filter(student=student).order_by('timestamp')
     max_work_hours = timedelta(hours=8)
-
     i = 0
     while i < len(time_logs):
         if time_logs[i].action == 'IN':
@@ -376,7 +375,6 @@ def TimeInAndTimeOut(request):
                 daily_total += work_period
                 paired_logs.append((time_logs[i], time_logs[i + 1]))
                 i += 1
-
         i += 1
     total_work_seconds = max(0, daily_total.total_seconds())
     required_hours_seconds = student.get_required_hours() * 3600 if student.get_required_hours() is not None else 0
@@ -385,12 +383,10 @@ def TimeInAndTimeOut(request):
         hours, remainder = divmod(seconds, 3600)
         minutes, seconds = divmod(remainder, 60)
         return f"{int(hours)} hours, {int(minutes)} minutes, {int(seconds)} seconds"
-
     last_log = TimeLog.objects.filter(student=student).order_by('-timestamp').first()
     last_action = last_log.action if last_log else ''
     current_time = timezone.localtime(timezone.now())
     full_schedule = Schedule.objects.filter(student=student, day__in=['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']).order_by('id')
-
     return render(
         request,
         'students/timeIn-timeOut.html',
