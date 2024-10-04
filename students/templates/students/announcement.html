@@ -70,7 +70,7 @@
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light navbar-scroll fixed-top">
-        <a class="navbar-brand" href="{% url 'students:home' %}">
+        <a class="navbar-brand" href="{% url 'students:main-page' %}">
             <img src="{% static 'img/Logo.png' %}" alt="Logo" style="width:50px; height: 50px; margin-left: 15px;">
             <p>OJT Management System</p>
         </a>
@@ -79,6 +79,9 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+                <a class="nav-link text-color-dark" href="{% url 'students:main-page' %}">Home</a>
+            </li>
             <li class="nav-item">
                 <a class="nav-link text-color-dark" href="{% url 'students:about-page' %}">About</a>
             </li>
@@ -170,7 +173,7 @@
             </div>
             <!-- Social media icon -->
             <div class="col-md-3 text-md-right text-center mt-3 mt-md-0">
-              <a href="" target="_blank">
+              <a href="https://www.facebook.com/profile.php?id=100057567874785" target="_blank">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-facebook"
                      viewBox="0 0 24 24">
                   <path d="M9 8H6v4h3v12h5V12h4l1-4h-5V6c0-1 .334-1 1-1h3V0h-4c-3 0-4 1-4 4v4z"/>

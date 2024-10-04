@@ -131,6 +131,69 @@
                         </h4>
                     </div>
                     <div class="col-md-12">
+                        <h6 class="mt-4 ml-1 mb-3">Requirements</h6>
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Filename</th>
+                                    <th>Date Submitted</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if requirements %}
+                                    {% for docs in requirements %}
+                                        <tr>
+                                            <td>{{ docs.nameOfDocs }}</td>
+                                            <td>{{ docs.submission_date }}</td>
+                                            <td>
+                                                <a href="{{ docs.submitted_file.url }}" class="btn btn-primary" target="_blank">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <form action="{% url 'approve_document' docs.id %}" method="POST" style="display:inline;">
+                                                    {% csrf_token %}
+                                                    <button type="button" class="btn btn-success" onclick="approveDocument({{ docs.id }})">
+                                                        <i class="fas fa-check"></i>
+                                                    </button>
+                                                </form>
+                                                <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#returnRevisionModal{{ docs.id }}">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                                
+                                                <!-- Return to Revision Modal -->
+                                                <div class="modal fade" id="returnRevisionModal{{ docs.id }}" tabindex="-1" role="dialog" aria-labelledby="returnRevisionModalLabel" aria-hidden="true">
+                                                    <div class="modal-dialog" role="document">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <h5 class="modal-title" id="returnRevisionModalLabel">Return Document for Revision</h5>
+                                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                    <span aria-hidden="true">&times;</span>
+                                                                </button>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                                <div class="form-group">
+                                                                    <label for="revisionReason">Reason for Revision:</label>
+                                                                    <textarea class="form-control" id="revisionReason{{ docs.id }}" rows="3" required></textarea>
+                                                                </div>
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                                <button type="button" class="btn btn-primary" onclick="submitReturnToRevision({{ docs.id }})">Send for Revision</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="4" class="text-center">No requirements submitted.</td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
                         <h6 class="mt-4 ml-1 mb-3">Progress Report</h6>
                         <table class="table table-striped">
                             <thead>
@@ -155,12 +218,12 @@
                                     {% endfor %}
                                 {% else %}
                                     <tr>
-                                        <td colspan="4">No progress report submitted.</td>
+                                        <td colspan="4" class="text-center">No progress report submitted.</td>
                                     </tr>
                                 {% endif %}
                             </tbody>
                         </table>
-                        <h6 class="mt-4 ml-1 mb-3">Requirements</h6>
+                        <h6 class="mt-4 ml-1 mb-3">Approve Document</h6>
                         <table class="table table-striped">
                             <thead>
                                 <tr>
@@ -170,13 +233,13 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {% if requirements %}
-                                    {% for docs in requirements %}
+                                {% if approve_document %}
+                                    {% for document in approve_document %}
                                         <tr>
-                                            <td>{{ docs.nameOfDocs }}</td>
-                                            <td>{{ docs.submission_date }}</td>
+                                            <td>{{ document.nameOfDocs }}</td>
+                                            <td>{{ document.approved_date }}</td>
                                             <td>
-                                                <a href="{{ docs.submitted_file.url }}" class="btn btn-primary" target="_blank">
+                                                <a href="{{ document.submitted_file.url }}" class="btn btn-primary" target="_blank">
                                                     <i class="fas fa-eye"></i>
                                                 </a>
                                             </td>
@@ -184,7 +247,7 @@
                                     {% endfor %}
                                 {% else %}
                                     <tr>
-                                        <td colspan="4">No progress report submitted.</td>
+                                        <td colspan="4" class="text-center">No approve requirements.</td>
                                     </tr>
                                 {% endif %}
                             </tbody>
@@ -199,34 +262,74 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
+        const csrfToken = "{{ csrf_token }}";
         function toggleEdit(button) {
-            // Get the input field
             const input = button.previousElementSibling;
             const icon = button.querySelector("i");
-        
             if (input.readOnly) {
-                // Switch to editing mode
                 input.readOnly = false;
                 button.classList.remove("btn-light");
                 button.classList.add("btn-primary");
                 icon.classList.remove("fa-pen-to-square");
                 icon.classList.add("fa-save");
-                
-                // Show the "Save Changes" button
                 document.getElementById("saveChanges").classList.remove("d-none");
             } else {
-                // Switch back to readonly mode
                 input.readOnly = true;
                 button.classList.remove("btn-primary");
                 button.classList.add("btn-light");
                 icon.classList.remove("fa-save");
                 icon.classList.add("fa-pen-to-square");
-                
-                // Optionally hide the "Save Changes" button if no more edits
                 if (document.querySelectorAll('input[readonly=false]').length === 0) {
                     document.getElementById("saveChanges").classList.add("d-none");
                 }
             }
+        }
+        function submitReturnToRevision(docsID) {
+            const reason = document.getElementById(`revisionReason${docsID}`).value;
+            if (reason.trim() === "") {
+                alert("Please provide a reason for revision.");
+                return;
+            }
+            const url = "{% url 'return_to_revision' 0 %}".replace('/0/', '/' + docsID + '/');
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ reason: reason })
+            }).then(response => {
+                if (response.ok) {
+                    window.location.reload();
+                } else {
+                    return response.json().then(data => {
+                        alert('Failed to return document for revision: ' + (data.message || 'Unknown error.'));
+                    });
+                }
+            }).catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while sending the revision request.');
+            });
+        }
+        function approveDocument(docsID) {
+            const url = "{% url 'approve_document' 0 %}".replace('/0/', '/' + docsID + '/');      
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken,
+                    'Content-Type': 'application/json'
+                },
+            }).then(response => response.json()).then(data => {
+                if (data.status === 'success') {
+                    alert('Document approved successfully!');
+                    window.location.reload();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            }).catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while approving the document.');
+            });
         }
     </script>
 </body>

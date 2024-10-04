@@ -3,6 +3,7 @@ class DocumentSubmission:
     def __init__(self, document_name, submitted_date):
         self.document_name = document_name
         self.submitted_date = submitted_date
+
 def calculate_docs_score(submissions):
     current_date = datetime.now()
     total_score = 0

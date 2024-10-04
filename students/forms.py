@@ -328,15 +328,20 @@ class FillUpPDFForm(forms.Form):
 class SubmittedRequirement(forms.ModelForm):
     SELECTION = [
         ('', '--- Select Document ---'),
-        ('Application Form', 'Application Form'),
         ('Parent Consent', 'Parent Consent'),
+        ('Evaluation Form', 'Evaluation Form'),
+        ('Progress Report', 'Progress Report'),
+        ('Application Form', 'Application Form'),
         ('Endorsement Letter', 'Endorsement Letter'),
-        ('Notice of Acceptance', 'Notice of Acceptance'),
         ('Medical Certificate', 'Medical Certificate'),
-        ('Internship Exit Survey', 'Internship Exit Survey'),
+        ('Notice of Acceptance', 'Notice of Acceptance'),
         ('Internship Time Sheet', 'Internship Time Sheet'),
+        ('Internship Time Sheet', 'Internship Time Sheet'),
+        ('Internship Exit Survey', 'Internship Exit Survey'),
         ('Student Performance Evaluation', 'Student Performance Evaluation'),
         ('Internship Contract Agreement', 'Internship Contract Agreement'),
+        ('Supporting Document of Time Sheet', 'Supporting Document of Time Sheet'),
+        ('Supporting Document of Progress Report', 'Supporting Document of Progress Report'),
     ]
 
     nameOfDocs = forms.ChoiceField(
@@ -351,7 +356,6 @@ class SubmittedRequirement(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(SubmittedRequirement, self).__init__(*args, **kwargs)
-        # Set the submitted_file field attributes
         self.fields['submitted_file'].required = True
         self.fields['submitted_file'].widget.attrs.update({'accept': 'application/pdf', 'class': 'form-control-file'})
 

@@ -6,9 +6,9 @@ from django.conf import settings
 from django.utils import timezone
 from django.contrib import messages
 from django.core.mail import send_mail
-from datetime import datetime, timedelta
 from django.utils.timezone import localtime
 from django.shortcuts import render, redirect
+from datetime import datetime, timedelta, time
 from django.shortcuts import get_object_or_404
 from django.utils.crypto import get_random_string
 from django.template.loader import render_to_string
@@ -18,7 +18,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.hashers import check_password, make_password
 from app.models import TableAnnouncement, TableRequirements, TableContent
-from students.models import DataTableStudents, TimeLog, Schedule, TableSubmittedReport, TableSubmittedRequirement, PendingApplication
+from students.models import DataTableStudents, TimeLog, Schedule, TableSubmittedReport, TableSubmittedRequirement, PendingApplication, ApprovedDocument, ReturnToRevisionDocument
 from students.forms import ChangePasswordForm, StudentProfileForm, ScheduleSettingForm, FillUpPDFForm, SubmittedRequirement, PendingStudentRegistrationForm, TimeLogForm, ResetPasswordForm
 
 def studentHome(request) -> HttpResponse:
@@ -252,8 +252,8 @@ def exportTimeLogToPDF(request):
     page = pdf_document[0]
     y_position = 100
     last_time_in = None
-    total_hours_for_week = timedelta()
-    eight_hours = timedelta(hours=8)
+    total_hours_for_week = timedelta()  # Total hours for the week
+
     for log in time_logs:
         local_time = timezone.localtime(log.timestamp)
         time_formatted = local_time.strftime('%I:%M %p')
@@ -262,18 +262,25 @@ def exportTimeLogToPDF(request):
         if log.action == 'IN':
             last_time_in = local_time
         elif log.action == 'OUT' and last_time_in:
-            duration = eight_hours
+            # Calculate actual work duration between time in and time out
+            duration = local_time - last_time_in
+
+            # Update total weekly hours
             total_hours_for_week += duration
 
+            # Convert the duration to hours and minutes
             hours = duration.seconds // 3600
             minutes = (duration.seconds % 3600) // 60
 
+            # Format the total work duration string
             if hours == 0 and minutes == 0:
                 total_duration_str = "0h"
             elif minutes == 0:
                 total_duration_str = f"{hours}h"
             else:
                 total_duration_str = f"{hours}h {minutes}m"
+
+            # Insert the date, time in, time out, and total duration into the PDF
             page.insert_text((110, y_position + 200), date, fontsize=9, color=(0, 0, 0))
             page.insert_text((230, y_position + 195), last_time_in.strftime('%I:%M %p'), fontsize=9, color=(0, 0, 0))
             page.insert_text((345, y_position + 195), time_formatted, fontsize=9, color=(0, 0, 0))
@@ -281,23 +288,29 @@ def exportTimeLogToPDF(request):
 
             y_position += 20
             last_time_in = None
+
+    # Adding student info and weekly summary
     start_month = 4
     end_month = 6
     current_year = datetime.now().year
     months = ", ".join([datetime(current_year, month, 1).strftime("%B") for month in range(start_month, end_month + 1)])
     quarter = "Q2"
-    fullname = student.Firstname + " " + student.Lastname
+    fullname = f"{student.Firstname} {student.Lastname}"
     page.insert_text((140, 225), fullname, fontsize=12, color=(0, 0, 0))
     page.insert_text((170, 205), quarter, fontsize=12, color=(0, 0, 0))
     page.insert_text((429, 205), months, fontsize=12, color=(0, 0, 0))
+
+    # Format the total weekly hours
     total_week_hours = total_hours_for_week.seconds // 3600
     total_week_minutes = (total_hours_for_week.seconds % 3600) // 60
     if total_week_minutes == 0:
         total_week_str = f"{total_week_hours}h"
     else:
         total_week_str = f"{total_week_hours}h {total_week_minutes}m"
-    
+
     page.insert_text((457, y_position + 395), total_week_str, fontsize=12, color=(0, 0, 0))
+
+    # Save the PDF to the buffer and return it as a response
     pdf_document.save(buffer)
     pdf_document.close()
     buffer.seek(0)
@@ -309,7 +322,7 @@ def TimeInAndTimeOut(request):
     user = request.user
     student = get_object_or_404(DataTableStudents, user=user)
     schedule_exists = Schedule.objects.filter(student=student).exists()
-    requirements_submitted = TableSubmittedRequirement.objects.filter(student=student).exists()
+    requirements_submitted = ApprovedDocument.objects.filter(student=student).exists()
 
     if not requirements_submitted:
         message = 'Please submit your requirements before you can time in.'
@@ -331,29 +344,63 @@ def TimeInAndTimeOut(request):
         if form.is_valid():
             time_log = form.save(commit=False)
             time_log.student = student
+            
             time_log.timestamp = timezone.now()
+
+            last_log = TimeLog.objects.filter(student=student).order_by('-timestamp').first()
+            last_action = last_log.action if last_log else None
+
+            if last_action == 'IN':
+                time_log.action = 'OUT'
+            elif last_action == 'OUT':
+                time_log.action = 'LUNCH IN'
+            elif last_action == 'LUNCH IN':
+                time_log.action = 'LUNCH OUT'
+            elif last_action == 'LUNCH OUT':
+                time_log.action = 'IN'
+            else:
+                time_log.action = 'IN'
+
             time_log.save()
+
             return redirect('students:clockin')
     else:
         form = TimeLogForm()
 
     time_logs = TimeLog.objects.filter(student=student).order_by('timestamp')
 
-    total_work_seconds = 0
     daily_total = timedelta()
     paired_logs = []
-    eight_hours = timedelta(hours=9)
+    lunch_logs = []
+    max_work_hours = timedelta(hours=8)
+    start_time = time(8, 0)
+    end_time = time(17, 0)
 
     i = 0
     while i < len(time_logs):
         if time_logs[i].action == 'IN':
             if i + 1 < len(time_logs) and time_logs[i + 1].action == 'OUT':
                 paired_logs.append((time_logs[i], time_logs[i + 1]))
-                work_period = eight_hours
-                if work_period > timedelta(hours=1):
-                    work_period -= timedelta(hours=1)
+                # Calculate work period
+                time_in = time_logs[i].timestamp
+                time_out = time_logs[i + 1].timestamp
+                time_in_time = time_in.time()
+                time_out_time = time_out.time()
+                if time_in_time < start_time:
+                    time_in_time = start_time
+                if time_out_time > end_time:
+                    time_out_time = end_time
+                work_period = datetime.combine(timezone.now().date(), time_out_time) - datetime.combine(timezone.now().date(), time_in_time)
+                if work_period > max_work_hours:
+                    work_period = max_work_hours
                 daily_total += work_period
                 i += 1
+
+        elif time_logs[i].action == 'LUNCH OUT':
+            if i + 1 < len(time_logs) and time_logs[i + 1].action == 'LUNCH IN':
+                lunch_logs.append((time_logs[i], time_logs[i + 1]))
+                i += 1
+
         i += 1
 
     total_work_seconds = daily_total.total_seconds()
@@ -367,7 +414,7 @@ def TimeInAndTimeOut(request):
 
     last_log = TimeLog.objects.filter(student=student).order_by('-timestamp').first()
     last_action = last_log.action if last_log else ''
-    current_time = localtime(timezone.now())
+    current_time = timezone.localtime(timezone.now())
     full_schedule = Schedule.objects.filter(student=student, day__in=['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']).order_by('id')
 
     return render(
@@ -382,6 +429,7 @@ def TimeInAndTimeOut(request):
             'firstName': student.Firstname,
             'lastName': student.Lastname,
             'time_logs': paired_logs,
+            'lunch_logs': lunch_logs,
             'current_time': current_time,
             'form': form,
             'full_schedule': full_schedule,
@@ -535,7 +583,6 @@ def studentRegister(request):
         }
     )
 
-
 def requirements(request):
     user = request.user
     student = get_object_or_404(DataTableStudents, user=user)
@@ -649,10 +696,12 @@ def getAllSubmittedDocuments(request):
     firstName = student.Firstname
     lastName = student.Lastname
     progress_report = TableSubmittedReport.objects.filter(student=student).order_by('-date_submitted', 'id')
-    submittedDocs = TableSubmittedRequirement.objects.filter(student=student)
+    submittedDocs = ApprovedDocument.objects.filter(student=student)
+    revision = ReturnToRevisionDocument.objects.filter(student=student)
     return render(request, 'students/submitted-docs.html', {
         'firstName' : firstName,
         'lastName' : lastName,
         'progress_report': progress_report,
-        'submittedDocs': submittedDocs
+        'submittedDocs': submittedDocs,
+        'revision': revision
     })

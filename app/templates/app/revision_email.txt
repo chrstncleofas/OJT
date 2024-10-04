@@ -1,0 +1,11 @@
+Hello {{ student_name }},
+
+Your document "{{ document_name }}" has been returned for revision.
+
+Reason for revision:
+{{ reason }}
+
+Please revise the document and resubmit it as soon as possible.
+
+Thank you,
+OJT Management System

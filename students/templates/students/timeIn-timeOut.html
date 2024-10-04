@@ -223,6 +223,11 @@
                         <div class="mt-1">
                             <form method="POST" enctype="multipart/form-data" id="timeForm">
                                 {% csrf_token %}
+                                <div class="text-center">
+                                    <button type="button" id="lunchInBtn" class="btn btn-danger mb-2" onclick="toggleLunchButton()">Lunch In</button>
+                                    <button type="button" id="lunchOutBtn" class="btn btn-success mb-2" style="display:none;" onclick="toggleLunchButton()">Lunch Out</button>
+                                </div>
+                                <!-- Lunch In and Lunch Out Buttons Above Image Preview -->
                                 <div class="upload-box" id="uploadBox">
                                     {{ form.image }}
                                     <img id="preview" src="#" alt="Preview Image">
@@ -264,48 +269,92 @@
                                 <button type="submit" class="btn btn-success">Export <i class="ml-1 fa-solid fa-file-export"></i></button>
                             </form>
                         </div>
-                        <table class="table table-bordered mt-2">
-                            <thead class="thead-dark">
-                                <tr>
-                                    <th>TIME IN</th>
-                                    <th>TIME OUT</th>
-                                    <th>TIME IN IMAGE</th>
-                                    <th>TIME OUT IMAGE</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for in_log, out_log in time_logs %}
-                                <tr>
-                                    <td>
-                                        {{ in_log.timestamp|date:"g:i:s A" }}<br>
-                                        {{ in_log.timestamp|date:"F j, Y" }}
-                                    </td>
-                                    <td>
-                                        {{ out_log.timestamp|date:"g:i:s A" }}<br>
-                                        {{ out_log.timestamp|date:"F j, Y" }}
-                                    </td>
-                                    <td>
-                                        {% if in_log.image %}
-                                            <img src="{{ in_log.image.url }}" alt="Time IN Image" class="img-fluid" style="max-width: 100px;">
+                        <!-- Scrollable Table Container -->
+                        <div style="max-height: 400px; overflow-y: auto;">
+                            <table class="table table-bordered mt-2" style="width: 1100px;">
+                                <thead class="thead-dark">
+                                    <tr>
+                                        <th>TIME IN</th>
+                                        <th>TIME OUT</th>
+                                        <th>TIME IN IMAGE</th>
+                                        <th>TIME OUT IMAGE</th>
+                                        <th>LUNCH IN</th>
+                                        <th>LUNCH OUT</th>
+                                        <th>LUNCH IN IMAGE</th>
+                                        <th>LUNCH OUT IMAGE</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for in_log, out_log in time_logs %}
+                                    <tr>
+                                        <td>
+                                            {{ in_log.timestamp|date:"g:i:s A" }}<br>
+                                            {{ in_log.timestamp|date:"F j, Y" }}
+                                        </td>
+                                        <td>
+                                            {{ out_log.timestamp|date:"g:i:s A" }}<br>
+                                            {{ out_log.timestamp|date:"F j, Y" }}
+                                        </td>
+                                        <td>
+                                            {% if in_log.image %}
+                                                <img src="{{ in_log.image.url }}" alt="Time IN Image" class="img-fluid" style="max-width: 100px;">
+                                            {% else %}
+                                                <img src="{% static 'path/to/default-image.jpg' %}" alt="No Image" class="img-fluid" style="max-width: 100px;">
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if out_log.image %}
+                                                <img src="{{ out_log.image.url }}" alt="Time OUT Image" class="img-fluid" style="max-width: 100px;">
+                                            {% else %}
+                                                <img src="{% static 'path/to/default-image.jpg' %}" alt="No Image" class="img-fluid" style="max-width: 100px;">
+                                            {% endif %}
+                                        </td>
+                                        {% if lunch_logs %}
+                                            <td>
+                                                {% for lunch_log in lunch_logs %}
+                                                    {% if lunch_log.0.timestamp %}
+                                                        {{ lunch_log.0.timestamp|date:"g:i:s A" }}<br>
+                                                        {{ lunch_log.0.timestamp|date:"F j, Y" }}
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </td>
+                                            <td>
+                                                {% for lunch_log in lunch_logs %}
+                                                    {% if lunch_log.1.timestamp %}
+                                                        {{ lunch_log.1.timestamp|date:"g:i:s A" }}<br>
+                                                        {{ lunch_log.1.timestamp|date:"F j, Y" }}
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </td>
+                                            <td>
+                                                {% for lunch_log in lunch_logs %}
+                                                    {% if lunch_log.0.image %}
+                                                        <img src="{{ lunch_log.0.image.url }}" alt="Lunch IN Image" class="img-fluid" style="max-width: 100px;">
+                                                    {% else %}
+                                                        <img src="{% static 'path/to/default-image.jpg' %}" alt="No Image" class="img-fluid" style="max-width: 100px;">
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </td>
+                                            <td>
+                                                {% for lunch_log in lunch_logs %}
+                                                    {% if lunch_log.1.image %}
+                                                        <img src="{{ lunch_log.1.image.url }}" alt="Lunch OUT Image" class="img-fluid" style="max-width: 100px;">
+                                                    {% else %}
+                                                        <img src="{% static 'path/to/default-image.jpg' %}" alt="No Image" class="img-fluid" style="max-width: 100px;">
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </td>
                                         {% else %}
-                                            <img src="{% static 'path/to/default-image.jpg' %}" alt="No Image" class="img-fluid" style="max-width: 100px;">
+                                            <td colspan="4">No Lunch Logs</td>
                                         {% endif %}
-                                    </td>
-                                    <td>
-                                        {% if out_log.image %}
-                                            <img src="{{ out_log.image.url }}" alt="Time OUT Image" class="img-fluid" style="max-width: 100px;">
-                                        {% else %}
-                                            <img src="{% static 'path/to/default-image.jpg' %}" alt="No Image" class="img-fluid" style="max-width: 100px;">
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>                                                  
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>                              
                 </div>
-            </div>
-                 
+            </div>      
         </div>
     </div>
     <!-- Scripts -->
@@ -362,8 +411,40 @@
             }
         }
 
+        function toggleLunchButton() {
+            const lunchInBtn = document.getElementById('lunchInBtn');
+            const lunchOutBtn = document.getElementById('lunchOutBtn');
+            const imageInput = document.getElementById('id_image'); // Assuming the image input has this ID
+        
+            // Check if an image is uploaded
+            if (imageInput.files.length === 0) {
+                alert("Please upload an image before selecting Lunch In or Lunch Out."); // Alert user
+                return; // Exit the function if no image is uploaded
+            }
+        
+            // Check the current state of the Lunch button
+            if (lunchOutBtn.style.display === "none") {
+                // If Lunch Out button is hidden, show it and hide Lunch In
+                lunchOutBtn.style.display = "inline-block"; // Show Lunch Out
+                lunchInBtn.style.display = "none"; // Hide Lunch In
+                lunchOutBtn.disabled = false; // Enable Lunch Out button
+                lunchInBtn.disabled = true; // Disable Lunch In button
+                document.getElementById('id_action').value = 'LUNCH OUT'; // Set action to Lunch Out
+            } else {
+                // If Lunch In button is hidden, show it and hide Lunch Out
+                lunchInBtn.style.display = "inline-block"; // Show Lunch In
+                lunchOutBtn.style.display = "none"; // Hide Lunch Out
+                lunchInBtn.disabled = false; // Enable Lunch In button
+                lunchOutBtn.disabled = true; // Disable Lunch Out button
+                document.getElementById('id_action').value = 'LUNCH IN'; // Set action to Lunch In
+            }
+        }
+
         // Run the button state function on document ready
-        document.addEventListener('DOMContentLoaded', updateButtonStates);
+        document.addEventListener('DOMContentLoaded', function () {
+            updateButtonStates();
+            toggleLunchButton(); // Initialize the Lunch button
+        });
 
         function handleTimeAction(action) {
             // Check schedule and requirements

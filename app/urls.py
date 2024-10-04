@@ -46,6 +46,8 @@ urlpatterns = [
     path('set_rendering_hours/', views.set_rendering_hours, name='set_rendering_hours'),
     path('announcementNotLogin/', views.getAnnouncementNotLogin, name='announcementNotLogin'),
     path('announcementLogin/', views.getAnnouncement, name='announcementLogin'),
+    path('return_to_revision/<int:id>/', views.return_to_revision, name='return_to_revision'),
+    path('approve_document/<int:id>/', views.approve_document, name='approve_document'),
 ]
 
 if settings.DEBUG:

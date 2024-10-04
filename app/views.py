@@ -27,7 +27,7 @@ from students.forms import EditStudentForm, ScheduleSettingForm, GradeForm
 from app.models import RenderingHoursTable, TableRequirements, TableContent
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponsePermanentRedirect, JsonResponse
 from app.forms import EditProfileForm, AnnouncementForm, UploadRequirementForm, ContentForm, CustomUserCreationForm
-from students.models import DataTableStudents, TimeLog, Schedule, TableSubmittedReport, TableSubmittedRequirement, PendingApplication, RejectApplication, Grade
+from students.models import DataTableStudents, TimeLog, Schedule, TableSubmittedReport, TableSubmittedRequirement, PendingApplication, RejectApplication, Grade, ReturnToRevisionDocument, ApprovedDocument
 
 HOME_URL_PATH = 'app/base.html'
 DASHBOARD = 'app/dashboard.html'
@@ -322,6 +322,64 @@ def rejectStudent(request, id):
 
     return redirect('studentManagement')
 
+def return_to_revision(request, id):
+    user = request.user
+    if request.method == 'POST':
+        try:
+            submitted_document = TableSubmittedRequirement.objects.get(id=id)
+            data = json.loads(request.body)
+            reason = data.get('reason', 'No reason provided')
+
+            revision_document = ReturnToRevisionDocument.objects.create(
+                nameOfDocs=submitted_document.nameOfDocs,
+                student=submitted_document.student,
+                revision_file=submitted_document.submitted_file,
+                revision_reason=reason
+            )
+            revision_document.save()
+
+            saveActivityLogs(user=user, action='REVISION', request=request, description='Revision of document')
+            submitted_document.delete()
+            subject = 'Document Returned for Revision'
+            message = render_to_string('app/revision_email.txt', {
+                'student_name': submitted_document.student.Firstname,
+                'document_name': submitted_document.nameOfDocs,
+                'reason': reason,
+            })
+            recipient_list = [submitted_document.student.Email]
+            send_mail(subject, message, settings.EMAIL_HOST_USER, recipient_list, fail_silently=False)
+
+            return JsonResponse({'status': 'success', 'message': 'Document returned for revision and student notified.'})
+
+        except TableSubmittedRequirement.DoesNotExist:
+            return JsonResponse({'status': 'failed', 'message': 'Document does not exist.'}, status=404)
+        
+        except Exception as e:
+            return JsonResponse({'status': 'failed', 'message': str(e)}, status=400)
+
+    return JsonResponse({'status': 'failed', 'message': 'Invalid request method.'}, status=405)
+
+def approve_document(request, id):
+    user = request.user
+    if request.method == 'POST':
+        try:
+            submitted_document = TableSubmittedRequirement.objects.get(id=id)
+            approved_document = ApprovedDocument.objects.create(
+                nameOfDocs=submitted_document.nameOfDocs,
+                student=submitted_document.student,
+                approved_file=submitted_document.submitted_file,
+                score=0
+            )
+            approved_document.save()
+            saveActivityLogs(user=user, action='APPROVED', request=request, description='Approve document')
+            submitted_document.delete()
+            return JsonResponse({'status': 'success', 'message': 'Document approved.'})
+        except TableSubmittedRequirement.DoesNotExist:
+            return JsonResponse({'status': 'failed', 'message': 'Document does not exist.'}, status=404)
+        except Exception as e:
+            return JsonResponse({'status': 'failed', 'message': str(e)}, status=400)
+    return JsonResponse({'status': 'failed', 'message': 'Invalid request method.'}, status=405)
+
 def unArchivedStudent(request, id):
     user = request.user
     student = DataTableStudents.objects.get(id=id)
@@ -386,7 +444,8 @@ def submittedRequirementOfStudents(request, id):
     studentLastname = student.Lastname
 
     progress_reports = TableSubmittedReport.objects.filter(student=student).order_by('-date_submitted', 'id')
-    requirements = TableSubmittedRequirement.objects.filter(student=student).order_by('-submission_date', 'id')
+    requirements = TableSubmittedRequirement.objects.filter(student=student).order_by('id')
+    approve_document = ApprovedDocument.objects.filter(student=student).order_by('id')
     cleaned_reports = [(report, clean_filename(report.report_file.name)) for report in progress_reports]
 
     context = {
@@ -396,6 +455,7 @@ def submittedRequirementOfStudents(request, id):
         'studentLastname': studentLastname,
         'cleaned_reports': cleaned_reports,
         'requirements': requirements,
+        'approve_document': approve_document
     }
 
     return render(request, 'app/view-submitted-requirement.html', context)
