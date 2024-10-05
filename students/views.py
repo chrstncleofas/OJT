@@ -18,7 +18,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.hashers import check_password, make_password
 from app.models import TableAnnouncement, TableRequirements, TableContent
-from students.models import DataTableStudents, TimeLog, Schedule, TableSubmittedReport, TableSubmittedRequirement, PendingApplication, ApprovedDocument, ReturnToRevisionDocument, LunchLog
+from students.models import DataTableStudents, TimeLog, Schedule, TableSubmittedReport, TableSubmittedRequirement, PendingApplication, ApprovedDocument, ReturnToRevisionDocument, LunchLog, Notification
 from students.forms import ChangePasswordForm, StudentProfileForm, ScheduleSettingForm, FillUpPDFForm, SubmittedRequirement, PendingStudentRegistrationForm, TimeLogForm, ResetPasswordForm, LunchLogForm
 
 def studentHome(request) -> HttpResponse:
@@ -46,12 +46,16 @@ def welcomeDashboard(request) -> HttpResponse:
     firstName = student.Firstname
     lastName = student.Lastname
     images = TableContent.objects.all().order_by('id')
+    notifications = Notification.objects.filter(student=student, is_read=False)
+    unread_notifications_count = notifications.count()
     return render(
         request,
         'students/student-main-dashboard.html',
         {
             'firstName': firstName,
             'lastName': lastName,
+            'notifications': notifications,
+            'unread_notifications_count': unread_notifications_count,
             'images': images
         }
     )
@@ -103,6 +107,8 @@ def mainPageForDashboard(request) -> HttpResponse:
     course = student.Course
     year = student.Year
     # 
+    notifications = Notification.objects.filter(student=student, is_read=False)
+    unread_notifications_count = notifications.count()
     return render(
         request,
         'students/student-dashboard.html',
@@ -113,7 +119,9 @@ def mainPageForDashboard(request) -> HttpResponse:
             'course': course,
             'year': year,
             'student': student,
-            'studentID': studentID
+            'studentID': studentID,
+            'notifications': notifications,
+            'unread_notifications_count': unread_notifications_count,
         }
     )
 
@@ -138,6 +146,8 @@ def progressReport(request):
     firstName = student.Firstname
     lastName = student.Lastname
     full_name = f"{firstName} {lastName}"
+    notifications = Notification.objects.filter(student=student, is_read=False)
+    unread_notifications_count = notifications.count()
 
     if request.method == 'POST':
         form = FillUpPDFForm(request.POST)
@@ -240,6 +250,8 @@ def progressReport(request):
             'form': form,
             'firstName': firstName,
             'lastName': lastName,
+            'notifications': notifications,
+            'unread_notifications_count': unread_notifications_count,
         }
     )
 
@@ -327,6 +339,8 @@ def TimeInAndTimeOut(request):
     student = get_object_or_404(DataTableStudents, user=user)
     schedule_exists = Schedule.objects.filter(student=student).exists()
     requirements_submitted = ApprovedDocument.objects.filter(student=student).exists()
+    notifications = Notification.objects.filter(student=student, is_read=False)
+    unread_notifications_count = notifications.count()
     if not requirements_submitted:
         message = 'Please wait for the admin to approve your document before you can time in and time out.'
         return render(
@@ -339,6 +353,8 @@ def TimeInAndTimeOut(request):
                 'form': TimeLogForm(),
                 'schedule_exists': schedule_exists,
                 'requirements_submitted': requirements_submitted,
+                'notifications': notifications,
+                'unread_notifications_count': unread_notifications_count,
             }
         )
     if request.method == 'POST':
@@ -400,12 +416,16 @@ def TimeInAndTimeOut(request):
             'last_action': last_action,
             'schedule_exists': schedule_exists,
             'requirements_submitted': requirements_submitted,
+            'notifications': notifications,
+            'unread_notifications_count': unread_notifications_count,
         }
     )
 
 def studentProfile(request):
     user = request.user
     student = get_object_or_404(DataTableStudents, user=user)
+    notifications = Notification.objects.filter(student=student, is_read=False)
+    unread_notifications_count = notifications.count()
     if request.method == 'POST':
         form = StudentProfileForm(request.POST, request.FILES, instance=student)
         if form.is_valid():
@@ -423,6 +443,8 @@ def studentProfile(request):
         'course': student.Course,
         'year': student.Year,
         'student': student,
+        'notifications': notifications,
+        'unread_notifications_count': unread_notifications_count,
     })
 
 def changePassword(request):
@@ -430,6 +452,8 @@ def changePassword(request):
     student = get_object_or_404(DataTableStudents, user=user)
     firstName = student.Firstname
     lastName = student.Lastname
+    notifications = Notification.objects.filter(student=student, is_read=False)
+    unread_notifications_count = notifications.count()
     if request.method == 'POST':
         form = ChangePasswordForm(request.POST)
         if form.is_valid():
@@ -452,7 +476,8 @@ def changePassword(request):
             'form': form,
             'firstName': firstName,
             'lastName': lastName,
-
+            'notifications': notifications,
+            'unread_notifications_count': unread_notifications_count,
         }
     )
 
@@ -550,6 +575,8 @@ def studentRegister(request):
 def requirements(request):
     user = request.user
     student = get_object_or_404(DataTableStudents, user=user)
+    notifications = Notification.objects.filter(student=student, is_read=False)
+    unread_notifications_count = notifications.count()
     if request.method == 'POST':
         form = SubmittedRequirement(request.POST, request.FILES, student=student)
         if form.is_valid():
@@ -573,6 +600,8 @@ def requirements(request):
         'requirements': requirements,
         'firstName': student.Firstname,
         'lastName': student.Lastname,
+        'notifications': notifications,
+        'unread_notifications_count': unread_notifications_count,
     })
 
 def studentLogin(request):
@@ -625,6 +654,8 @@ def scheduleSettings(request):
     student = get_object_or_404(DataTableStudents, user=user)
     firstName = student.Firstname
     lastName = student.Lastname
+    notifications = Notification.objects.filter(student=student, is_read=False)
+    unread_notifications_count = notifications.count()
     if request.method == 'POST':
         form = ScheduleSettingForm(request.POST)
         if form.is_valid():
@@ -656,7 +687,9 @@ def scheduleSettings(request):
     return render(request, 'students/settings.html', {
         'form': form,
         'firstName' : firstName,
-        'lastName' : lastName
+        'lastName' : lastName,
+        'notifications': notifications,
+        'unread_notifications_count': unread_notifications_count,
     })
 
 def getAllSubmittedDocuments(request):
@@ -664,6 +697,8 @@ def getAllSubmittedDocuments(request):
     student = get_object_or_404(DataTableStudents, user=user)
     firstName = student.Firstname
     lastName = student.Lastname
+    notifications = Notification.objects.filter(student=student, is_read=False)
+    unread_notifications_count = notifications.count()
     progress_report = TableSubmittedReport.objects.filter(student=student).order_by('-date_submitted', 'id')
     submittedDocs = ApprovedDocument.objects.filter(student=student)
     revision = ReturnToRevisionDocument.objects.filter(student=student)
@@ -672,5 +707,7 @@ def getAllSubmittedDocuments(request):
         'lastName' : lastName,
         'progress_report': progress_report,
         'submittedDocs': submittedDocs,
-        'revision': revision
+        'revision': revision,
+        'notifications': notifications,
+        'unread_notifications_count': unread_notifications_count,
     })
