@@ -4,6 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css"/>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
@@ -69,148 +72,154 @@
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light navbar-scroll fixed-top">
-        <a class="navbar-brand" href="{% url 'students:main-page' %}">
-            <img src="{% static 'img/Logo.png' %}" alt="Logo" style="width:50px; height: 50px; margin-left: 15px;">
-            <p>OJT Management System</p>
-        </a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ml-auto">
-            <li class="nav-item">
-                <a class="nav-link text-color-dark" href="{% url 'students:main-page' %}">Home</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link text-color-dark" href="{% url 'students:about-page' %}">About</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link text-color-dark" href="{% url 'students:announcement' %}">Announcement</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link text-color-dark" href="{% url 'students:dashboard' %}">Dashboard</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link text-color-dark" href="#" data-toggle="modal" data-target="#logout">Logout</a>
-            </li>
-        </ul>
-        </div>
-    </nav>
-    <div class="modal fade" id="logout" tabindex="-1" role="dialog" aria-labelledby="loginModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="loginModalLabel">Logout</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <p>Are you sure do want to leave this page</p>
-                </div>
-                <div class="modal-footer">
-                    <form>
-                        <a href="{% url 'students:logout' %}" class="btn btn-primary">Logout</a>
-                    </form>
-                </div>
+    {% if request.user.is_authenticated %}
+        <nav class="navbar navbar-expand-lg navbar-light bg-light navbar-scroll fixed-top">
+            <a class="navbar-brand" href="{% url 'students:main-page' %}">
+                <img src="{% static 'img/Logo.png' %}" alt="Logo" style="width:50px; height: 50px; margin-left: 15px;">
+                <p>OJT Management System</p>
+            </a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link text-color-dark" href="{% url 'students:main-page' %}">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-color-dark" href="{% url 'students:about-page' %}">About</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-color-dark" href="{% url 'students:announcement' %}">Announcement</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-color-dark" href="{% url 'students:dashboard' %}">Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-color-dark" href="#" data-toggle="modal" data-target="#logout">Logout</a>
+                </li>
+            </ul>
             </div>
-        </div>
-    </div>
-    <!--Card  -->
-    <div class="container mt-5 mb-5">
-        {% for img in images %}
-            {% if img.image %}
-                <img src="{{ img.image.url }}" class="mt-0 custom-hide-image" alt="Current Image" style="width: 1113px; height: 350px; border-radius: 6px; box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);" id="current-image"><br>
-            {% endif %}
-        {% endfor %}
-        <div class="outer-container">
-            <h5 class="mb-4">All Features</h5>
-            <div class="row">
-                <div class="col-lg-4 mb-4">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title"><i class="fas fa-bullhorn"></i> Announcement</h5>
-                            <p class="card-text">Allow the student to check the announcement that will come from the CCIT Building</p>
-                        </div>
+        </nav>
+        <div class="modal fade" id="logout" tabindex="-1" role="dialog" aria-labelledby="loginModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="loginModalLabel">Logout</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
                     </div>
-                </div>
-                <div class="col-lg-4 mb-4">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title"><i class="fas fa-file-alt"></i> Submission of Requirements</h5>
-                            <p class="card-text">Allow the students to submit their requirement to be able to enroll OJT subject.</p>
-                        </div>
+                    <div class="modal-body">
+                        <p>Are you sure do want to leave this page</p>
                     </div>
-                </div>
-                <div class="col-lg-4 mb-4">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title"><i class="fas fa-chart-line"></i> Progress Report</h5>
-                            <p class="card-text">Allow the student to input their daily activities using this progress report features.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-4 mb-4">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title"><i class="fas fa-clock"></i> Time In & Time Out</h5>
-                            <p class="card-text">Allow the student to be able to time in and time out with the features of the OJT System accurately</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-4 mb-4">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title"><i class="fas fa-calendar-alt"></i> Set Schedule</h5>
-                            <p class="card-text">Allow the student to input their OJT schedule and accurately time in and out using the system.</p>
-                        </div>
+                    <div class="modal-footer">
+                        <form>
+                            <a href="{% url 'students:logout' %}" class="btn btn-primary">Logout</a>
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-    <!-- Footer -->
-    <footer class="bg-light py-4" id="footerMain">
-        <div class="container">
-          <div class="row justify-content-between align-items-center">
-            <!-- Logo and description -->
-            <div class="col-md-6 d-flex align-items-center">
-              <a href="">
-                <img src="{% static 'img/Logo.png' %}"
-                     alt="ojt" class="img-fluid grayscale" width="80" height="80">
-              </a>
-              <div class="pl-3">
-                <h5 class="mb-0">OJT</h5>
-                <small>Management System</small>
-              </div>
+        <!--Card  -->
+        <div class="container mt-5 mb-5">
+            {% for img in images %}
+                {% if img.image %}
+                    <img src="{{ img.image.url }}" class="mt-0 custom-hide-image" alt="Current Image" style="width: 1113px; height: 350px; border-radius: 6px; box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);" id="current-image"><br>
+                {% endif %}
+            {% endfor %}
+            <div class="outer-container">
+                <h5 class="mb-4">All Features</h5>
+                <div class="row">
+                    <div class="col-lg-4 mb-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title"><i class="fas fa-bullhorn"></i> Announcement</h5>
+                                <p class="card-text">Allow the student to check the announcement that will come from the CCIT Building</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 mb-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title"><i class="fas fa-file-alt"></i> Submission of Requirements</h5>
+                                <p class="card-text">Allow the students to submit their requirement to be able to enroll OJT subject.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 mb-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title"><i class="fas fa-chart-line"></i> Progress Report</h5>
+                                <p class="card-text">Allow the student to input their daily activities using this progress report features.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 mb-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title"><i class="fas fa-clock"></i> Time In & Time Out</h5>
+                                <p class="card-text">Allow the student to be able to time in and time out with the features of the OJT System accurately</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 mb-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title"><i class="fas fa-calendar-alt"></i> Set Schedule</h5>
+                                <p class="card-text">Allow the student to input their OJT schedule and accurately time in and out using the system.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <!-- Social media icon -->
-            <div class="col-md-3 text-md-right text-center mt-3 mt-md-0">
-              <a href="https://www.facebook.com/profile.php?id=100057567874785" target="_blank">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-facebook"
-                     viewBox="0 0 24 24">
-                  <path d="M9 8H6v4h3v12h5V12h4l1-4h-5V6c0-1 .334-1 1-1h3V0h-4c-3 0-4 1-4 4v4z"/>
-                </svg>
-                <span class="sr-only">Facebook page</span>
-              </a>
-            </div>
-          </div>    
-          <!-- Divider -->
-          <hr class="my-4">
-          <!-- Links and Copyright -->
-          <div class="row align-items-center">
-            <div class="col-md-6 d-flex flex-wrap justify-content-center justify-content-md-start mb-3 mb-md-0">
-              <a href="" class="mr-3">Privacy Policy</a>
-              <a href="" class="mr-3">Legal Notice</a>
-              <a href="" class="mr-3">Terms of Service</a>
-            </div>
-            <div class="col-md-6 text-center text-md-right">
-              <span>Beta Version - &copy; 2024</span>
-            </div>
-          </div>
         </div>
-    </footer>
+        <!-- Footer -->
+        <footer class="bg-light py-4" id="footerMain">
+            <div class="container">
+            <div class="row justify-content-between align-items-center">
+                <!-- Logo and description -->
+                <div class="col-md-6 d-flex align-items-center">
+                <a href="">
+                    <img src="{% static 'img/Logo.png' %}"
+                        alt="ojt" class="img-fluid grayscale" width="80" height="80">
+                </a>
+                <div class="pl-3">
+                    <h5 class="mb-0">OJT</h5>
+                    <small>Management System</small>
+                </div>
+                </div>
+                <!-- Social media icon -->
+                <div class="col-md-3 text-md-right text-center mt-3 mt-md-0">
+                <a href="https://www.facebook.com/profile.php?id=100057567874785" target="_blank">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-facebook"
+                        viewBox="0 0 24 24">
+                    <path d="M9 8H6v4h3v12h5V12h4l1-4h-5V6c0-1 .334-1 1-1h3V0h-4c-3 0-4 1-4 4v4z"/>
+                    </svg>
+                    <span class="sr-only">Facebook page</span>
+                </a>
+                </div>
+            </div>    
+            <!-- Divider -->
+            <hr class="my-4">
+            <!-- Links and Copyright -->
+            <div class="row align-items-center">
+                <div class="col-md-6 d-flex flex-wrap justify-content-center justify-content-md-start mb-3 mb-md-0">
+                <a href="" class="mr-3">Privacy Policy</a>
+                <a href="" class="mr-3">Legal Notice</a>
+                <a href="" class="mr-3">Terms of Service</a>
+                </div>
+                <div class="col-md-6 text-center text-md-right">
+                <span>Beta Version - &copy; 2024</span>
+                </div>
+            </div>
+            </div>
+        </footer>
+    {% else %}
+        <script>
+            window.location.href = "{% url 'students:login' %}";
+        </script>
+    {% endif %}
     <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
@@ -227,6 +236,13 @@
                 navbar.classList.remove('scrolled');
             }
         });
+        history.pushState(null, null, location.href);
+        history.back();
+        history.forward();
+        window.onpopstate = function ()
+        {
+            history.go(1);
+        };
     </script>
 </body>
 </html>

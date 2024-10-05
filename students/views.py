@@ -13,6 +13,8 @@ from django.shortcuts import get_object_or_404
 from django.utils.crypto import get_random_string
 from django.template.loader import render_to_string
 from django.contrib.auth import update_session_auth_hash
+from django.views.decorators.cache import never_cache
+from django.views.decorators.csrf import csrf_protect
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth import authenticate, login, logout
@@ -21,6 +23,8 @@ from app.models import TableAnnouncement, TableRequirements, TableContent
 from students.models import DataTableStudents, TimeLog, Schedule, TableSubmittedReport, TableSubmittedRequirement, PendingApplication, ApprovedDocument, ReturnToRevisionDocument, LunchLog, Notification
 from students.forms import ChangePasswordForm, StudentProfileForm, ScheduleSettingForm, FillUpPDFForm, SubmittedRequirement, PendingStudentRegistrationForm, TimeLogForm, ResetPasswordForm, LunchLogForm
 
+@never_cache
+@csrf_protect
 def studentHome(request) -> HttpResponse:
     images = TableContent.objects.all().order_by('id')
     return render(
@@ -30,6 +34,8 @@ def studentHome(request) -> HttpResponse:
         }
     )
 
+@never_cache
+@csrf_protect
 def studentDashboard(request) -> HttpResponse:
     images = TableContent.objects.all().order_by('id')
     return render(
@@ -40,6 +46,7 @@ def studentDashboard(request) -> HttpResponse:
     )
 
 @login_required
+@never_cache
 def welcomeDashboard(request) -> HttpResponse:
     user = request.user
     student = get_object_or_404(DataTableStudents, user=user)
@@ -59,6 +66,42 @@ def welcomeDashboard(request) -> HttpResponse:
             'images': images
         }
     )
+
+@never_cache
+@csrf_protect
+@login_required
+def studentLogin(request):
+    if request.method == 'POST':
+        username = request.POST.get('Username')
+        password = request.POST.get('Password')
+        pending_app = PendingApplication.objects.filter(PendingUsername=username, StatusApplication="PendingApplication").first()
+        if pending_app:
+            messages.warning(request, 'Your account is not yet approved. Please wait for admin approval.')
+            return render(request, 'students/login.html')
+        user = authenticate(request, username=username, password=password)
+        
+        if user:
+            try:
+                student = DataTableStudents.objects.get(user=user)
+                if student.status == 'RejectedApplication':
+                    messages.error(request, 'Your account has been rejected. Please contact the admin for further details.')
+                    return render(request, 'students/login.html')
+                elif student.archivedStudents == 'Archive':
+                    messages.error(request, 'Your account has been locked due to inactivity. Please contact your admin.')
+                    return render(request, 'students/login.html')
+                if user.is_active:
+                    login(request, user)
+                    request.session['is_logged_in'] = True
+                    return redirect('students:main-page')
+                else:
+                    messages.error(request, 'Your account is disabled.')
+            
+            except DataTableStudents.DoesNotExist:
+                messages.error(request, 'Invalid username or password.')
+        else:
+            messages.error(request, 'Invalid username or password.')
+
+    return render(request, 'students/login.html')
 
 def getAnnouncement(request):
     enabledAnnouncement = TableAnnouncement.objects.filter(Status='enable')
@@ -96,6 +139,8 @@ def aboutLogin(request):
         }
     )
 
+@login_required
+@never_cache
 def mainPageForDashboard(request) -> HttpResponse:
     user = request.user
     student = get_object_or_404(DataTableStudents, user=user)
@@ -140,6 +185,8 @@ def draw_wrapped_text(page, text, start_pos, max_width, fontsize=12, fontname="h
     rect = fitz.Rect(x, y, x + max_width, y + 1000)
     page.insert_textbox(rect, text, fontsize=fontsize, fontname=fontname, align=0)
 
+@login_required
+@never_cache
 def progressReport(request):
     user = request.user
     student = get_object_or_404(DataTableStudents, user=user)
@@ -255,6 +302,8 @@ def progressReport(request):
         }
     )
 
+@login_required
+@never_cache
 def exportTimeLogToPDF(request):
     user = request.user
     student = get_object_or_404(DataTableStudents, user=user)
@@ -320,6 +369,8 @@ def exportTimeLogToPDF(request):
     response['Content-Disposition'] = f'attachment; filename="{fullname} - TimeSheet.pdf"'
     return response
 
+@login_required
+@never_cache
 def log_lunch(request):
     user = request.user
     student = get_object_or_404(DataTableStudents, user=user)
@@ -334,6 +385,8 @@ def log_lunch(request):
         forms = LunchLogForm()
     return render(request, 'students/timeIn-timeOut.html', {'form': forms})
 
+@login_required
+@never_cache
 def TimeInAndTimeOut(request):
     user = request.user
     student = get_object_or_404(DataTableStudents, user=user)
@@ -421,6 +474,8 @@ def TimeInAndTimeOut(request):
         }
     )
 
+@login_required
+@never_cache
 def studentProfile(request):
     user = request.user
     student = get_object_or_404(DataTableStudents, user=user)
@@ -447,6 +502,8 @@ def studentProfile(request):
         'unread_notifications_count': unread_notifications_count,
     })
 
+@login_required
+@never_cache
 def changePassword(request):
     user = request.user
     student = get_object_or_404(DataTableStudents, user=user)
@@ -481,6 +538,7 @@ def changePassword(request):
         }
     )
 
+@never_cache
 def forgot_password(request):
     if request.method == 'POST':
         email = request.POST.get('email')
@@ -503,6 +561,7 @@ def forgot_password(request):
             messages.error(request, 'Email not found.')
     return render(request, 'students/forgot_password.html')
 
+@never_cache
 def reset_password(request, token):
     user = get_object_or_404(DataTableStudents, reset_token=token).user
     if request.method == 'POST':
@@ -520,6 +579,7 @@ def reset_password(request, token):
         form = ResetPasswordForm()
     return render(request, 'students/reset_password.html', {'form': form, 'token': token})
 
+@never_cache
 def studentRegister(request):
     if request.method == 'POST':
         pending_registration_form = PendingStudentRegistrationForm(request.POST)
@@ -572,6 +632,8 @@ def studentRegister(request):
         }
     )
 
+@login_required
+@never_cache
 def requirements(request):
     user = request.user
     student = get_object_or_404(DataTableStudents, user=user)
@@ -604,7 +666,12 @@ def requirements(request):
         'unread_notifications_count': unread_notifications_count,
     })
 
+@never_cache
+@csrf_protect
 def studentLogin(request):
+    if request.user.is_authenticated:
+        return redirect('students:main-page')
+    
     if request.method == 'POST':
         username = request.POST.get('Username')
         password = request.POST.get('Password')
@@ -634,6 +701,7 @@ def studentLogin(request):
                 # Log in the user if they are active
                 if user.is_active:
                     login(request, user)
+                    request.session['is_logged_in'] = True
                     return redirect('students:main-page')
                 else:
                     messages.error(request, 'Your account is disabled.')
@@ -647,8 +715,10 @@ def studentLogin(request):
 
 def studentLogout(request) -> HttpResponseRedirect:
     logout(request)
-    return redirect(reverse('students:home'))
+    return redirect('students:login')
 
+@login_required
+@never_cache
 def scheduleSettings(request):
     user = request.user
     student = get_object_or_404(DataTableStudents, user=user)
@@ -692,6 +762,8 @@ def scheduleSettings(request):
         'unread_notifications_count': unread_notifications_count,
     })
 
+@login_required
+@never_cache
 def getAllSubmittedDocuments(request):
     user = request.user
     student = get_object_or_404(DataTableStudents, user=user)
