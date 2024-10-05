@@ -563,7 +563,7 @@ def studentInformation(request, id):
     def format_seconds(seconds):
         hours, remainder = divmod(seconds, 3600)
         minutes, seconds = divmod(remainder, 60)
-        return f"{int(hours)} hours, {int(minutes)} minutes, {int(seconds)} seconds"
+        return f"{int(hours)} hours, {int(minutes)} minutes"
 
     context = {
         'paired_logs': paired_logs,

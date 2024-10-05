@@ -454,7 +454,7 @@ def TimeInAndTimeOut(request):
     def format_seconds(seconds):
         hours, remainder = divmod(seconds, 3600)
         minutes, seconds = divmod(remainder, 60)
-        return f"{int(hours)} hours, {int(minutes)} minutes, {int(seconds)} seconds"
+        return f"{int(hours)} hours, {int(minutes)} minutes"
     last_log = TimeLog.objects.filter(student=student).order_by('-timestamp').first()
     last_action = last_log.action if last_log else ''
     current_time = timezone.localtime(timezone.now())

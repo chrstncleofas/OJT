@@ -344,14 +344,14 @@
                             <table class="table table-bordered mt-2" style="width: 990px;">
                                 <thead class="thead-dark">
                                     <tr>
-                                        <th>TIME IN</th>
-                                        <th>TIME OUT</th>
+                                        <th>TIME IN (am)</th>
                                         <th>TIME IN IMAGE</th>
-                                        <th>TIME OUT IMAGE</th>
-                                        <th>LUNCH IN</th>
-                                        <th>LUNCH OUT</th>
-                                        <th>LUNCH IN IMAGE</th>
+                                        <th>LUNCH OUT (pm)</th>
                                         <th>LUNCH OUT IMAGE</th>
+                                        <th>LUNCH IN (pm)</th>
+                                        <th>LUNCH IN IMAGE</th>
+                                        <th>TIME OUT (pm)</th>
+                                        <th>TIME OUT IMAGE</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -362,10 +362,6 @@
                                             {{ time_in.timestamp|date:"F j, Y" }}
                                         </td>
                                         <td>
-                                            {{ time_out.timestamp|date:"g:i:s A" }}<br>
-                                            {{ time_out.timestamp|date:"F j, Y" }}
-                                        </td>
-                                        <td>
                                             {% if time_in.image %}
                                                 <img src="{{ time_in.image.url }}" alt="Time IN Image" class="img-fluid" style="max-width: 100px;">
                                             {% else %}
@@ -373,15 +369,8 @@
                                             {% endif %}
                                         </td>
                                         <td>
-                                            {% if time_out.image %}
-                                                <img src="{{ time_out.image.url }}" alt="Time OUT Image" class="img-fluid" style="max-width: 100px;">
-                                            {% else %}
-                                                <img src="{% static 'path/to/default-image.jpg' %}" alt="No Image" class="img-fluid" style="max-width: 100px;">
-                                            {% endif %}
-                                        </td>
-                                        <td>
                                             {% for lunch_log in lunch_logs %}
-                                                {% if lunch_log.action == 'LUNCH IN' %}
+                                                {% if lunch_log.action == 'LUNCH OUT' %}
                                                     {{ lunch_log.timestamp|date:"g:i:s A" }}<br>
                                                     {{ lunch_log.timestamp|date:"F j, Y" }}
                                                 {% endif %}
@@ -390,6 +379,17 @@
                                         <td>
                                             {% for lunch_log in lunch_logs %}
                                                 {% if lunch_log.action == 'LUNCH OUT' %}
+                                                    {% if lunch_log.image %}
+                                                        <img src="{{ lunch_log.image.url }}" alt="Lunch OUT Image" class="img-fluid" style="max-width: 100px;">
+                                                    {% else %}
+                                                        <img src="{% static 'path/to/default-image.jpg' %}" alt="No Image" class="img-fluid" style="max-width: 100px;">
+                                                    {% endif %}
+                                                {% endif %}
+                                            {% endfor %}
+                                        </td>
+                                        <td>
+                                            {% for lunch_log in lunch_logs %}
+                                                {% if lunch_log.action == 'LUNCH IN' %}
                                                     {{ lunch_log.timestamp|date:"g:i:s A" }}<br>
                                                     {{ lunch_log.timestamp|date:"F j, Y" }}
                                                 {% endif %}
@@ -407,15 +407,15 @@
                                             {% endfor %}
                                         </td>
                                         <td>
-                                            {% for lunch_log in lunch_logs %}
-                                                {% if lunch_log.action == 'LUNCH OUT' %}
-                                                    {% if lunch_log.image %}
-                                                        <img src="{{ lunch_log.image.url }}" alt="Lunch OUT Image" class="img-fluid" style="max-width: 100px;">
-                                                    {% else %}
-                                                        <img src="{% static 'path/to/default-image.jpg' %}" alt="No Image" class="img-fluid" style="max-width: 100px;">
-                                                    {% endif %}
-                                                {% endif %}
-                                            {% endfor %}
+                                            {{ time_out.timestamp|date:"g:i:s A" }}<br>
+                                            {{ time_out.timestamp|date:"F j, Y" }}
+                                        </td>
+                                        <td>
+                                            {% if time_out.image %}
+                                                <img src="{{ time_out.image.url }}" alt="Time OUT Image" class="img-fluid" style="max-width: 100px;">
+                                            {% else %}
+                                                <img src="{% static 'path/to/default-image.jpg' %}" alt="No Image" class="img-fluid" style="max-width: 100px;">
+                                            {% endif %}
                                         </td>
                                     </tr>
                                     {% endfor %}
