@@ -383,6 +383,18 @@ def exportTimeLogToPDF(request):
 def log_lunch(request):
     user = request.user
     student = get_object_or_404(DataTableStudents, user=user)
+    requirements_submitted = ApprovedDocument.objects.filter(student=student).exists()
+    if not requirements_submitted:
+        message = 'Please wait for the admin to approve your document before you can time in and time out.'
+        return render(
+            request,
+            'students/timeIn-timeOut.html',
+            {
+                'message': message,
+                'forms': LunchLogForm(),
+                'requirements_submitted': requirements_submitted,
+            }
+        )
     if request.method == 'POST':
         forms = LunchLogForm(request.POST, request.FILES)      
         if forms.is_valid():
@@ -392,7 +404,7 @@ def log_lunch(request):
             return redirect('students:clockin')
     else:
         forms = LunchLogForm()
-    return render(request, 'students/timeIn-timeOut.html', {'form': forms})
+    return render(request, 'students/timeIn-timeOut.html', {'forms': forms})
 
 @login_required
 @never_cache
