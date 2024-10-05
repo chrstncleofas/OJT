@@ -20,6 +20,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.hashers import check_password, make_password
 from app.models import TableAnnouncement, TableRequirements, TableContent
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponsePermanentRedirect, JsonResponse
 from students.models import DataTableStudents, TimeLog, Schedule, TableSubmittedReport, TableSubmittedRequirement, PendingApplication, ApprovedDocument, ReturnToRevisionDocument, LunchLog, Notification
 from students.forms import ChangePasswordForm, StudentProfileForm, ScheduleSettingForm, FillUpPDFForm, SubmittedRequirement, PendingStudentRegistrationForm, TimeLogForm, ResetPasswordForm, LunchLogForm
 
@@ -169,6 +170,14 @@ def mainPageForDashboard(request) -> HttpResponse:
             'unread_notifications_count': unread_notifications_count,
         }
     )
+
+def mark_notification_as_read(request, id):
+    if request.method == 'POST':
+        notification = get_object_or_404(Notification, id=id)
+        notification.is_read = True
+        notification.save()
+        return redirect('students:dashboard')
+    return None
 
 def draw_wrapped_text(page, text, start_pos, max_width, fontsize=12, fontname="helv"):
     """

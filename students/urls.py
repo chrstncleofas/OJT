@@ -27,6 +27,7 @@ urlpatterns = [
     path('changePassword/', views.changePassword, name='changePassword'),
     path('reset_password/<str:token>/', views.reset_password, name='reset_password'),
     path('announcement-page/', views.getAnnouncementNotLogin, name='announcement-page'),
+    path('mark-notification-as-read/<int:id>/', views.mark_notification_as_read, name='mark_notification_as_read'),
     
 ]
 
