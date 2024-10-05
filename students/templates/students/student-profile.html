@@ -52,6 +52,18 @@
             height: 50px;
             margin-top: -10px;
         }
+        .dropdown-menu {
+            width: 350px;  /* Set a max width for the dropdown */
+            word-wrap: break-word;  /* Allow long words to break */
+            white-space: normal;  /* Ensure text can break into multiple lines */
+        }
+
+        .dropdown-item {
+            white-space: normal;
+            overflow-wrap: break-word;
+            display: block;
+            padding: 10px;
+        }
     </style>
 </head>
 
@@ -107,7 +119,7 @@
                             </div>
                         </li>
                         <li class="nav-item dropdown mt-1">
-                            <a class="nav-link d-flex align-items-center" href="#" style="#notificationDropdown::after: display: none;" id="notificationDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <a class="nav-link d-flex align-items-center" href="#" id="notificationDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <i class="fas fa-bell mr-2"></i>
                                 {% if unread_notifications_count > 0 %}
                                     <span class="badge badge-danger">{{ unread_notifications_count }}</span>
@@ -117,13 +129,13 @@
                                 <h6 class="dropdown-header">Notifications</h6>
                                 {% if notifications %}
                                     {% for notification in notifications %}
-                                        <a class="dropdown-item" href="#">{{ notification.message }}</a>
+                                        <a class="dropdown-item" href="#" title="{{ notification.message }}">{{ notification.message }}</a>
                                     {% endfor %}
                                 {% else %}
                                     <a class="dropdown-item" href="#">No new notifications</a>
                                 {% endif %}
                             </div>
-                        </li>     
+                        </li>    
                     </ul>
                 </div> 
             </nav>
