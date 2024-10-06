@@ -35,7 +35,6 @@ urlpatterns = [
     path('all-content', views.listOfContent, name='all-content'),
     path('grading', views.getAllStudentsForGrading, name='grading'),
     path('submission', views.getTheSubmitRequirements, name='submission'),
-    path('view-requirements/<int:id>/', views.submittedRequirementOfStudents, name='view-requirements'),
     path('editAnnouncement/<int:id>/', views.editAnnouncement, name='editAnnouncement'),
     path('editContent/<int:id>/', views.editContent, name='editContent'),
     path('deleteAnnouncement/<int:id>/', views.deleteAnnouncement, name='deleteAnnouncement'),
@@ -48,6 +47,8 @@ urlpatterns = [
     path('announcementLogin/', views.getAnnouncement, name='announcementLogin'),
     path('return_to_revision/<int:id>/', views.return_to_revision, name='return_to_revision'),
     path('approve_document/<int:id>/', views.approve_document, name='approve_document'),
+    path('update_document_score/<int:id>/', views.update_document_score, name='update_document_score'),
+    path('view-requirements/<int:id>/', views.submittedRequirementOfStudents, name='view-requirements'),
 ]
 
 if settings.DEBUG:

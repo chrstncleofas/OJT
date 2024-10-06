@@ -243,12 +243,26 @@
                             </tbody>
                         </table>
                         <h6 class="mt-4 ml-1 mb-3">Approve Document</h6>
+                        {% if messages %}
+                            {% for message in messages %}
+                                {% if message.tags == 'success' %}
+                                    <div class="alert alert-success" role="alert">
+                                        {{ message }}
+                                    </div>
+                                {% else %}
+                                    <div class="alert alert-danger" role="alert">
+                                        {{ message }}
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
                         <table class="table table-striped">
                             <thead>
                                 <tr>
                                     <th>Filename</th>
                                     <th>Date Submitted</th>
-                                    <th>Action</th>
+                                    <th>Score</th>
+                                    <th>Manage</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -258,15 +272,38 @@
                                             <td>{{ document.nameOfDocs }}</td>
                                             <td>{{ document.approved_date }}</td>
                                             <td>
-                                                <a href="{{ document.submitted_file.url }}" class="btn btn-primary" target="_blank">
-                                                    <i class="fas fa-eye"></i>
-                                                </a>
+                                                <form action="{% url 'update_document_score' document.id %}" method="POST" style="display:inline;">
+                                                    {% csrf_token %}
+                                                    <select class="form-control score-dropdown" name="score" onchange="this.form.submit();">
+                                                        <option value="0">Select</option>
+                                                        <option value="5" {% if document.score == 5 %}selected{% endif %}>Before due date</option>
+                                                        <option value="4" {% if document.score == 4 %}selected{% endif %}>On the due date</option>
+                                                        <option value="3" {% if document.score == 3 %}selected{% endif %}>After a day of due date</option>
+                                                        <option value="2" {% if document.score == 2 %}selected{% endif %}>2 days more</option>
+                                                    </select>
+                                                </form>
                                             </td>
+                                            <td>
+                                                <!-- Wrapping input and buttons in a flex container for alignment -->
+                                                <div class="d-flex align-items-center">
+                                                    <!-- Editable score input field -->
+                                                    <input type="number" style="width: 100px;" class="form-control score-input mr-2" id="score-{{ document.id }}" value="{{ document.score }}" readonly>
+                                                    
+                                                    <!-- Edit and Save buttons -->
+                                                    <button class="btn btn-secondary edit-btn mr-2" data-document-id="{{ document.id }}"><i class="fas fa-edit"></i></button>
+                                                    <button class="btn btn-success save-btn d-none mr-2" data-document-id="{{ document.id }}"><i class="fas fa-save"></i></button>
+                                                    
+                                                    <!-- View button for the file -->
+                                                    <a href="{{ document.approved_file.url }}" class="btn btn-primary" target="_blank">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                </div>
+                                            </td>                                            
                                         </tr>
                                     {% endfor %}
                                 {% else %}
                                     <tr>
-                                        <td colspan="4" class="text-center">No approve requirements.</td>
+                                        <td colspan="5" class="text-center">No approved requirements.</td>
                                     </tr>
                                 {% endif %}
                             </tbody>
@@ -282,6 +319,7 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
         const csrfToken = "{{ csrf_token }}";
+        
         function toggleEdit(button) {
             const input = button.previousElementSibling;
             const icon = button.querySelector("i");
@@ -360,6 +398,101 @@
                 modal.show();
             });
         }
+        {% comment %}  {% endcomment %}
+        document.addEventListener('DOMContentLoaded', function () {
+            // Handle dropdown score selection
+            document.querySelectorAll('.score-dropdown').forEach(function (dropdown) {
+                dropdown.addEventListener('change', function () {
+                    const selectedScore = this.value; // Get the selected score
+                    const documentId = this.closest('tr').dataset.documentId; // Get the document ID from the row
+        
+                    // Check if a score is selected (not the default "Select" option)
+                    if (selectedScore === "0") {
+                        return; // Exit if no valid score is selected
+                    }
+        
+                    // AJAX request to save the selected score to the database
+                    fetch(`/update_document_score/${documentId}/`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': getCookie('csrftoken'), // Ensure you have the CSRF token
+                        },
+                        body: JSON.stringify({ score: selectedScore }), // Send the selected score
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        const modalMessage = document.getElementById('modalMessageScore');
+                        const modal = new bootstrap.Modal(document.getElementById('statusModalScore'));
+        
+                        if (data.status === 'success') {
+                            modalMessage.innerText = 'Score updated successfully!';
+                        } else {
+                            modalMessage.innerText = 'Error: ' + data.message;
+                        }
+        
+                        modal.show();
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        const modalMessage = document.getElementById('modalMessageScore');
+                        modalMessage.innerText = 'An error occurred while updating the score.'; // Error message
+                        const modal = new bootstrap.Modal(document.getElementById('statusModalScore'));
+                        modal.show(); // Show the modal
+                    });
+                });
+            });
+        
+            // Function to get CSRF token
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+            document.querySelectorAll('.edit-btn').forEach(function (button) {
+                button.addEventListener('click', function () {
+                    const documentId = this.dataset.documentId;
+                    const scoreInput = document.querySelector(`#score-${documentId}`);
+                    scoreInput.removeAttribute('readonly');
+                    this.classList.add('d-none');
+                    document.querySelector(`.save-btn[data-document-id="${documentId}"]`).classList.remove('d-none');
+                });
+            });
+            document.querySelectorAll('.save-btn').forEach(function (button) {
+                button.addEventListener('click', function () {
+                    const documentId = this.dataset.documentId;
+                    const scoreInput = document.querySelector(`#score-${documentId}`).value;
+                    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        
+                    fetch(`update_document_score/${documentId}/`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': csrfToken
+                        },
+                        body: JSON.stringify({
+                            score: scoreInput
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        showModal(data.status, data.message);
+                        this.classList.add('d-none');
+                        document.querySelector(`.edit-btn[data-document-id="${documentId}"]`).classList.remove('d-none');
+                        document.querySelector(`#score-${documentId}`).setAttribute('readonly', true);
+                    });
+                });
+            });
+        });             
     </script>
 </body>
 </html>

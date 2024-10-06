@@ -436,6 +436,27 @@ def clean_filename(filename):
         return re.sub(r'^\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}_', '', filename)
     return filename
 
+@require_POST
+def update_document_score(request, id):
+    try:
+        document = ApprovedDocument.objects.get(id=id)
+        score = request.POST.get('score')
+        if score is None or not score.isdigit():
+            messages.error(request, 'Invalid score format.')
+            return redirect('view-requirements', id=document.student.id)
+        document.score = int(score)
+        document.save()
+        messages.success(request, 'Score updated successfully.')
+        return redirect('view-requirements', id=document.student.id)
+    except ApprovedDocument.DoesNotExist:
+        messages.error(request, 'Document not found.')
+        return redirect('view-requirements', id=id)
+    except Exception as e:
+        messages.error(request, str(e))
+        return redirect('view-requirements', id=id)
+
+
+
 def submittedRequirementOfStudents(request, id):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
@@ -463,49 +484,35 @@ def submittedRequirementOfStudents(request, id):
 
     return render(request, 'app/view-submitted-requirement.html', context)
 
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-
 def getTheSubmitRequirements(request):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
     firstName = admin.first_name
     lastName = admin.last_name
-
     search_query = request.GET.get('search', '')
-
     students = DataTableStudents.objects.filter(status='Approved', archivedStudents='NotArchive').order_by('id')
-
     if search_query:
         students = students.filter(Q(Firstname__icontains=search_query))
-
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         return render(request, 'app/grading.html', {'listOfStudents': students})
-    
-    # Pagination logic
     page = request.GET.get('page', 1)
-
-    # Ensure per_page is an integer with a default value of 10
     per_page = request.GET.get('per_page', 10)
     try:
         per_page = int(per_page) if per_page else 10
     except ValueError:
         per_page = 10
-
     paginator = Paginator(students, per_page)
-
     try:
         students = paginator.page(page)
     except PageNotAnInteger:
         students = paginator.page(1)
     except EmptyPage:
         students = paginator.page(paginator.num_pages)
-
     return render(request, 'app/list-submission-student.html', {
         'listOfStudents': students,
         'firstName': firstName,
         'lastName': lastName
     })
-
 
 def studentInformation(request, id):
     user = request.user
