@@ -8,12 +8,20 @@ DEBUG = config('DEBUG', default=True, cast=bool)
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='*', cast=Csv())
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 SESSION_COOKIE_AGE = 1800
+# AWS EMAIL PROVIDER
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'ojtmanagementsystem2024@gmail.com'
 EMAIL_HOST_PASSWORD = 'uklgxtdbbxjdwgda'
+# SMS PROVIDER
+SINCH_ACCESS_KEY = '683b546d-bd51-439a-8206-af71c7213e0f'
+SINCH_KEY_SECRET = 'wo4~10HjpknOyeEmbydCo3ovuj'
+SINCH_PHONE_NUMBER = '+447441421995'
+SINCH_PROJECT_ID = 'c6ef31e8-05a2-4a76-824a-54aded8092fc'
+SINCH_SERVICE_PLAN_ID = '0fd6ad91886e4696a54a41882e443d0a'
+SINCH_API_TOKEN = '54aed4eaea094719832e6b583029905f'
 
 INSTALLED_APPS = [
     'django.contrib.admin',

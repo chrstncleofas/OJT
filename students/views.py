@@ -17,10 +17,10 @@ from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_protect
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.hashers import check_password, make_password
 from app.models import TableAnnouncement, TableRequirements, TableContent
-from django.http import HttpResponse, HttpResponseRedirect, HttpResponsePermanentRedirect, JsonResponse
 from students.models import DataTableStudents, TimeLog, Schedule, TableSubmittedReport, TableSubmittedRequirement, PendingApplication, ApprovedDocument, ReturnToRevisionDocument, LunchLog, Notification
 from students.forms import ChangePasswordForm, StudentProfileForm, ScheduleSettingForm, FillUpPDFForm, SubmittedRequirement, PendingStudentRegistrationForm, TimeLogForm, ResetPasswordForm, LunchLogForm
 
@@ -608,6 +608,7 @@ def studentRegister(request):
             studentId = pending_registration_form.cleaned_data['PendingStudentID']
             email = pending_registration_form.cleaned_data['PendingEmail']
             username = pending_registration_form.cleaned_data['PendingUsername']
+            phone_number = pending_registration_form.cleaned_data['PendingNumber']  # Kunin ang phone number
             if DataTableStudents.objects.filter(Email=email).exists():
                 messages.error(request, "Email already exists.")
             elif DataTableStudents.objects.filter(Username=username).exists():
@@ -625,11 +626,12 @@ def studentRegister(request):
                     PendingPrefix=pending_registration_form.cleaned_data.get('PendingPrefix', ''),
                     PendingStudentID=pending_registration_form.cleaned_data['PendingStudentID'],
                     PendingAddress=pending_registration_form.cleaned_data['PendingAddress'],
-                    PendingNumber=pending_registration_form.cleaned_data['PendingNumber'],
+                    PendingNumber=phone_number,
                     PendingCourse=pending_registration_form.cleaned_data['PendingCourse'],
                     PendingYear=pending_registration_form.cleaned_data['PendingYear'],
                 )
                 pending_registration.save()
+                
                 subject = 'Registration Pending Approval'
                 message = render_to_string('students/registration_email.txt', {
                     'first_name': pending_registration.PendingFirstname,
@@ -638,9 +640,14 @@ def studentRegister(request):
                     'username': pending_registration.PendingUsername,
                 })
 
+                # Padala ang email
                 recipient_list = [pending_registration.PendingEmail]
                 send_mail(subject, message, settings.EMAIL_HOST_USER, recipient_list, fail_silently=False)
                 
+                # Padala ang SMS notification
+                # sms_message = f"Hello {pending_registration.PendingFirstname}, your registration is pending approval."
+                # send_sms(phone_number, sms_message)
+
                 messages.success(request, "Your registration is pending approval by the admin.")
                 return redirect('students:register')
     else:

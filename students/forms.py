@@ -1,5 +1,6 @@
 from django import forms
 from app.models import CustomUser
+from django.core.exceptions import ValidationError
 from students.custom_widgets import CustomClearableFileInput
 from students.models import DataTableStudents, TimeLog, TableSubmittedRequirement, PendingApplication, Grade, LunchLog
 
