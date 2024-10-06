@@ -58,6 +58,21 @@
             }
         }
     </style>
+    <script>
+        window.onload = function() {
+            const isLoggedIn = localStorage.getItem('isLoggedIn');
+            if (isLoggedIn) {
+                window.location.href = "{% url 'students:main-page' %}";
+            }
+
+            const loginForm = document.getElementById('loginForm');
+            if (loginForm) {
+                loginForm.addEventListener('submit', function() {
+                    localStorage.setItem('isLoggedIn', true);
+                });
+            }
+        }
+    </script>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light navbar-scroll fixed-top">
