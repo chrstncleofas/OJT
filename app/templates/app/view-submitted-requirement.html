@@ -131,7 +131,7 @@
                         </h4>
                     </div>
                     <div class="col-md-12">
-                        <h6 class="mt-4 ml-1 mb-3">Requirements</h6>
+                        <h6 class="mt-4 ml-1 mb-3">Pending Requirements</h6>
                         <table class="table table-striped">
                             <thead>
                                 <tr>
@@ -284,21 +284,31 @@
                                                 </form>
                                             </td>
                                             <td>
-                                                <!-- Wrapping input and buttons in a flex container for alignment -->
                                                 <div class="d-flex align-items-center">
                                                     <!-- Editable score input field -->
-                                                    <input type="number" style="width: 100px;" class="form-control score-input mr-2" id="score-{{ document.id }}" value="{{ document.score }}" readonly>
-                                                    
-                                                    <!-- Edit and Save buttons -->
-                                                    <button class="btn btn-secondary edit-btn mr-2" data-document-id="{{ document.id }}"><i class="fas fa-edit"></i></button>
-                                                    <button class="btn btn-success save-btn d-none mr-2" data-document-id="{{ document.id }}"><i class="fas fa-save"></i></button>
-                                                    
-                                                    <!-- View button for the file -->
-                                                    <a href="{{ document.approved_file.url }}" class="btn btn-primary" target="_blank">
+                                                    <form action="{% url 'update_document_score' document.id %}" method="POST" style="display:inline;" class="d-flex align-items-center">
+                                                        {% csrf_token %}
+                                                        
+                                                        <!-- Input field with a smaller width -->
+                                                        <input type="number" style="width: 80px;" class="form-control score-input mr-2" 
+                                                               id="score-{{ document.id }}" name="score" value="{{ document.score }}" readonly>
+                                                        
+                                                        <!-- Edit and Save buttons with less margin -->
+                                                        <button type="button" class="btn btn-secondary btn-sm edit-btn mr-1" data-document-id="{{ document.id }}">
+                                                            <i class="fas fa-edit"></i>
+                                                        </button>
+                                                        <button type="submit" class="btn btn-success btn-sm save-btn d-none mr-1" data-document-id="{{ document.id }}">
+                                                            <i class="fas fa-save"></i>
+                                                        </button>
+                                                    </form>
+                                            
+                                                    <!-- View button for the file with reduced margin -->
+                                                    <a href="{{ document.approved_file.url }}" class="btn btn-primary btn-sm ml-1" target="_blank">
                                                         <i class="fas fa-eye"></i>
                                                     </a>
                                                 </div>
-                                            </td>                                            
+                                            </td>
+                                                                                        
                                         </tr>
                                     {% endfor %}
                                 {% else %}
@@ -462,33 +472,40 @@
                 button.addEventListener('click', function () {
                     const documentId = this.dataset.documentId;
                     const scoreInput = document.querySelector(`#score-${documentId}`);
-                    scoreInput.removeAttribute('readonly');
-                    this.classList.add('d-none');
-                    document.querySelector(`.save-btn[data-document-id="${documentId}"]`).classList.remove('d-none');
+                    scoreInput.removeAttribute('readonly'); 
+                    this.classList.add('d-none'); 
+                    document.querySelector(`.save-btn[data-document-id="${documentId}"]`).classList.remove('d-none'); 
                 });
             });
+            
             document.querySelectorAll('.save-btn').forEach(function (button) {
                 button.addEventListener('click', function () {
                     const documentId = this.dataset.documentId;
-                    const scoreInput = document.querySelector(`#score-${documentId}`).value;
+                    const scoreInput = document.querySelector(`#score-${documentId}`).value; 
                     const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-        
+            
                     fetch(`update_document_score/${documentId}/`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            'X-CSRFToken': csrfToken
+                            'X-CSRFToken': csrfToken 
                         },
                         body: JSON.stringify({
-                            score: scoreInput
+                            score: parseInt(scoreInput) 
                         })
                     })
                     .then(response => response.json())
                     .then(data => {
-                        showModal(data.status, data.message);
-                        this.classList.add('d-none');
-                        document.querySelector(`.edit-btn[data-document-id="${documentId}"]`).classList.remove('d-none');
-                        document.querySelector(`#score-${documentId}`).setAttribute('readonly', true);
+                        showModal(data.status, data.message); 
+                        if (data.status === 'success') {
+                            this.classList.add('d-none'); 
+                            document.querySelector(`.edit-btn[data-document-id="${documentId}"]`).classList.remove('d-none'); 
+                            document.querySelector(`#score-${documentId}`).setAttribute('readonly', true); 
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showModal('error', 'An unexpected error occurred. Please try again later.');
                     });
                 });
             });
