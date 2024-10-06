@@ -441,27 +441,19 @@ def update_document_score(request, id):
     try:
         document = ApprovedDocument.objects.get(id=id)
         score = request.POST.get('score')
-
-        # Check if the score is valid
         if score is None or not score.isdigit():
-            messages.error(request, 'Invalid score format.')  # Add error message
-            return redirect('view-requirements', id=document.student.id)  # Redirect back to the requirements page
-
-        # Update the document score
+            messages.error(request, 'Invalid score format.')
+            return redirect('view-requirements', id=document.student.id)
         document.score = int(score)
         document.save()
-
-        # Add a success message
         messages.success(request, 'Score updated successfully.')
-        return redirect('view-requirements', id=document.student.id)  # Redirect to the student's requirements view
+        return redirect('view-requirements', id=document.student.id)
     except ApprovedDocument.DoesNotExist:
         messages.error(request, 'Document not found.')
-        return redirect('view-requirements', id=id)  # Redirect if document is not found
+        return redirect('view-requirements', id=id)
     except Exception as e:
-        messages.error(request, str(e))  # Handle any other exceptions
-        return redirect('view-requirements', id=id)  # Redirect on any other exception
-
-
+        messages.error(request, str(e))
+        return redirect('view-requirements', id=id)
 
 def submittedRequirementOfStudents(request, id):
     user = request.user
