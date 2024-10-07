@@ -15,6 +15,6 @@ class CustomMiddleware:
         # Log the response for 404 errors
         if response.status_code == 404:
             logger.error(f"Page not found: {request.path}")
-            return render(request, '404.html', status=404)  # Updated to use '404.html' directly
+            return render(request, '404.html', status=404)
 
         return response
