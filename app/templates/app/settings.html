@@ -171,19 +171,19 @@
                         <form method="post" enctype="multipart/form-data" id="uploadRequirementsForm">
                             {% csrf_token %}
                             <div class="form-group row">
-                                <label for="nameOfFile" class="col-sm-4 col-form-label">Name of Document</label>
-                                <div class="col-sm-8">
+                                <label for="nameOfFile" class="col-md-4 col-form-label mr-0">Name of Document</label>
+                                <div class="col-sm-6">
                                     {{ upload_form.nameOfFile }}
                                 </div>  
                             </div>
                             <div class="form-group row">
-                                <label for="document" class="col-sm-4 col-form-label">Upload Document</label>
-                                <div class="col-sm-8">
+                                <label for="document" class="col-md-4 col-form-label mr-0">Upload Document</label>
+                                <div class="col-sm-6">
                                     <input class="p-1" type="file" id="id_document" name="document" class="form-control">
                                 </div>
                             </div>
                             <div class="form-group row">
-                                <div class="col-sm-12 d-flex justify-content-end">
+                                <div class="col-sm-10 d-flex justify-content-end">
                                     <button type="submit" class="btn btn-primary">
                                         <i class="fas fa-upload"></i> Upload
                                     </button>
