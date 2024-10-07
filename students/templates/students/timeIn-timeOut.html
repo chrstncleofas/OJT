@@ -325,8 +325,8 @@
                                     <p></p>
                                 {% endif %}
                                 <div class="form-group" style="display: flex; justify-content: space-between;">
-                                    <button type="submit" id="timeInBtn" class="btn btn-success" onclick="document.getElementById('id_action').value='IN'" disabled>Time In</button>
-                                    <button type="submit" id="timeOutBtn" class="btn btn-danger" onclick="document.getElementById('id_action').value='OUT'" disabled>Time Out</button>
+                                    <button type="submit" id="timeInBtn" class="btn btn-success" onclick="document.getElementById('id_action').value='IN'" disabled>Time In <span style="font-size: 12px">( am )</span></button>
+                                    <button type="submit" id="timeOutBtn" class="btn btn-danger" onclick="document.getElementById('id_action').value='OUT'" disabled>Time Out <span style="font-size: 12px">( pm )</span></button>
                                 </div>
                             </form>
                         </div>
@@ -446,8 +446,8 @@
                                     </div>
                                 </div>
                                 <div class="form-group" style="display: flex; justify-content: space-between;">
-                                    <button type="submit" class="btn btn-danger" id="lunchOutBtn" onclick="document.getElementById('lunchLogAction').value='LUNCH OUT'">LUNCH OUT</button>
-                                    <button type="submit" class="btn btn-success" id="lunchInBtn" onclick="document.getElementById('lunchLogAction').value='LUNCH IN'">LUNCH IN</button>
+                                    <button type="submit" class="btn btn-danger" id="lunchOutBtn" onclick="document.getElementById('lunchLogAction').value='LUNCH OUT'">TIME OUT <span style="font-size: 12px">( pm )</span></button>
+                                    <button type="submit" class="btn btn-success" id="lunchInBtn" onclick="document.getElementById('lunchLogAction').value='LUNCH IN'">TIME IN <span style="font-size: 12px">( pm )</span></button>
                                 </div>
                             </form>
                         </div>
