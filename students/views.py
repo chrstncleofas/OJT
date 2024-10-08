@@ -404,13 +404,6 @@ def log_lunch(request):
 
     return render(request, 'students/timeIn-timeOut.html', {'forms': LunchLogForm()})
 
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
-from django.utils import timezone
-from .models import DataTableStudents, Schedule, ApprovedDocument, Notification, TimeLog, LunchLog
-from .forms import TimeLogForm, LunchLogForm
-from django.views.decorators.cache import never_cache
-
 @login_required
 @never_cache
 def TimeInAndTimeOut(request):
