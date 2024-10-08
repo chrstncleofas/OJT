@@ -111,8 +111,8 @@
                 <div class="d-flex justify-content-between mb-3 mt-3">
                     <p class="mt-1 text-center" style="font-size: 13px; font-weight: bold; text-align: center; justify-content: center;">Application Status: <span style="font-weight: 600;">{{ students.StatusApplication }}</span></p> 
                     <div>
+                        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#approveModal{{students.id}}">Approve</button>
                         <a href="{% url 'studentManagement' %}" class="btn btn-primary">Back</a>
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#approveModal{{students.id}}">Approve</button>
                         <!-- Approve Modal -->
                         <div class="modal" id="approveModal{{students.id}}" tabindex="-1" aria-labelledby="myModalLabel1" aria-hidden="true">
                             <div class="modal-dialog" role="document">
