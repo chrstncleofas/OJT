@@ -494,64 +494,72 @@ def getTheSubmitRequirements(request):
         'lastName': lastName
     })
 
+
+@login_required
 def studentInformation(request, id):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
     student = get_object_or_404(DataTableStudents, id=id)
+    
+    # Admin and student names
     firstName = admin.first_name
     lastName = admin.last_name
-
     studentFirstname = student.Firstname
     studentLastname = student.Lastname
 
-    selected_student = get_object_or_404(DataTableStudents, id=id)
-    time_logs = TimeLog.objects.filter(student=selected_student).order_by('timestamp')
+    # Fetch logs
+    time_logs = TimeLog.objects.filter(student=student).order_by('timestamp')
     lunch_logs = LunchLog.objects.filter(student=student).order_by('timestamp')
+
     total_work_seconds = 0
     daily_total = timedelta()
     max_work_hours = timedelta(hours=8)
     
+    # Calculate total work time and prepare paired logs
     paired_logs = []
-    # while i < len(time_logs):
-    #     if time_logs[i].action == 'IN':
-    #         if i + 1 < len(time_logs) and time_logs[i + 1].action == 'OUT':
-    #             time_in = time_logs[i].timestamp
-    #             time_out = time_logs[i + 1].timestamp
-    #             work_period = time_out - time_in
-    #             work_period = min(work_period, max_work_hours)
-    #             daily_total += work_period
-    #             paired_logs.append((time_logs[i], time_logs[i + 1]))
-    #             i += 1
-    #     i += 1
+    
     for i in range(0, len(time_logs), 2):
         if i + 1 < len(time_logs):
-            paired_logs.append((time_logs[i], time_logs[i + 1]))
+            time_in = time_logs[i].timestamp
+            time_out = time_logs[i + 1].timestamp if time_logs[i + 1].action == 'OUT' else None
+            
+            if time_out:
+                work_period = time_out - time_in
+                work_period = min(work_period, max_work_hours)  # Cap to max work hours
+                daily_total += work_period
+                paired_logs.append((time_logs[i], time_logs[i + 1]))  # Pair IN and OUT logs
         else:
-            paired_logs.append((time_logs[i], None))
+            paired_logs.append((time_logs[i], None))  # Add remaining IN log if exists
 
+    # Total work seconds
     total_work_seconds = max(0, daily_total.total_seconds())
     required_hours_seconds = student.get_required_hours() * 3600 if student.get_required_hours() is not None else 0
     remaining_hours_seconds = max(0, required_hours_seconds - total_work_seconds)
+
+    # Handle form submission for any input modifications (if needed)
     if request.method == 'POST':
         total_work_time_input = request.POST.get('total_work_time')
         required_hours_time_input = request.POST.get('required_hours_time')
         remaining_hours_time_input = request.POST.get('remaining_hours_time')
+        
+        # Assuming you have a method to convert time to seconds, similar to previous function
         total_work_seconds = convert_time_to_seconds(total_work_time_input)
         required_hours_seconds = convert_time_to_seconds(required_hours_time_input)
         remaining_hours_seconds = convert_time_to_seconds(remaining_hours_time_input)
-        
+
+    # Fetch other information
     full_schedule = Schedule.objects.filter(student=student, day__in=['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']).order_by('id')
     grades = Grade.objects.filter(student=student).order_by('id')
-    progress_reports = TableSubmittedReport.objects.filter(student=selected_student).order_by('-date_submitted', 'id')
-    requirements = TableSubmittedRequirement.objects.filter(student=selected_student).order_by('-submission_date', 'id')
+    progress_reports = TableSubmittedReport.objects.filter(student=student).order_by('-date_submitted', 'id')
+    requirements = TableSubmittedRequirement.objects.filter(student=student).order_by('-submission_date', 'id')
 
+    # Clean filenames for progress reports
     cleaned_reports = [(report, clean_filename(report.report_file.name)) for report in progress_reports]
 
-    gradesResult = Grade.objects.filter(student=student)
-
+    # Prepare function to format seconds into hours and minutes
     def format_seconds(seconds):
         hours, remainder = divmod(seconds, 3600)
-        minutes, seconds = divmod(remainder, 60)
+        minutes, _ = divmod(remainder, 60)
         return f"{int(hours)} hours, {int(minutes)} minutes"
 
     context = {
@@ -570,10 +578,11 @@ def studentInformation(request, id):
         'cleaned_reports': cleaned_reports,
         'requirements': requirements,
         'grades': grades,
-        'gradesResult': gradesResult,
         'lunch_logs': lunch_logs,
     }
+
     return render(request, 'app/TimeLogs.html', context)
+
 
 def register(request):
     if request.method == 'POST':
