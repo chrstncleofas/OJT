@@ -1,7 +1,12 @@
 from django import forms
 from app.models import CustomUser
 from students.custom_widgets import CustomClearableFileInput
-from students.models import DataTableStudents, TimeLog, TableSubmittedRequirement, PendingApplication, Grade, LunchLog
+from students.models import DataTableStudents,\
+    TimeLog,\
+    TableSubmittedRequirement,\
+    PendingApplication,\
+    Grade,\
+    LunchLog
 
 COURSE_CHOICES = [
     ('', '--- Select Course ---'),
