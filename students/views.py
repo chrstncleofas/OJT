@@ -447,7 +447,7 @@ def TimeInAndTimeOut(request):
     daily_total = timedelta()
     paired_logs = []
     lunch_logs = LunchLog.objects.filter(student=student).order_by('timestamp')
-    max_work_hours = timedelta(hours=9)
+    max_work_hours = timedelta(hours=8)
     i = 0
     while i < len(time_logs):
         if time_logs[i].action == 'IN':
