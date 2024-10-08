@@ -414,6 +414,7 @@ def TimeInAndTimeOut(request):
     notifications = Notification.objects.filter(student=student, is_read=False)
     unread_notifications_count = notifications.count()
 
+    # Early return if documents are not approved
     if not requirements_submitted:
         message = 'Please wait for the admin to approve your document before you can time in and time out.'
         return render(request, 'students/timeIn-timeOut.html', {
@@ -442,24 +443,28 @@ def TimeInAndTimeOut(request):
     last_action = TimeLog.objects.filter(student=student).order_by('-timestamp').first()
     last_action = last_action.action if last_action else None
 
+    # Get all time logs
     time_logs = TimeLog.objects.filter(student=student).order_by('timestamp')
     lunch_logs = LunchLog.objects.filter(student=student).order_by('timestamp')
 
     # Calculate total work time
     total_work_time_seconds = 0
     for i in range(1, len(time_logs), 2):  # Time In is at even indexes, Time Out is at odd indexes
-        if time_logs[i-1] and time_logs[i]:
-            total_work_time_seconds += (time_logs[i].timestamp - time_logs[i-1].timestamp).total_seconds()
+        if i < len(time_logs):  # Ensure there's a corresponding Time Out
+            total_work_time_seconds += max(0, (time_logs[i].timestamp - time_logs[i-1].timestamp).total_seconds())
 
-    total_work_time = divmod(total_work_time_seconds, 3600)  # Convert seconds to hours and minutes
-    total_work_time_display = f"{total_work_time[0]} hours, {total_work_time[1]} minutes"
+    # Display total work time
+    total_work_hours, total_work_minutes = divmod(int(total_work_time_seconds), 60)  # Get whole hours and minutes
+    total_work_time_display = f"{total_work_hours} hours, {total_work_minutes} minutes"
 
-    # Assuming a required hours policy (e.g., 8 hours)
-    required_hours_seconds = 8 * 3600  # Example: 8 hours required
-    remaining_hours_seconds = required_hours_seconds - total_work_time_seconds
-    remaining_hours = divmod(remaining_hours_seconds, 3600)
-    remaining_hours_display = f"{remaining_hours[0]} hours, {remaining_hours[1]} minutes"
-    required_hours_display = f"{required_hours_seconds // 3600} hours"  # Adjust as needed
+    # Get required hours from student model
+    required_hours_seconds = student.get_required_hours() * 3600 if student.get_required_hours() is not None else 0
+    remaining_hours_seconds = max(0, required_hours_seconds - total_work_time_seconds)
+
+    # Display remaining hours
+    remaining_hours, remaining_minutes = divmod(int(remaining_hours_seconds), 60)  # Get whole hours and minutes
+    remaining_hours_display = f"{remaining_hours} hours, {remaining_minutes} minutes"
+    required_hours_display = f"{required_hours_seconds // 3600} hours" if required_hours_seconds else "0 hours"
 
     # Prepare paired logs for rendering
     paired_logs = []
@@ -489,6 +494,7 @@ def TimeInAndTimeOut(request):
         'last_action': last_action,  # Pass last action to the template
         'message': message if not requirements_submitted else None,  # Message for unapproved documents
     })
+
 
 @login_required
 @never_cache
