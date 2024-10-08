@@ -21,8 +21,6 @@ YEAR_CHOICES = [
     ('', '--- Select Year ---'),
     ('4th', '4th'),
     ('3rd', '3rd'),
-    ('2nd', '2nd'),
-    ('1st', '1st'),
 ]
 
 class UserForm(forms.ModelForm):
