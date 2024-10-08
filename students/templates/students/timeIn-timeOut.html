@@ -271,14 +271,6 @@
                 <div class="row p-3">
                     <div class="col-lg-12 p-0">
                         <p class="mt-1 mb-1">Dashboard / Clock IN and Clock Out</p>
-                        <!-- Display TIME IN or TIME OUT based on the user's last action -->
-                        <div class="d-flex align-items-center">
-                            {% if last_action == 'IN' %}
-                                <h4 class="mt-2 mb-1">TIME OUT</h4>
-                            {% else %}
-                                <h4 class="mt-2 mb-1">TIME IN</h4>
-                            {% endif %}
-                        </div>
                         <div class="row mb-1 ml-1 mr-0">
                             <div class="col-md-4">
                                 <div class="card text-white bg-primary mb-3">
@@ -340,13 +332,10 @@
                                 {% else %}
                                     <p></p>
                                 {% endif %}
-                                <!-- Buttons Container -->
                                 <div class="form-group d-flex justify-content-between align-items-center mt-3">
-                                    <button type="submit" id="timeInBtn" class="btn btn-success" onclick="document.getElementById('id_action').value='IN'" disabled>Time In <span style="font-size: 12px">( am )</span></button>
-                                    
+                                    <button type="submit" id="timeInBtn" class="btn btn-success" onclick="document.getElementById('id_action').value='IN'" disabled>Time In <span style="font-size: 12px">( am )</span></button>   
                                     <!-- Break Button -->
                                     <button type="button" class="btn btn-info mx-3" data-toggle="modal" data-target="#lunchLogModal">BREAK</button>
-                                    
                                     <button type="submit" id="timeOutBtn" class="btn btn-danger" onclick="document.getElementById('id_action').value='OUT'" disabled>Time Out <span style="font-size: 12px">( pm )</span></button>
                                 </div>
                             </form>
@@ -537,14 +526,11 @@
                 imageInput.dispatchEvent(new Event('change'));
             }
         }
-
         // Run the button state function on document ready
         document.addEventListener('DOMContentLoaded', function () {
             updateButtonStates();
         });
-
-
-
+        {% comment %}  {% endcomment %}
         function updateLunchLogPreview() {
             const lunchImageInput = document.getElementById('lunchImage');
             const lunchPreview = document.getElementById('lunchPreview');
@@ -582,7 +568,6 @@
                 document.getElementById('timeForm').submit();
             }
         }
-
         document.addEventListener('DOMContentLoaded', function() {
             document.querySelectorAll('.edit-btn').forEach(button => {
                 button.addEventListener('click', function() {
@@ -592,7 +577,6 @@
                     document.querySelector(`.save-btn[data-field="${field}"]`).style.display = 'inline-block';
                 });
             });
-    
             document.querySelectorAll('.save-btn').forEach(button => {
                 button.addEventListener('click', function() {
                     const field = this.getAttribute('data-field');
