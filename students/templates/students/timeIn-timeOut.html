@@ -315,15 +315,22 @@
                     <div class="card col-md-4 ml-2 mt-0">
                         <div class="mt-1">
                             <form method="POST" enctype="multipart/form-data" id="timeForm">
-                                <!-- Lunch In and Lunch Out Buttons Above Image Preview -->
-                                <div class="form-group text-center">
-                                    <button type="button" class="btn btn-info" data-toggle="modal" data-target="#lunchLogModal">BREAK</button>
-                                </div>
                                 {% csrf_token %}
                                 <div class="upload-box" id="uploadBox">
                                     {{ form.image }}
                                     <img id="preview" src="#" alt="Preview Image">
                                 </div>
+
+                                <!-- Buttons Container -->
+                                <div class="form-group d-flex justify-content-between align-items-center mt-3">
+                                    <button type="submit" id="timeInBtn" class="btn btn-success" onclick="document.getElementById('id_action').value='IN'" disabled>Time In <span style="font-size: 12px">( am )</span></button>
+                                    
+                                    <!-- Break Button -->
+                                    <button type="button" class="btn btn-info mx-3" data-toggle="modal" data-target="#lunchLogModal">BREAK</button>
+                                    
+                                    <button type="submit" id="timeOutBtn" class="btn btn-danger" onclick="document.getElementById('id_action').value='OUT'" disabled>Time Out <span style="font-size: 12px">( pm )</span></button>
+                                </div>
+
                                 {% if time_logs %}
                                     {% if time_logs.0.action == 'IN' %}
                                         <p style="margin-bottom: 2px;">Current login time was</p>
@@ -335,6 +342,7 @@
                                         <p>on <span style="font-weight: bold;">{{ current_time|date:"l, n/j" }}</span></p>
                                     {% endif %}
                                 {% endif %}
+
                                 {{ form.action }}
                                 <input type="hidden" id="lastAction" value="{{ last_action }}">
                                 {% if not requirements_submitted %}
@@ -344,10 +352,6 @@
                                 {% else %}
                                     <p></p>
                                 {% endif %}
-                                <div class="form-group" style="display: flex; justify-content: space-between;">
-                                    <button type="submit" id="timeInBtn" class="btn btn-success" onclick="document.getElementById('id_action').value='IN'" disabled>Time In <span style="font-size: 12px">( am )</span></button>
-                                    <button type="submit" id="timeOutBtn" class="btn btn-danger" onclick="document.getElementById('id_action').value='OUT'" disabled>Time Out <span style="font-size: 12px">( pm )</span></button>
-                                </div>
                             </form>
                         </div>
                     </div>
@@ -443,24 +447,63 @@
                                             {% endwith %}
                                         </td>
                                         <td>
-                                            {{ time_out.timestamp|date:"g:i A" }}<br>
-                                            {{ time_out.timestamp|date:"F j, Y" }}
+                                            {% with lunch_out_found=False %}
+                                                {% for lunch_log in lunch_logs %}
+                                                    {% if lunch_log.action == 'LUNCH OUT' and lunch_log.timestamp > time_in.timestamp and not lunch_out_found %}
+                                                        {{ lunch_log.timestamp|date:"g:i A" }}<br>
+                                                        {{ lunch_log.timestamp|date:"F j, Y" }}
+                                                        {% with lunch_out_found=True %}
+                                                        {% endwith %}
+                                                    {% endif %}
+                                                {% endfor %}
+                                            {% endwith %}
                                         </td>
                                         <td>
-                                            {% if time_out.image %}
-                                                <img src="{{ time_out.image.url }}" alt="Time OUT Image" class="img-fluid" style="max-width: 100px;">
-                                            {% else %}
-                                                <img src="{% static 'path/to/default-image.jpg' %}" alt="No Image" class="img-fluid" style="max-width: 100px;">
-                                            {% endif %}
+                                            {% with lunch_out_found=False %}
+                                                {% for lunch_log in lunch_logs %}
+                                                    {% if lunch_log.action == 'LUNCH OUT' and lunch_log.timestamp > time_in.timestamp and not lunch_out_found %}
+                                                        {% if lunch_log.image %}
+                                                            <img src="{{ lunch_log.image.url }}" alt="Lunch OUT Image" class="img-fluid" style="max-width: 100px;">
+                                                        {% else %}
+                                                            <img src="{% static 'path/to/default-image.jpg' %}" alt="No Image" class="img-fluid" style="max-width: 100px;">
+                                                        {% endif %}
+                                                        {% with lunch_out_found=True %}
+                                                        {% endwith %}
+                                                    {% endif %}
+                                                {% endfor %}
+                                            {% endwith %}
                                         </td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>
-                            </table> 
+                            </table>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <!-- Modal for Break -->
+            <div class="modal fade" id="lunchLogModal" tabindex="-1" role="dialog" aria-labelledby="lunchLogModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="lunchLogModalLabel">Lunch Break Log</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Log your break here.</p>
+                            <!-- Additional form fields or information can go here -->
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary">Save Changes</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Lunch Modal -->
             <div class="modal fade" id="lunchLogModal" tabindex="-1" role="dialog" aria-labelledby="lunchLogModalLabel" aria-hidden="true">
                 <div class="modal-dialog" role="document">
