@@ -1004,8 +1004,10 @@ def update_document_score(request, id):
     try:
         document = ApprovedDocument.objects.get(id=id)
         score = request.POST.get('score')
-        if score is None or not score.isdigit():
-            messages.error(request, 'Invalid score format.')
+
+        # Validate the score to ensure it is a digit and within the valid range
+        if score is None or not score.isdigit() or int(score) < 0 or int(score) > 120:
+            messages.error(request, 'Invalid score format. Please enter a score between 0 and 120.')
             return redirect('view-requirements', id=document.student.id)
 
         document.score = int(score)
@@ -1016,11 +1018,7 @@ def update_document_score(request, id):
 
         grade, created = Grade.objects.get_or_create(student=document.student)
 
-        grade.docs = total_score
-        if total_score > 0:
-            docs_grade = round((total_score / 120 * 50 + 50) * 0.30, 2)
-        else:
-            docs_grade = 0
+        docs_grade = round((total_score / 120 * 50 + 50) * 0.30, 2) if total_score > 0 else 0
         
         grade.docs = docs_grade
         grade.save()
@@ -1058,14 +1056,15 @@ def gradeCalculator(request, id):
     if request.method == 'POST':
         form = GradeForm(request.POST)
         if form.is_valid():
-            grade.evaluation = form.cleaned_data['evaluation']
-            grade.oral_interview = form.cleaned_data['oral_interview']
+            # Constrain evaluation and oral_interview scores to valid ranges
+            evaluation = min(max(form.cleaned_data['evaluation'], 0), 30)
+            oral_interview = min(max(form.cleaned_data['oral_interview'], 0), 30)
+
+            grade.evaluation = evaluation
+            grade.oral_interview = oral_interview
             docs_grade = grade_docs
-            final_grade = gradeFormula(
-                form.cleaned_data['evaluation'], 
-                docs_grade, 
-                form.cleaned_data['oral_interview']
-            )
+
+            final_grade = gradeFormula(evaluation, docs_grade, oral_interview)
             grade.final_grade = final_grade
 
             grade.status = 'Passed' if final_grade > 74 else 'Failed'

@@ -71,21 +71,23 @@
 # docs_score = calculate_docs_score_final(total_docs_score)
 # print(f"Final Docs Score: {docs_score:.2f}")
 
-eval_score = 28.0
+# Input scores
+eval_score = 84  # Should not exceed 30
+total_score = 31  # Should not exceed 120
+oral_score = 10  # Should not exceed 30
 
-total_score = 31
+# Enforce score limits
+eval_score = min(max(eval_score, 0), 30)  # Restrict eval_score to range 0-30
+total_score = min(max(total_score, 0), 120)  # Restrict total_score to range 0-120
+oral_score = min(max(oral_score, 0), 30)  # Restrict oral_score to range 0-30
 
-oral_score = 10
-
-
+# Calculating each score component
 result1 = ((eval_score / 30) * 50 + 50) * 0.60
-
 result2 = ((total_score / 120) * 50 + 50) * 0.30
+result3 = ((oral_score / 30) * 50 + 50) * 0.10
 
-result3 = (oral_score / 30 * 50 + 50) * 0.10
-
+# Final grade calculation
 final_grade = result1 + result2 + result3
-
 overall = round(final_grade)
 
 print(overall)
