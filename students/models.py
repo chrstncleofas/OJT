@@ -101,6 +101,8 @@ class TimeLog(models.Model):
     ACTION_CHOICES = [
         ('IN', 'Time In'),
         ('OUT', 'Time Out'),
+        ('LUNCH OUT', 'LUNCH OUT'),
+        ('LUNCH IN', 'LUNCH IN')
     ]
     
     student = models.ForeignKey(DataTableStudents, on_delete=models.CASCADE)
