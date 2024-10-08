@@ -88,6 +88,9 @@ result3 = ((oral_score / 30) * 50 + 50) * 0.10
 
 # Final grade calculation
 final_grade = result1 + result2 + result3
+
+
+
 overall = round(final_grade)
 
 print(overall)

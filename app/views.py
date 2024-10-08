@@ -1048,23 +1048,23 @@ def gradeCalculator(request, id):
 
     student = get_object_or_404(DataTableStudents, id=id)
     grade, created = Grade.objects.get_or_create(student=student)
+    total_score = ApprovedDocument.objects.filter(student=student).aggregate(total=Sum('score'))['total'] or 0
 
     grade_docs = grade.docs if grade.docs is not None else 0
 
     if request.method == 'POST':
         form = GradeForm(request.POST)
         if form.is_valid():
-            # Constrain evaluation and oral_interview scores to valid ranges
             evaluation = min(max(form.cleaned_data['evaluation'], 0), 30)
             oral_interview = min(max(form.cleaned_data['oral_interview'], 0), 30)
-
-            grade.evaluation = evaluation
-            grade.oral_interview = oral_interview
-            docs_grade = grade_docs
-
-            final_grade = gradeFormula(evaluation, docs_grade, oral_interview)
-            grade.final_grade = final_grade
-
+            eval_score = (evaluation / 30 * 50 + 50) * 0.60
+            docs_score = (total_score / 120 * 50 + 50) * 0.30 if total_score > 0 else 0
+            oral_score = (oral_interview / 30 * 50 + 50) * 0.10
+            grade.evaluation = eval_score
+            grade.docs = docs_score
+            grade.oral_interview = oral_score
+            final_grade = eval_score + docs_score + oral_score
+            grade.final_grade = round(final_grade, 1)
             grade.status = 'Passed' if final_grade > 74 else 'Failed'
             grade.save()
 
@@ -1072,7 +1072,7 @@ def gradeCalculator(request, id):
                 'form': form,
                 'student': student,
                 'final_grade': final_grade,
-                'status': status,
+                'status': grade.status,
                 'gradesResult': [grade],
             })
     else:
@@ -1093,7 +1093,7 @@ def gradeCalculator(request, id):
             'firstName': firstName,
             'lastName': lastName,
             'gradesResult': [grade],
-            'grade_docs': grade_docs
+            'grade_docs': total_score
         }
     )
 
