@@ -213,9 +213,9 @@ class ApprovedDocument(models.Model):
 
 class Grade(models.Model):
     student = models.ForeignKey(DataTableStudents, on_delete=models.CASCADE)
-    evaluation = models.FloatField()
-    docs = models.FloatField()
-    oral_interview = models.FloatField()
+    evaluation = models.FloatField(null=True, blank=True)
+    docs = models.FloatField(null=True, blank=True)
+    oral_interview = models.FloatField(null=True, blank=True)
     final_grade = models.FloatField(null=True, blank=True)
     status = models.CharField(max_length=10, default='No Remarks')
 

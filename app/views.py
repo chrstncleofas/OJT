@@ -4,6 +4,7 @@ import json
 from typing import Union
 from django.urls import reverse
 from datetime import timedelta
+from django.db.models import Sum
 from django.db.models import Q
 from django.conf import settings
 from django.contrib import messages
@@ -435,25 +436,6 @@ def clean_filename(filename):
     if filename:
         return re.sub(r'^\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}_', '', filename)
     return filename
-
-@require_POST
-def update_document_score(request, id):
-    try:
-        document = ApprovedDocument.objects.get(id=id)
-        score = request.POST.get('score')
-        if score is None or not score.isdigit():
-            messages.error(request, 'Invalid score format.')
-            return redirect('view-requirements', id=document.student.id)
-        document.score = int(score)
-        document.save()
-        messages.success(request, 'Score updated successfully.')
-        return redirect('view-requirements', id=document.student.id)
-    except ApprovedDocument.DoesNotExist:
-        messages.error(request, 'Document not found.')
-        return redirect('view-requirements', id=id)
-    except Exception as e:
-        messages.error(request, str(e))
-        return redirect('view-requirements', id=id)
 
 def submittedRequirementOfStudents(request, id):
     user = request.user
@@ -1017,9 +999,44 @@ def getAllStudentsForGrading(request):
         'lastName': lastName
     })
 
-def gradeFormula(evaluation, docs, oral_interview):
+@require_POST
+def update_document_score(request, id):
+    try:
+        document = ApprovedDocument.objects.get(id=id)
+        score = request.POST.get('score')
+        if score is None or not score.isdigit():
+            messages.error(request, 'Invalid score format.')
+            return redirect('view-requirements', id=document.student.id)
+
+        document.score = int(score)
+        document.save()
+        messages.success(request, 'Score updated successfully.')
+
+        total_score = ApprovedDocument.objects.filter(student=document.student).aggregate(total=Sum('score'))['total'] or 0
+
+        grade, created = Grade.objects.get_or_create(student=document.student)
+
+        grade.docs = total_score
+        if total_score > 0:
+            docs_grade = round((total_score / 120 * 50 + 50) * 0.30, 2)
+        else:
+            docs_grade = 0
+        
+        grade.docs = docs_grade
+        grade.save()
+
+        return redirect('view-requirements', id=document.student.id)
+
+    except ApprovedDocument.DoesNotExist:
+        messages.error(request, 'Document not found.')
+        return redirect('view-requirements', id=id)
+    except Exception as e:
+        messages.error(request, str(e))
+        return redirect('view-requirements', id=id)
+
+def gradeFormula(evaluation, docs_grade, oral_interview):
     eval_score = (evaluation / 30 * 50 + 50) * 0.60
-    docs_score = (docs / 40 * 50 + 50) * 0.30
+    docs_score = docs_grade
     oral_score = (oral_interview / 30 * 50 + 50) * 0.10
     final_grade = eval_score + docs_score + oral_score
     return round(final_grade, 1)
@@ -1034,17 +1051,19 @@ def gradeCalculator(request, id):
     status = None
 
     student = get_object_or_404(DataTableStudents, id=id)
-    gradesResult = Grade.objects.filter(student=student)
-    
+    grade, created = Grade.objects.get_or_create(student=student)
+
+    grade_docs = grade.docs if grade.docs is not None else 0
+
     if request.method == 'POST':
         form = GradeForm(request.POST)
         if form.is_valid():
-            grade = form.save(commit=False)
-            grade.student = student
-
+            grade.evaluation = form.cleaned_data['evaluation']
+            grade.oral_interview = form.cleaned_data['oral_interview']
+            docs_grade = grade_docs
             final_grade = gradeFormula(
                 form.cleaned_data['evaluation'], 
-                form.cleaned_data['docs'], 
+                docs_grade, 
                 form.cleaned_data['oral_interview']
             )
             grade.final_grade = final_grade
@@ -1057,10 +1076,14 @@ def gradeCalculator(request, id):
                 'student': student,
                 'final_grade': final_grade,
                 'status': status,
-                'gradesResult': gradesResult
+                'gradesResult': [grade],
             })
     else:
-        form = GradeForm()
+        form = GradeForm(initial={
+            'evaluation': grade.evaluation,
+            'docs': grade.docs,
+            'oral_interview': grade.oral_interview
+        })
 
     return render(
         request,
@@ -1069,10 +1092,11 @@ def gradeCalculator(request, id):
             'form': form,
             'final_grade': final_grade,
             'student': student,
-            'status' : status,
+            'status': status,
             'firstName': firstName,
             'lastName': lastName,
-            'gradesResult': gradesResult
+            'gradesResult': [grade],
+            'grade_docs': grade_docs
         }
     )
 

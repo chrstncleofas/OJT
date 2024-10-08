@@ -136,8 +136,9 @@
                                 {{ form.evaluation }}
                             </div>
                             <div class="form-group">
-                                <label for="docs">Docs (out of 40)</label>
-                                {{ form.docs }}
+                                <label for="docs">Docs (out of 120)</label>
+                                {% comment %} {{ form.docs }} {% endcomment %}
+                                <input type="number" name="docs" class="form-control" placeholder="Enter docs score" step="any" id="id_docs" value="{{ grade_docs }}">
                             </div>
                             <div class="form-group">
                                 <label for="oral_interview">Oral Interview (out of 30)</label>

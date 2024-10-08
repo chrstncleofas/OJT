@@ -179,7 +179,7 @@
             <div class="container-fluid">
                 <div class="row mb-4">
                     <div class="col-lg-12">
-                        <p class="mt-3 mb-1">Dashboard / Clock and Calendar</p>
+                        <p class="mt-3 mb-1">Clock and Calendar</p>
                         <h4 class="mt-2 mb-3">Home Page</h4>
                         <div class="row">
                             <!-- Clock -->
@@ -232,11 +232,10 @@
             const now = new Date();
             let hours = now.getHours();
             const minutes = String(now.getMinutes()).padStart(2, '0');
-            const seconds = String(now.getSeconds()).padStart(2, '0');
             const ampm = hours >= 12 ? 'PM' : 'AM';
             hours = hours % 12;
             hours = hours ? hours : 12; // The hour '0' should be '12'
-            const timeString = `${hours}:${minutes}:${seconds} ${ampm}`;
+            const timeString = `${hours}:${minutes}:${ampm}`;
             document.getElementById('clock').innerText = timeString;
         }
 

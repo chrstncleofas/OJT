@@ -317,6 +317,13 @@
                                     </tr>
                                 {% endif %}
                             </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="2" class="text-right"><strong>Total Score:</strong></td>
+                                    <td id="total-score">0</td> <!-- Placeholder for the total score -->
+                                    <td></td>
+                                </tr>
+                            </tfoot>
                         </table>
                     </div>
                 </div>
@@ -328,8 +335,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
-        const csrfToken = "{{ csrf_token }}";
-        
+        const csrfToken = "{{ csrf_token }}";  
         function toggleEdit(button) {
             const input = button.previousElementSibling;
             const icon = button.querySelector("i");
@@ -452,7 +458,6 @@
                     });
                 });
             });
-        
             // Function to get CSRF token
             function getCookie(name) {
                 let cookieValue = null;
@@ -467,8 +472,7 @@
                     }
                 }
                 return cookieValue;
-            }
-            
+            }         
             document.querySelectorAll('.edit-btn').forEach(function (button) {
                 button.addEventListener('click', function () {
                     const documentId = this.dataset.documentId;
@@ -510,7 +514,30 @@
                     });
                 });
             });
-        });             
+        });
+        document.addEventListener('DOMContentLoaded', function() {
+            const scoreDropdowns = document.querySelectorAll('.score-dropdown');
+            const totalScoreElement = document.getElementById('total-score');
+    
+            function calculateTotalScore() {
+                let total = 0;
+                scoreDropdowns.forEach(dropdown => {
+                    const score = parseInt(dropdown.value);
+                    if (!isNaN(score)) {
+                        total += score;
+                    }
+                });
+                totalScoreElement.textContent = total;
+            }
+    
+            // Recalculate total score on page load
+            calculateTotalScore();
+    
+            // Attach change event to each dropdown to recalculate total score
+            scoreDropdowns.forEach(dropdown => {
+                dropdown.addEventListener('change', calculateTotalScore);
+            });
+        });     
     </script>
 </body>
 </html>
