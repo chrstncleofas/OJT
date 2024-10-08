@@ -1004,8 +1004,6 @@ def update_document_score(request, id):
     try:
         document = ApprovedDocument.objects.get(id=id)
         score = request.POST.get('score')
-
-        # Validate the score to ensure it is a digit and within the valid range
         if score is None or not score.isdigit() or int(score) < 0 or int(score) > 120:
             messages.error(request, 'Invalid score format. Please enter a score between 0 and 120.')
             return redirect('view-requirements', id=document.student.id)
