@@ -509,24 +509,26 @@ def studentInformation(request, id):
     lunch_logs = LunchLog.objects.filter(student=student).order_by('timestamp')
     total_work_seconds = 0
     daily_total = timedelta()
+    max_work_hours = timedelta(hours=8)
+    
     paired_logs = []
-    max_work_hours = timedelta(hours=9)
-    
-    i = 0
-    
-    i = 0
-    while i < len(time_logs):
-        if time_logs[i].action == 'IN':
-            if i + 1 < len(time_logs) and time_logs[i + 1].action == 'OUT':
-                time_in = time_logs[i].timestamp
-                time_out = time_logs[i + 1].timestamp
-                work_period = time_out - time_in
-                work_period = min(work_period, max_work_hours)
-                daily_total += work_period
-                paired_logs.append((time_logs[i], time_logs[i + 1]))
-                i += 1
-        i += 1
-    
+    # while i < len(time_logs):
+    #     if time_logs[i].action == 'IN':
+    #         if i + 1 < len(time_logs) and time_logs[i + 1].action == 'OUT':
+    #             time_in = time_logs[i].timestamp
+    #             time_out = time_logs[i + 1].timestamp
+    #             work_period = time_out - time_in
+    #             work_period = min(work_period, max_work_hours)
+    #             daily_total += work_period
+    #             paired_logs.append((time_logs[i], time_logs[i + 1]))
+    #             i += 1
+    #     i += 1
+    for i in range(0, len(time_logs), 2):
+        if i + 1 < len(time_logs):
+            paired_logs.append((time_logs[i], time_logs[i + 1]))
+        else:
+            paired_logs.append((time_logs[i], None))
+
     total_work_seconds = max(0, daily_total.total_seconds())
     required_hours_seconds = student.get_required_hours() * 3600 if student.get_required_hours() is not None else 0
     remaining_hours_seconds = max(0, required_hours_seconds - total_work_seconds)

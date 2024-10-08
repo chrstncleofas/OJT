@@ -384,27 +384,25 @@ def log_lunch(request):
     user = request.user
     student = get_object_or_404(DataTableStudents, user=user)
     requirements_submitted = ApprovedDocument.objects.filter(student=student).exists()
+
     if not requirements_submitted:
         message = 'Please wait for the admin to approve your document before you can time in and time out.'
-        return render(
-            request,
-            'students/timeIn-timeOut.html',
-            {
-                'message': message,
-                'forms': LunchLogForm(),
-                'requirements_submitted': requirements_submitted,
-            }
-        )
+        return render(request, 'students/timeIn-timeOut.html', {
+            'message': message,
+            'forms': LunchLogForm(),
+            'requirements_submitted': requirements_submitted,
+        })
+
     if request.method == 'POST':
-        forms = LunchLogForm(request.POST, request.FILES)      
+        forms = LunchLogForm(request.POST, request.FILES)
         if forms.is_valid():
             lunch_log = forms.save(commit=False)
             lunch_log.student = student
+            lunch_log.timestamp = timezone.now()
             lunch_log.save()
-            return redirect('students:clockin')
-    else:
-        forms = LunchLogForm()
-    return render(request, 'students/timeIn-timeOut.html', {'forms': forms})
+            return redirect('students:clockin')  # Redirect to refresh logs
+
+    return render(request, 'students/timeIn-timeOut.html', {'forms': LunchLogForm()})
 
 @login_required
 @never_cache
@@ -415,85 +413,82 @@ def TimeInAndTimeOut(request):
     requirements_submitted = ApprovedDocument.objects.filter(student=student).exists()
     notifications = Notification.objects.filter(student=student, is_read=False)
     unread_notifications_count = notifications.count()
+
     if not requirements_submitted:
         message = 'Please wait for the admin to approve your document before you can time in and time out.'
-        return render(
-            request,
-            'students/timeIn-timeOut.html',
-            {
-                'firstName': student.Firstname,
-                'lastName': student.Lastname,
-                'message': message,
-                'form': TimeLogForm(),
-                'schedule_exists': schedule_exists,
-                'requirements_submitted': requirements_submitted,
-                'notifications': notifications,
-                'unread_notifications_count': unread_notifications_count,
-            }
-        )
-    if request.method == 'POST':
-        form = TimeLogForm(request.POST, request.FILES)
-        if form.is_valid():
-            user = request.user
-            student = get_object_or_404(DataTableStudents, user=user)
-            time_log = form.save(commit=False)
-            time_log.student = student
-            time_log.timestamp = timezone.now()
-            time_log.save()
-            return redirect('students:clockin')
-    else:
-        form = TimeLogForm()
-    time_logs = TimeLog.objects.filter(student=student).order_by('timestamp')
-    daily_total = timedelta()
-    paired_logs = []
-    lunch_logs = LunchLog.objects.filter(student=student).order_by('timestamp')
-    max_work_hours = timedelta(hours=8)
-    i = 0
-    while i < len(time_logs):
-        if time_logs[i].action == 'IN':
-            if i + 1 < len(time_logs) and time_logs[i + 1].action == 'OUT':
-                time_in = time_logs[i].timestamp
-                time_out = time_logs[i + 1].timestamp
-                work_period = time_out - time_in
-                work_period = min(work_period, max_work_hours)
-                daily_total += work_period
-                paired_logs.append((time_logs[i], time_logs[i + 1]))
-                i += 1
-        i += 1
-    total_work_seconds = max(0, daily_total.total_seconds())
-    required_hours_seconds = student.get_required_hours() * 3600 if student.get_required_hours() is not None else 0
-    remaining_hours_seconds = max(0, required_hours_seconds - total_work_seconds)
-    def format_seconds(seconds):
-        hours, remainder = divmod(seconds, 3600)
-        minutes, seconds = divmod(remainder, 60)
-        return f"{int(hours)} hours, {int(minutes)} minutes"
-    last_log = TimeLog.objects.filter(student=student).order_by('-timestamp').first()
-    last_action = last_log.action if last_log else ''
-    current_time = timezone.localtime(timezone.now())
-    full_schedule = Schedule.objects.filter(student=student, day__in=['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']).order_by('id')
-    return render(
-        request,
-        'students/timeIn-timeOut.html',
-        {
-            'required_hours_seconds': required_hours_seconds,
-            'remaining_hours_seconds': remaining_hours_seconds,
-            'total_work_time': format_seconds(total_work_seconds),
-            'required_hours_time': format_seconds(required_hours_seconds),
-            'remaining_hours_time': format_seconds(remaining_hours_seconds),
+        return render(request, 'students/timeIn-timeOut.html', {
             'firstName': student.Firstname,
             'lastName': student.Lastname,
-            'time_logs': paired_logs,
-            'lunch_logs': lunch_logs,
-            'current_time': current_time,
-            'form': form,
-            'full_schedule': full_schedule,
-            'last_action': last_action,
+            'message': message,
+            'form': TimeLogForm(),
             'schedule_exists': schedule_exists,
             'requirements_submitted': requirements_submitted,
             'notifications': notifications,
             'unread_notifications_count': unread_notifications_count,
-        }
-    )
+        })
+
+    if request.method == 'POST':
+        form = TimeLogForm(request.POST, request.FILES)
+        if form.is_valid():
+            time_log = form.save(commit=False)
+            time_log.student = student
+            time_log.timestamp = timezone.now()
+            time_log.save()
+
+            # Redirect to refresh logs and also set last_action for the UI
+            return redirect('students:clockin')
+
+    # Get the last action (can be retrieved from the last time_log entry)
+    last_action = TimeLog.objects.filter(student=student).order_by('-timestamp').first()
+    last_action = last_action.action if last_action else None
+
+    time_logs = TimeLog.objects.filter(student=student).order_by('timestamp')
+    lunch_logs = LunchLog.objects.filter(student=student).order_by('timestamp')
+
+    # Calculate total work time
+    total_work_time_seconds = 0
+    for i in range(1, len(time_logs), 2):  # Time In is at even indexes, Time Out is at odd indexes
+        if time_logs[i-1] and time_logs[i]:
+            total_work_time_seconds += (time_logs[i].timestamp - time_logs[i-1].timestamp).total_seconds()
+
+    total_work_time = divmod(total_work_time_seconds, 3600)  # Convert seconds to hours and minutes
+    total_work_time_display = f"{total_work_time[0]} hours, {total_work_time[1]} minutes"
+
+    # Assuming a required hours policy (e.g., 8 hours)
+    required_hours_seconds = 8 * 3600  # Example: 8 hours required
+    remaining_hours_seconds = required_hours_seconds - total_work_time_seconds
+    remaining_hours = divmod(remaining_hours_seconds, 3600)
+    remaining_hours_display = f"{remaining_hours[0]} hours, {remaining_hours[1]} minutes"
+    required_hours_display = f"{required_hours_seconds // 3600} hours"  # Adjust as needed
+
+    # Prepare paired logs for rendering
+    paired_logs = []
+    for i in range(0, len(time_logs), 2):
+        if i + 1 < len(time_logs):
+            paired_logs.append((time_logs[i], time_logs[i + 1]))
+        else:
+            paired_logs.append((time_logs[i], None))
+
+    return render(request, 'students/timeIn-timeOut.html', {
+        'required_hours_seconds': required_hours_seconds,  # Placeholder, adjust as needed
+        'remaining_hours_seconds': remaining_hours_seconds,  # Placeholder, adjust as needed
+        'total_work_time': total_work_time_display,  # Display total work time
+        'required_hours_time': required_hours_display,  # Display required hours
+        'remaining_hours_time': remaining_hours_display,  # Display remaining hours
+        'firstName': student.Firstname,
+        'lastName': student.Lastname,
+        'time_logs': paired_logs,
+        'lunch_logs': lunch_logs,
+        'current_time': timezone.localtime(timezone.now()),
+        'form': TimeLogForm(),
+        'lunch_form': LunchLogForm(),
+        'schedule_exists': schedule_exists,
+        'requirements_submitted': requirements_submitted,
+        'notifications': notifications,
+        'unread_notifications_count': unread_notifications_count,
+        'last_action': last_action,  # Pass last action to the template
+        'message': message if not requirements_submitted else None,  # Message for unapproved documents
+    })
 
 @login_required
 @never_cache

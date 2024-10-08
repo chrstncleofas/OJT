@@ -358,7 +358,7 @@
                                     {% for time_in, time_out in time_logs %}
                                     <tr>
                                         <td>
-                                            {{ time_in.timestamp|date:"g:i:s A" }}<br>
+                                            {{ time_in.timestamp|date:"g:i A" }}<br>
                                             {{ time_in.timestamp|date:"F j, Y" }}
                                         </td>
                                         <td>
@@ -369,45 +369,61 @@
                                             {% endif %}
                                         </td>
                                         <td>
-                                            {% for lunch_log in lunch_logs %}
-                                                {% if lunch_log.action == 'LUNCH OUT' %}
-                                                    {{ lunch_log.timestamp|date:"g:i:s A" }}<br>
-                                                    {{ lunch_log.timestamp|date:"F j, Y" }}
-                                                {% endif %}
-                                            {% endfor %}
-                                        </td>
-                                        <td>
-                                            {% for lunch_log in lunch_logs %}
-                                                {% if lunch_log.action == 'LUNCH OUT' %}
-                                                    {% if lunch_log.image %}
-                                                        <img src="{{ lunch_log.image.url }}" alt="Lunch OUT Image" class="img-fluid" style="max-width: 100px;">
-                                                    {% else %}
-                                                        <img src="{% static 'path/to/default-image.jpg' %}" alt="No Image" class="img-fluid" style="max-width: 100px;">
+                                            {% with lunch_out_found=False %}
+                                                {% for lunch_log in lunch_logs %}
+                                                    {% if lunch_log.action == 'LUNCH OUT' and lunch_log.timestamp > time_in.timestamp and not lunch_out_found %}
+                                                        {{ lunch_log.timestamp|date:"g:i A" }}<br>
+                                                        {{ lunch_log.timestamp|date:"F j, Y" }}
+                                                        {% with lunch_out_found=True %}
+                                                        {% endwith %}
                                                     {% endif %}
-                                                {% endif %}
-                                            {% endfor %}
+                                                {% endfor %}
+                                            {% endwith %}
                                         </td>
                                         <td>
-                                            {% for lunch_log in lunch_logs %}
-                                                {% if lunch_log.action == 'LUNCH IN' %}
-                                                    {{ lunch_log.timestamp|date:"g:i:s A" }}<br>
-                                                    {{ lunch_log.timestamp|date:"F j, Y" }}
-                                                {% endif %}
-                                            {% endfor %}
-                                        </td>
-                                        <td>
-                                            {% for lunch_log in lunch_logs %}
-                                                {% if lunch_log.action == 'LUNCH IN' %}
-                                                    {% if lunch_log.image %}
-                                                        <img src="{{ lunch_log.image.url }}" alt="Lunch IN Image" class="img-fluid" style="max-width: 100px;">
-                                                    {% else %}
-                                                        <img src="{% static 'path/to/default-image.jpg' %}" alt="No Image" class="img-fluid" style="max-width: 100px;">
+                                            {% with lunch_out_found=False %}
+                                                {% for lunch_log in lunch_logs %}
+                                                    {% if lunch_log.action == 'LUNCH OUT' and lunch_log.timestamp > time_in.timestamp and not lunch_out_found %}
+                                                        {% if lunch_log.image %}
+                                                            <img src="{{ lunch_log.image.url }}" alt="Lunch OUT Image" class="img-fluid" style="max-width: 100px;">
+                                                        {% else %}
+                                                            <img src="{% static 'path/to/default-image.jpg' %}" alt="No Image" class="img-fluid" style="max-width: 100px;">
+                                                        {% endif %}
+                                                        {% with lunch_out_found=True %}
+                                                        {% endwith %}
                                                     {% endif %}
-                                                {% endif %}
-                                            {% endfor %}
+                                                {% endfor %}
+                                            {% endwith %}
                                         </td>
                                         <td>
-                                            {{ time_out.timestamp|date:"g:i:s A" }}<br>
+                                            {% with lunch_in_found=False %}
+                                                {% for lunch_log in lunch_logs %}
+                                                    {% if lunch_log.action == 'LUNCH IN' and lunch_log.timestamp > time_in.timestamp and not lunch_in_found %}
+                                                        {{ lunch_log.timestamp|date:"g:i A" }}<br>
+                                                        {{ lunch_log.timestamp|date:"F j, Y" }}
+                                                        {% with lunch_in_found=True %}
+                                                        {% endwith %}
+                                                    {% endif %}
+                                                {% endfor %}
+                                            {% endwith %}
+                                        </td>
+                                        <td>
+                                            {% with lunch_in_found=False %}
+                                                {% for lunch_log in lunch_logs %}
+                                                    {% if lunch_log.action == 'LUNCH IN' and lunch_log.timestamp > time_in.timestamp and not lunch_in_found %}
+                                                        {% if lunch_log.image %}
+                                                            <img src="{{ lunch_log.image.url }}" alt="Lunch IN Image" class="img-fluid" style="max-width: 100px;">
+                                                        {% else %}
+                                                            <img src="{% static 'path/to/default-image.jpg' %}" alt="No Image" class="img-fluid" style="max-width: 100px;">
+                                                        {% endif %}
+                                                        {% with lunch_in_found=True %}
+                                                        {% endwith %}
+                                                    {% endif %}
+                                                {% endfor %}
+                                            {% endwith %}
+                                        </td>
+                                        <td>
+                                            {{ time_out.timestamp|date:"g:i A" }}<br>
                                             {{ time_out.timestamp|date:"F j, Y" }}
                                         </td>
                                         <td>
@@ -420,7 +436,7 @@
                                     </tr>
                                     {% endfor %}
                                 </tbody>
-                            </table>
+                            </table> 
                         </div>
                     </div>
                 </div>
@@ -473,36 +489,41 @@
             const timeOutBtn = document.getElementById('timeOutBtn');
             const lastAction = document.getElementById('lastAction').value;
             const preview = document.getElementById('preview');
+
+            // Add change event listener to image input
             imageInput.addEventListener('change', function () {
-                if (imageInput.files.length > 0) {
+                const imageSelected = imageInput.files.length > 0;
+                // Display the selected image as a preview
+                if (imageSelected) {
+                    const file = imageInput.files[0];
                     const reader = new FileReader();
                     reader.onload = function (e) {
                         preview.src = e.target.result;
-                        preview.style.display = 'block';
-                    };
-
-                    reader.readAsDataURL(imageInput.files[0]);
-                    if (lastAction === 'IN') {
-                        timeInBtn.disabled = true;
-                        timeOutBtn.disabled = false;
-                    } else {
-                        timeInBtn.disabled = false;
-                        timeOutBtn.disabled = true;
+                        preview.style.display = 'block'; // Show preview if an image is uploaded
                     }
+                    reader.readAsDataURL(file);
                 } else {
-                    timeInBtn.disabled = true;
-                    timeOutBtn.disabled = true;
-                    preview.style.display = 'none';
+                    preview.style.display = 'none'; // Hide preview if no image is selected
                 }
+
+                // Enable/disable buttons based on last action
+                timeInBtn.disabled = (lastAction === 'IN' || !imageSelected);
+                timeOutBtn.disabled = (lastAction === 'OUT' || !imageSelected);
             });
+
+            // Trigger change event to set initial states
             if (imageInput.files.length > 0) {
                 imageInput.dispatchEvent(new Event('change'));
             }
         }
+
         // Run the button state function on document ready
         document.addEventListener('DOMContentLoaded', function () {
             updateButtonStates();
         });
+
+
+
         function updateLunchLogPreview() {
             const lunchImageInput = document.getElementById('lunchImage');
             const lunchPreview = document.getElementById('lunchPreview');
