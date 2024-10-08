@@ -1048,9 +1048,10 @@ def gradeCalculator(request, id):
 
     student = get_object_or_404(DataTableStudents, id=id)
     grade, created = Grade.objects.get_or_create(student=student)
-    total_score = ApprovedDocument.objects.filter(student=student).aggregate(total=Sum('score'))['total'] or 0
+    total_docs_score = ApprovedDocument.objects.filter(student=student).aggregate(total=Sum('score'))['total'] or 0
 
-    grade_docs = grade.docs if grade.docs is not None else 0
+    total_eval_score = Grade.objects.filter(student__id=id).values_list('evaluation', flat=True)
+    total_oral_score = Grade.objects.filter(student__id=id).values_list('oral_interview', flat=True)
 
     if request.method == 'POST':
         form = GradeForm(request.POST)
@@ -1060,7 +1061,7 @@ def gradeCalculator(request, id):
             
             # Calculate and round the scores to one decimal place
             eval_score = round((evaluation / 30 * 50 + 50) * 0.60, 1)
-            docs_score = round((total_score / 120 * 50 + 50) * 0.30, 1) if total_score > 0 else 0
+            docs_score = round((total_docs_score / 120 * 50 + 50) * 0.30, 1) if total_docs_score > 0 else 0
             oral_score = round((oral_interview / 30 * 50 + 50) * 0.10, 1)
 
             # Update the Grade object with rounded scores
@@ -1099,7 +1100,10 @@ def gradeCalculator(request, id):
             'firstName': firstName,
             'lastName': lastName,
             'gradesResult': [grade],
-            'grade_docs': total_score
+            'total_score': total_docs_score,
+            'total_eval_score': total_eval_score,
+            'total_oral_score': total_oral_score,
+            'grade': grade
         }
     )
 

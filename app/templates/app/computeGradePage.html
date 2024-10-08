@@ -134,21 +134,21 @@
                             <div class="form-group">
                                 <label for="evaluation">Evaluation (out of 30)</label>
                                 <div class="input-group">
-                                    <input type="number" name="evaluation" class="form-control" placeholder="Enter evaluation score" step="any" id="id_evaluation" value="{{ grade.evaluation }}">
+                                    <input type="number" name="evaluation" class="form-control" placeholder="Enter evaluation score" step="any" id="id_evaluation" value="">
                                     <input type="text" id="eval-score-display" class="form-control ml-2" placeholder="Calculated Score" readonly>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label for="docs">Docs (out of 120)</label>
                                 <div class="input-group">
-                                    <input type="number" name="docs" class="form-control" placeholder="Enter docs score" step="any" id="id_docs" value="{{ grade_docs }}">
+                                    <input type="number" name="docs" class="form-control" placeholder="Enter docs score" step="any" id="id_docs" value="{{ total_score }}" readonly>
                                     <input type="text" id="docs-score-display" class="form-control ml-2" placeholder="Calculated Score" readonly>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label for="oral_interview">Oral Interview (out of 30)</label>
                                 <div class="input-group">
-                                    <input type="number" name="oral_interview" class="form-control" placeholder="Enter oral interview score" step="any" id="id_oral_interview" value="{{ grade.oral_interview }}">
+                                    <input type="number" name="oral_interview" class="form-control" placeholder="Enter oral interview score" step="any" id="id_oral_interview" value="">
                                     <input type="text" id="oral-score-display" class="form-control ml-2" placeholder="Calculated Score" readonly>
                                 </div>
                             </div> 
@@ -158,8 +158,6 @@
                             </div>         
                             <button type="submit" class="btn btn-primary mb-3">Submit Grades</button>
                         </form>
-                        
-                        
                     </div>
                     <table class="table">
                         <thead>
