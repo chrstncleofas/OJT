@@ -1057,14 +1057,20 @@ def gradeCalculator(request, id):
         if form.is_valid():
             evaluation = min(max(form.cleaned_data['evaluation'], 0), 30)
             oral_interview = min(max(form.cleaned_data['oral_interview'], 0), 30)
-            eval_score = (evaluation / 30 * 50 + 50) * 0.60
-            docs_score = (total_score / 120 * 50 + 50) * 0.30 if total_score > 0 else 0
-            oral_score = (oral_interview / 30 * 50 + 50) * 0.10
+            
+            # Calculate and round the scores to one decimal place
+            eval_score = round((evaluation / 30 * 50 + 50) * 0.60, 1)
+            docs_score = round((total_score / 120 * 50 + 50) * 0.30, 1) if total_score > 0 else 0
+            oral_score = round((oral_interview / 30 * 50 + 50) * 0.10, 1)
+
+            # Update the Grade object with rounded scores
             grade.evaluation = eval_score
             grade.docs = docs_score
             grade.oral_interview = oral_score
-            final_grade = eval_score + docs_score + oral_score
-            grade.final_grade = round(final_grade, 1)
+
+            # Calculate the final grade and round it to one decimal place
+            final_grade = round(eval_score + docs_score + oral_score, 1)
+            grade.final_grade = final_grade
             grade.status = 'Passed' if final_grade > 74 else 'Failed'
             grade.save()
 
