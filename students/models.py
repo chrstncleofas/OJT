@@ -8,7 +8,6 @@ class DataTableStudents(models.Model):
     ARCHIVED_STATUS = [
         ('NotArchive', 'NotArchive'),
         ('Archive', 'Archive'),
-        ('UnArchive', 'Unarchive'),
     ]
 
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
