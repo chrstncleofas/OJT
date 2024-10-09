@@ -22,7 +22,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.hashers import check_password, make_password
 from app.models import TableAnnouncement, TableRequirements, TableContent
 from students.models import DataTableStudents, TimeLog, Schedule, TableSubmittedReport, TableSubmittedRequirement, PendingApplication, ApprovedDocument, ReturnToRevisionDocument, LunchLog, Notification
-from students.forms import ChangePasswordForm, StudentProfileForm, ScheduleSettingForm, FillUpPDFForm, SubmittedRequirement, PendingStudentRegistrationForm, TimeLogForm, ResetPasswordForm, LunchLogForm
+from students.forms import ChangePasswordForm, StudentProfileForm, ScheduleSettingForm, ProgressReportForm, SubmittedRequirement, PendingStudentRegistrationForm, TimeLogForm, ResetPasswordForm, LunchLogForm
 
 @never_cache
 @csrf_protect
@@ -206,7 +206,7 @@ def progressReport(request):
     unread_notifications_count = notifications.count()
     full_name = f"{firstName} {middleName} {lastName}".strip()
     if request.method == 'POST':
-        form = FillUpPDFForm(request.POST)
+        form = ProgressReportForm(request.POST)
         if form.is_valid():
             pdf_path = os.path.join(settings.PDF_ROOT, 'PROGRESS-REPORT.pdf')
             pdf_document = fitz.open(pdf_path)
@@ -298,7 +298,7 @@ def progressReport(request):
                 return redirect('students:progressReport')
 
     else:
-        form = FillUpPDFForm()    
+        form = ProgressReportForm()    
     return render(
         request, 
         'students/progress-report.html', 

@@ -248,7 +248,6 @@ class EditStudentForm(forms.ModelForm):
             'status': forms.Select(attrs={'class': 'form-control'}),
         }
 
-
 class ScheduleSettingForm(forms.Form):
     monday_start = forms.TimeField(widget=forms.TimeInput(attrs={'class': 'form-control', 'type': 'time'}), required=False)
     monday_end = forms.TimeField(widget=forms.TimeInput(attrs={'class': 'form-control', 'type': 'time'}), required=False)
@@ -261,7 +260,7 @@ class ScheduleSettingForm(forms.Form):
     friday_start = forms.TimeField(widget=forms.TimeInput(attrs={'class': 'form-control', 'type': 'time'}), required=False)
     friday_end = forms.TimeField(widget=forms.TimeInput(attrs={'class': 'form-control', 'type': 'time'}), required=False)
 
-class FillUpPDFForm(forms.Form):
+class ProgressReportForm(forms.Form):
     INTERNSHIP_CHOICE = [
         ('local', 'Local'),
         ('international', 'International'),
