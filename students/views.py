@@ -356,7 +356,7 @@ def exportTimeLogToPDF(request):
             if day_of_week in y_positions:
                 y_position = y_positions[day_of_week]
                 
-                page.insert_text((105, y_position + + 220), date, fontsize=9, color=(0, 0, 0))
+                page.insert_text((105, y_position + + 225), date, fontsize=9, color=(0, 0, 0))
                 page.insert_text((160, y_position + 220), last_time_in.strftime('%I:%M %p'), fontsize=9, color=(0, 0, 0))
                 page.insert_text((385, y_position + 220), time_formatted, fontsize=9, color=(0, 0, 0))
                 page.insert_text((477, y_position + 220), total_duration_str, fontsize=9, color=(0, 0, 0))
@@ -388,7 +388,7 @@ def exportTimeLogToPDF(request):
     total_week_hours = total_hours_for_week.seconds // 3600
     total_week_minutes = (total_hours_for_week.seconds % 3600) // 60
     total_week_str = f"{total_week_hours}h {total_week_minutes}m" if total_week_minutes > 0 else f"{total_week_hours}h"
-    page.insert_text((462, y_positions['Friday'] + 20), total_week_str, fontsize=12, color=(0, 0, 0))
+    page.insert_text((462, y_positions['Friday'] + 395), total_week_str, fontsize=12, color=(0, 0, 0))
 
     pdf_document.save(buffer)
     pdf_document.close()
