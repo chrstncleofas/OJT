@@ -460,7 +460,7 @@
                                     <td>{{ student.RejectCourse }}</td>
                                     <td>{{ student.RejectYear }}</td>
                                     <td>
-                                        <p class="text-danger">Disapproved</p>
+                                        <p style="text-transform: uppercase; font-weight: bold;" class="text-danger">Disapproved</p>
                                     </td>
                                 </tr>
                                 {% empty %}
@@ -567,7 +567,7 @@
                                     <td>{{ student.Course }}</td>
                                     <td>{{ student.Year }}</td>
                                     <td>
-                                        <p class="text-danger">Archive</p>
+                                        <p style="text-transform: uppercase; font-weight: bold;" class="text-danger">Archive</p>
                                     </td>
                                     {% comment %} <td>
                                         <a href="{% url 'unArchivedStudent' student.id %}" class="btn btn-primary">Unarchive</a>
