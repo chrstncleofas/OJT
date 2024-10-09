@@ -553,7 +553,6 @@
                                     <th>Course</th>
                                     <th>Year</th>
                                     <th>Status</th>
-                                    <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -568,9 +567,9 @@
                                     <td>
                                         <p class="text-danger">Archive</p>
                                     </td>
-                                    <td>
+                                    {% comment %} <td>
                                         <a href="{% url 'unArchivedStudent' student.id %}" class="btn btn-primary">Unarchive</a>
-                                    </td>
+                                    </td> {% endcomment %}
                                 </tr>
                                 {% empty %}
                                     <tr>

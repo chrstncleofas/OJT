@@ -155,222 +155,223 @@
                 <div class="row p-2">
                     <div class="col-lg-12">
                         <p class="mt-1 mb-1">
-                            <a href="{% url 'studentManagement' %}" style="cursor: pointer; text-decoration: none; color: black;">Home</a> / Time Logs
+                            <a href="{% url 'studentManagement' %}" style="cursor: pointer; text-decoration: none; color: black;">Manage Student</a> / Time Logs
                         </p>
                         <h4 class="mt-3 mb-2">
                             <span style="text-transform: uppercase; font-weight: 500;">{{ studentFirstname }} {{ studentLastname }}</span>
                         </h4>
-                    </div>
-                    
+                    </div>  
                     {% if paired_logs %}
-                    <div class="col-md-12 mt-2">
-                        <form method="POST" action="">
-                            {% csrf_token %}
-                            <div class="row mb-3">
-                                <div class="col-md-4">
-                                    <div class="card text-white bg-primary mb-3">
-                                        <div class="card-header">Total Work Hours</div>
-                                        <div class="card-body">
-                                            <div class="row">
-                                                <input type="text" style="width: 309px; font-size: 15px;" name="total_work_time" class="form-control ml-1" value="{{ total_work_time }}" readonly>
+                        <div class="col-md-12 mt-2">
+                            <form method="POST" action="">
+                                {% csrf_token %}
+                                <div class="row mb-3">
+                                    <div class="col-md-4">
+                                        <div class="card text-white bg-primary mb-3">
+                                            <div class="card-header">Total Work Hours</div>
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <input type="text" style="width: 309px; font-size: 15px;" name="total_work_time" class="form-control ml-1" value="{{ total_work_time }}" readonly>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="card text-white bg-warning mb-3">
+                                            <div class="card-header">Remaining Hours</div>
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <input type="text" style="width: 309px; font-size: 15px;" name="remaining_hours_time" class="form-control ml-1" value="{{ remaining_hours_time }}" readonly>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="card text-white bg-success mb-3">
+                                            <div class="card-header">Required Duration</div>
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <input type="text" style="width: 309px; font-size: 15px;" name="required_hours_time" class="form-control ml-1" value="{{ required_hours_time }}" readonly>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-4">
-                                    <div class="card text-white bg-warning mb-3">
-                                        <div class="card-header">Remaining Hours</div>
-                                        <div class="card-body">
-                                            <div class="row">
-                                                <input type="text" style="width: 309px; font-size: 15px;" name="remaining_hours_time" class="form-control ml-1" value="{{ remaining_hours_time }}" readonly>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="card text-white bg-success mb-3">
-                                        <div class="card-header">Required Duration</div>
-                                        <div class="card-body">
-                                            <div class="row">
-                                                <input type="text" style="width: 309px; font-size: 15px;" name="required_hours_time" class="form-control ml-1" value="{{ required_hours_time }}" readonly>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <button type="submit" id="saveChanges" class="btn btn-success d-none">Save Changes</button>
-                        </form>
-                        {% comment %}  {% endcomment %}
-                        <table class="table table-bordered mt-2">
-                            <thead class="thead-dark">
-                                <tr>
-                                    <th>TIME IN (am)</th>
-                                    <th>TIME IN IMAGE</th>
-                                    <th>TIME OUT (pm)</th>
-                                    <th>TIME OUT IMAGE</th>
-                                    <th>TIME IN (pm)</th>
-                                    <th>TIME IN IMAGE</th>
-                                    <th>TIME OUT (pm)</th>
-                                    <th>TIME OUT IMAGE</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for in_log, out_log in paired_logs %}
-                                <tr>
-                                    <td>
-                                        {{ in_log.timestamp|date:"g:i:s A" }}<br>
-                                        {{ in_log.timestamp|date:"F j, Y" }}
-                                    </td>
-                                    <td>
-                                        {% if in_log.image %}
-                                            <img src="{{ in_log.image.url }}" alt="Time IN Image" class="img-fluid" style="max-width: 100px;">
-                                        {% else %}
-                                            <img src="{% static 'path/to/default-image.jpg' %}" alt="No Image" class="img-fluid" style="max-width: 100px;">
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {% for lunch_log in lunch_logs %}
-                                            {% if lunch_log.action == 'LUNCH OUT' %}
-                                                {{ lunch_log.timestamp|date:"g:i:s A" }}<br>
-                                                {{ lunch_log.timestamp|date:"F j, Y" }}
-                                            {% endif %}
-                                        {% endfor %}
-                                    </td>
-                                    <td>
-                                        {% for lunch_log in lunch_logs %}
-                                            {% if lunch_log.action == 'LUNCH OUT' %}
-                                                {% if lunch_log.image %}
-                                                    <img src="{{ lunch_log.image.url }}" alt="Lunch OUT Image" class="img-fluid" style="max-width: 100px;">
-                                                {% else %}
-                                                    <img src="{% static 'path/to/default-image.jpg' %}" alt="No Image" class="img-fluid" style="max-width: 100px;">
-                                                {% endif %}
-                                            {% endif %}
-                                        {% endfor %}
-                                    </td>
-                                    <td>
-                                        {% for lunch_log in lunch_logs %}
-                                            {% if lunch_log.action == 'LUNCH IN' %}
-                                                {{ lunch_log.timestamp|date:"g:i:s A" }}<br>
-                                                {{ lunch_log.timestamp|date:"F j, Y" }}
-                                            {% endif %}
-                                        {% endfor %}
-                                    </td>
-                                    <td>
-                                        {% for lunch_log in lunch_logs %}
-                                            {% if lunch_log.action == 'LUNCH IN' %}
-                                                {% if lunch_log.image %}
-                                                    <img src="{{ lunch_log.image.url }}" alt="Lunch IN Image" class="img-fluid" style="max-width: 100px;">
-                                                {% else %}
-                                                    <img src="{% static 'path/to/default-image.jpg' %}" alt="No Image" class="img-fluid" style="max-width: 100px;">
-                                                {% endif %}
-                                            {% endif %}
-                                        {% endfor %}
-                                    </td>
-                                    <td>
-                                        {{ out_log.timestamp|date:"g:i:s A" }}<br>
-                                        {{ out_log.timestamp|date:"F j, Y" }}
-                                    </td>
-                                    <td>
-                                        {% if out_log.image %}
-                                            <img src="{{ out_log.image.url }}" alt="Time OUT Image" class="img-fluid" style="max-width: 100px;">
-                                        {% else %}
-                                            <img src="{% static 'path/to/default-image.jpg' %}" alt="No Image" class="img-fluid" style="max-width: 100px;">
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>                     
-                        <h6 class="mt-4 ml-1 mb-3">Grades</h6>
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Evaluation</th>
-                                    <th>Documents</th>
-                                    <th>Oral Interview</th>
-                                    <th>Final Grade</th>
-                                    <th>Remarks</th>
-                                </tr>
-                            </thead>
-                            <tbody id="announcementList">
-                                {% for grade in gradesResult %}
-                                <tr>
-                                    <td>{{ grade.evaluation }}</td>
-                                    <td style="text-transform: capitalize;">{{ grade.docs }}</td>
-                                    <td style="text-transform: capitalize;">{{ grade.oral_interview }}</td>
-                                    <td style="text-transform: capitalize;">{{ grade.final_grade }}</td>
-                                    <td style="text-transform: capitalize;">{{ grade.status }}</td>
-                                </tr>
-                                {% empty %}
-                                <tr>
-                                    <td colspan="7" class="text-center">No inputted grade.</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                        <h6 class="mt-4 ml-1 mb-3">Progress Report</h6>
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Filename</th>
-                                    <th>Date Submitted</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% if cleaned_reports %}
-                                    {% for report, cleaned_filename in cleaned_reports %}
-                                        <tr>
-                                            <td>{{ report.report_file.name|slice:"8:" }}</td>
-                                            <td>{{ report.date_submitted|slice:"0:-5"}}</td>
-                                            <td>
-                                                <a href="{{ report.report_file.url }}" class="btn btn-primary" target="_blank">
-                                                    <i class="fas fa-eye"></i>
-                                                </a>
-                                            </td>
-                                        </tr>
-                                    {% endfor %}
-                                {% else %}
+                                <button type="submit" id="saveChanges" class="btn btn-success d-none">Save Changes</button>
+                            </form>
+                            {% comment %}  {% endcomment %}
+                            <table class="table table-bordered mt-2">
+                                <thead class="thead-dark">
                                     <tr>
-                                        <td colspan="4" class="text-center">No progress report submitted.</td>
+                                        <th>TIME IN (am)</th>
+                                        <th>TIME IN IMAGE</th>
+                                        <th>TIME OUT (pm)</th>
+                                        <th>TIME OUT IMAGE</th>
+                                        <th>TIME IN (pm)</th>
+                                        <th>TIME IN IMAGE</th>
+                                        <th>TIME OUT (pm)</th>
+                                        <th>TIME OUT IMAGE</th>
                                     </tr>
-                                {% endif %}
-                            </tbody>
-                        </table>
-                        <h6 class="mt-4 ml-1 mb-3">Requirements</h6>
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Filename</th>
-                                    <th>Date Submitted</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% if requirements %}
-                                    {% for docs in requirements %}
-                                        <tr>
-                                            <td>{{ docs.nameOfDocs }}</td>
-                                            <td>{{ docs.submission_date }}</td>
-                                            <td>
-                                                <a href="{{ docs.submitted_file.url }}" class="btn btn-primary" target="_blank">
-                                                    <i class="fas fa-eye"></i>
-                                                </a>
-                                            </td>
-                                        </tr>
-                                    {% endfor %}
-                                {% else %}
+                                </thead>
+                                <tbody>
+                                    {% for in_log, out_log in paired_logs %}
                                     <tr>
-                                        <td colspan="4" class="text-center">No progress report submitted.</td>
+                                        <td>
+                                            {{ in_log.timestamp|date:"g:i:s A" }}<br>
+                                            {{ in_log.timestamp|date:"F j, Y" }}
+                                        </td>
+                                        <td>
+                                            {% if in_log.image %}
+                                                <img src="{{ in_log.image.url }}" alt="Time IN Image" class="img-fluid" style="max-width: 100px;">
+                                            {% else %}
+                                                <img src="{% static 'path/to/default-image.jpg' %}" alt="No Image" class="img-fluid" style="max-width: 100px;">
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% for lunch_log in lunch_logs %}
+                                                {% if lunch_log.action == 'LUNCH OUT' %}
+                                                    {{ lunch_log.timestamp|date:"g:i:s A" }}<br>
+                                                    {{ lunch_log.timestamp|date:"F j, Y" }}
+                                                {% endif %}
+                                            {% endfor %}
+                                        </td>
+                                        <td>
+                                            {% for lunch_log in lunch_logs %}
+                                                {% if lunch_log.action == 'LUNCH OUT' %}
+                                                    {% if lunch_log.image %}
+                                                        <img src="{{ lunch_log.image.url }}" alt="Lunch OUT Image" class="img-fluid" style="max-width: 100px;">
+                                                    {% else %}
+                                                        <img src="{% static 'path/to/default-image.jpg' %}" alt="No Image" class="img-fluid" style="max-width: 100px;">
+                                                    {% endif %}
+                                                {% endif %}
+                                            {% endfor %}
+                                        </td>
+                                        <td>
+                                            {% for lunch_log in lunch_logs %}
+                                                {% if lunch_log.action == 'LUNCH IN' %}
+                                                    {{ lunch_log.timestamp|date:"g:i:s A" }}<br>
+                                                    {{ lunch_log.timestamp|date:"F j, Y" }}
+                                                {% endif %}
+                                            {% endfor %}
+                                        </td>
+                                        <td>
+                                            {% for lunch_log in lunch_logs %}
+                                                {% if lunch_log.action == 'LUNCH IN' %}
+                                                    {% if lunch_log.image %}
+                                                        <img src="{{ lunch_log.image.url }}" alt="Lunch IN Image" class="img-fluid" style="max-width: 100px;">
+                                                    {% else %}
+                                                        <img src="{% static 'path/to/default-image.jpg' %}" alt="No Image" class="img-fluid" style="max-width: 100px;">
+                                                    {% endif %}
+                                                {% endif %}
+                                            {% endfor %}
+                                        </td>
+                                        <td>
+                                            {{ out_log.timestamp|date:"g:i:s A" }}<br>
+                                            {{ out_log.timestamp|date:"F j, Y" }}
+                                        </td>
+                                        <td>
+                                            {% if out_log.image %}
+                                                <img src="{{ out_log.image.url }}" alt="Time OUT Image" class="img-fluid" style="max-width: 100px;">
+                                            {% else %}
+                                                <img src="{% static 'path/to/default-image.jpg' %}" alt="No Image" class="img-fluid" style="max-width: 100px;">
+                                            {% endif %}
+                                        </td>
                                     </tr>
-                                {% endif %}
-                            </tbody>
-                        </table>
-                    </div>
+                                    {% endfor %}
+                                </tbody>
+                            </table>                     
+                            <h6 class="mt-4 ml-1 mb-3">Grades</h6>
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Evaluation</th>
+                                        <th>Documents</th>
+                                        <th>Oral Interview</th>
+                                        <th>Final Grade</th>
+                                        <th>Remarks</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="announcementList">
+                                    {% for grade in gradesResult %}
+                                    <tr>
+                                        <td>{{ grade.evaluation }}</td>
+                                        <td style="text-transform: capitalize;">{{ grade.docs }}</td>
+                                        <td style="text-transform: capitalize;">{{ grade.oral_interview }}</td>
+                                        <td style="text-transform: capitalize;">{{ grade.final_grade }}</td>
+                                        <td style="text-transform: capitalize;">{{ grade.status }}</td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="7" class="text-center">No inputted grade.</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                            <h6 class="mt-4 ml-1 mb-3">Progress Report</h6>
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Filename</th>
+                                        <th>Date Submitted</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% if cleaned_reports %}
+                                        {% for report, cleaned_filename in cleaned_reports %}
+                                            <tr>
+                                                <td>{{ report.report_file.name|slice:"8:" }}</td>
+                                                <td>{{ report.date_submitted|slice:"0:-5"}}</td>
+                                                <td>
+                                                    <a href="{{ report.report_file.url }}" class="btn btn-primary" target="_blank">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    {% else %}
+                                        <tr>
+                                            <td colspan="4" class="text-center">No progress report submitted.</td>
+                                        </tr>
+                                    {% endif %}
+                                </tbody>
+                            </table>
+                            <h6 class="mt-4 ml-1 mb-3">Requirements</h6>
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Filename</th>
+                                        <th>Date Submitted</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% if requirements %}
+                                        {% for docs in requirements %}
+                                            <tr>
+                                                <td>{{ docs.nameOfDocs }}</td>
+                                                <td>{{ docs.submission_date }}</td>
+                                                <td>
+                                                    <a href="{{ docs.submitted_file.url }}" class="btn btn-primary" target="_blank">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    {% else %}
+                                        <tr>
+                                            <td colspan="4" class="text-center">No progress report submitted.</td>
+                                        </tr>
+                                    {% endif %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center" style="justify-items: center; align-items: center;">
+                            <h6>No logs found for this student.</h6>
+                        </div>
+                    {% endif %}
                 </div>
-                {% else %}
-                <p>No logs found for this student.</p>
-                {% endif %}
             </div>                 
         </div>
     </div>
