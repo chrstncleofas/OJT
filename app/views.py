@@ -90,7 +90,7 @@ def studentManagement(request):
     pending = PendingApplication.objects.filter(StatusApplication='PendingApplication', PendingStatusArchive='NotArchive').order_by('id')
     archive = DataTableStudents.objects.filter(archivedStudents='Archive').order_by('id')
 
-    search_query = request.GET.get('search', '')
+    search_query = request.GET.get('search-approve', '')
 
     approve_students = DataTableStudents.objects.all().order_by('id')
 
