@@ -134,6 +134,9 @@
                 <a href="{% url 'listOfAnnouncement' %}" class="list-group-item list-group-item-action bg-light">
                     <i class="fas fa-bullhorn"></i> Announcement
                 </a>
+                <a href="{% url 'all-content' %}" class="list-group-item list-group-item-action bg-light">
+                    <i class="fa-solid fa-cube"></i> Content
+                </a>
                 <a href="{% url 'studentManagement' %}" class="list-group-item list-group-item-action bg-light">
                     <i class="fas fa-user-graduate"></i> Manage Student
                 </a>
@@ -146,9 +149,29 @@
                 <a href="{% url 'set_rendering_hours' %}" class="list-group-item list-group-item-action bg-light">
                     <i class="fas fa-cogs"></i> Settings
                 </a>
-                <a href="{% url 'logout' %}" class="list-group-item list-group-item-action bg-light">
+                <a data-toggle="modal" data-target="#logout" class="list-group-item list-group-item-action bg-light">
                     <i class="fas fa-sign-out-alt"></i> Logout
                 </a>
+            </div>
+        </div>
+        <div class="modal fade" id="logout" tabindex="-1" role="dialog" aria-labelledby="loginModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="loginModalLabel">Logout</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Are you sure do want to leave this page</p>
+                    </div>
+                    <div class="modal-footer">
+                        <form>
+                            <a href="{% url 'logout' %}" class="btn btn-primary">Logout</a>
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
         <!-- Page Content -->
@@ -157,8 +180,6 @@
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-
-
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav ml-auto mt-2 mt-lg-0">
                         <li class="nav-item dropdown">
