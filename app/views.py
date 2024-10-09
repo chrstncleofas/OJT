@@ -93,15 +93,25 @@ def studentManagement(request):
     pending = PendingApplication.objects.filter(StatusApplication='PendingApplication', PendingStatusArchive='NotArchive').order_by('id')
     archive = DataTableStudents.objects.filter(archivedStudents='Archive').order_by('id')
 
-    search_query = request.GET.get('search-approve', '')
+    search_query_approve = request.GET.get('search-approve', '')
+    search_query_pending = request.GET.get('search-pending', '')
 
     # Use the filtered approved students if a search query exists
-    if search_query:
+    if search_query_approve:
         approved = approved.filter(
-            Q(StudentID__icontains=search_query) |
-            Q(Firstname__icontains=search_query) |
-            Q(Middlename__icontains=search_query) |
-            Q(Lastname__icontains=search_query)
+            Q(StudentID__icontains=search_query_approve) |
+            Q(Firstname__icontains=search_query_approve) |
+            Q(Middlename__icontains=search_query_approve) |
+            Q(Lastname__icontains=search_query_approve)
+        )
+    
+    # Use the filtered pending students if a search query exists
+    if search_query_pending:
+        pending = pending.filter(
+            Q(PendingStudentID__icontains=search_query_pending) |
+            Q(PendingFirstname__icontains=search_query_pending) |
+            Q(PendingMiddlename__icontains=search_query_pending) |
+            Q(PendingLastname__icontains=search_query_pending)
         )
 
     active_tab = request.GET.get('tab', 'approved-students')
