@@ -200,11 +200,11 @@ def progressReport(request):
     user = request.user
     student = get_object_or_404(DataTableStudents, user=user)
     firstName = student.Firstname
+    middleName = student.Middlename
     lastName = student.Lastname
-    full_name = f"{firstName} {lastName}"
     notifications = Notification.objects.filter(student=student, is_read=False)
     unread_notifications_count = notifications.count()
-
+    full_name = firstName + ' ' + middleName + ' ' + lastName
     if request.method == 'POST':
         form = FillUpPDFForm(request.POST)
         if form.is_valid():
@@ -227,7 +227,6 @@ def progressReport(request):
                 'department_division': (250, 290),
                 'total_hours': (506, 652)
             }
-            full_name = firstName + ' ' + lastName
             # Draw text fields
             page.insert_text(coordinates['name_field'], form.cleaned_data['student_name'], fontsize=12, color=(0, 0, 0))
             # Draw Internship Classification
@@ -306,6 +305,7 @@ def progressReport(request):
         {
             'form': form,
             'firstName': firstName,
+            'middleName': middleName,
             'lastName': lastName,
             'full_name': full_name,
             'notifications': notifications,
