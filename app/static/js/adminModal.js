@@ -26,7 +26,7 @@ function validatePassword(studentId) {
         return;
     }
 
-    fetch("/adminSite/validate_admin_password/", {
+    fetch("/coordinator/validate_admin_password/", {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -46,7 +46,7 @@ function validatePassword(studentId) {
 }
 
 function archiveStudent(studentId) {
-    const url = `/adminSite/archivedStudent/${studentId}/`;
+    const url = `/coordinator/archivedStudent/${studentId}/`;
 
     fetch(url, {
         method: 'POST',
