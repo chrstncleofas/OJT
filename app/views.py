@@ -90,6 +90,18 @@ def studentManagement(request):
     pending = PendingApplication.objects.filter(StatusApplication='PendingApplication', PendingStatusArchive='NotArchive').order_by('id')
     archive = DataTableStudents.objects.filter(archivedStudents='Archive').order_by('id')
 
+    search_query = request.GET.get('search', '')
+
+    approve_students = DataTableStudents.objects.all().order_by('id')
+
+    if search_query:
+        approve_students = approve_students.filter(
+            Q(StudentID__icontains=search_query),
+            Q(Firstname__icontains=search_query),
+            Q(Middlename__icontains=search_query),
+            Q(Lastname__icontains=search_query),
+        )
+
     active_tab = request.GET.get('tab', 'approved-students')
     page = request.GET.get('page', 1)
     per_page = int(request.GET.get('per_page', 10))

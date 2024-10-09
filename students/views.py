@@ -447,9 +447,12 @@ def TimeInAndTimeOut(request):
     time_logs = TimeLog.objects.filter(student=student).order_by('timestamp')
     lunch_logs = LunchLog.objects.filter(student=student).order_by('timestamp')
 
-    # Calculate total work time in seconds
+    # Calculate total work time in seconds, considering both time logs and lunch breaks
     total_work_time_seconds = 0
-    for i in range(0, len(time_logs) - 1, 2):  # Iterate through time logs
+    lunch_break_time_seconds = 0
+
+    # Calculate total work hours from TimeLog entries
+    for i in range(0, len(time_logs) - 1, 2):  # Iterate through time logs in pairs (Time In/Out)
         time_in = time_logs[i]
         if i + 1 < len(time_logs):
             time_out = time_logs[i + 1]
@@ -457,19 +460,28 @@ def TimeInAndTimeOut(request):
                 time_diff = (time_out.timestamp - time_in.timestamp).total_seconds()
                 total_work_time_seconds += time_diff
 
-    # Convert total work time to hours and minutes
-    total_work_hours, total_work_minutes = divmod(int(total_work_time_seconds), 3600)
+    # Calculate lunch break time from LunchLog entries
+    for i in range(0, len(lunch_logs) - 1, 2):  # Iterate through lunch logs in pairs (Lunch In/Out)
+        lunch_in = lunch_logs[i]
+        if i + 1 < len(lunch_logs):
+            lunch_out = lunch_logs[i + 1]
+            if lunch_out.timestamp > lunch_in.timestamp:  # Ensure lunch out is after lunch in
+                lunch_diff = (lunch_out.timestamp - lunch_in.timestamp).total_seconds()
+                lunch_break_time_seconds += lunch_diff
+
+    # Adjust the total work time by subtracting the lunch break time
+    adjusted_total_work_time_seconds = total_work_time_seconds - lunch_break_time_seconds
+
+    # Convert adjusted total work time to hours and minutes
+    total_work_hours, total_work_minutes = divmod(int(adjusted_total_work_time_seconds), 3600)
     total_work_minutes = (total_work_minutes // 60) % 60  # Correctly convert to minutes
 
     # Format the display string for total work time
     total_work_time_display = f"{total_work_hours} hours, {total_work_minutes} minutes"
 
-    # Debugging output
-    print(f"Total Work Time Seconds: {total_work_time_seconds}, Hours: {total_work_hours}, Minutes: {total_work_minutes}")
-
     # Calculate required hours
     required_hours_seconds = student.get_required_hours() * 3600 if student.get_required_hours() is not None else 0
-    remaining_hours_seconds = max(0, required_hours_seconds - total_work_time_seconds)
+    remaining_hours_seconds = max(0, required_hours_seconds - adjusted_total_work_time_seconds)
 
     # Convert remaining time to hours and minutes
     remaining_hours, remaining_minutes = divmod(int(remaining_hours_seconds), 3600)
@@ -477,9 +489,6 @@ def TimeInAndTimeOut(request):
 
     # Format the display for remaining hours
     remaining_hours_display = f"{remaining_hours} hours, {remaining_minutes} minutes"
-
-    # Debugging output for remaining hours
-    print(f"Remaining Hours Seconds: {remaining_hours_seconds}, Hours: {remaining_hours}, Minutes: {remaining_minutes}")
 
     # Prepare paired logs for rendering
     paired_logs = []
@@ -509,6 +518,7 @@ def TimeInAndTimeOut(request):
         'last_action': last_action,  # Pass last action to the template
         'message': message if not requirements_submitted else None,  # Message for unapproved documents
     })
+
 
 @login_required
 @never_cache
