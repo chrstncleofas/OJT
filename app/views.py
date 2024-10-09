@@ -114,6 +114,9 @@ def studentManagement(request):
             Q(PendingLastname__icontains=search_query_pending)
         )
 
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return render(request, 'app/manage-student.html', {'students': students})
+
     active_tab = request.GET.get('tab', 'approved-students')
     page = request.GET.get('page', 1)
     per_page = int(request.GET.get('per_page', 10))
