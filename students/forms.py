@@ -311,8 +311,8 @@ class FillUpPDFForm(forms.Form):
         required=False
     )
 
-    hte_name = forms.CharField(label='Name of HTE', max_length=100, required=False)
-    hte_address = forms.CharField(label='Address of HTE', max_length=255, required=False)
+    hte_name = forms.CharField(label='Host Training Establishment', max_length=100, required=False)
+    hte_address = forms.CharField(label='Address of Host Training Establishment', max_length=255, required=False)
     department_division = forms.CharField(label='Department Division Assigned', max_length=100, required=False)
 
     # Monday
