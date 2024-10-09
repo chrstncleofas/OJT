@@ -327,7 +327,6 @@ def exportTimeLogToPDF(request):
     pdf_document = fitz.open(os.path.join(settings.PDF_ROOT, 'INTERNSHIP-TIME-SHEET.pdf'))
     page = pdf_document[0]
     
-    # Initialize y_position for each day (Monday to Friday)
     y_positions = {
         'Monday': 100,
         'Tuesday': 120,
