@@ -420,9 +420,9 @@ def approve_document(request, id):
 def unArchivedStudent(request, id):
     user = request.user
     student = DataTableStudents.objects.get(id=id)
-    student.archivedStudents = 'UnArchive'
+    student.archivedStudents = 'NotArchive'
     student.save()
-    saveActivityLogs(user=user, action='UNARCHIVED', request=request, description='Unarchive students')
+    saveActivityLogs(user=user, action='NotArchive', request=request, description='Unarchive students')
     messages.success(request, f'{student.Firstname} {student.Lastname} has been remove to archived.')
     return redirect(reverse('studentManagement'))
 

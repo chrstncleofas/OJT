@@ -47,7 +47,6 @@ function validatePassword(studentId) {
 
 function archiveStudent(studentId) {
     const url = `/coordinator/archivedStudent/${studentId}/`;
-
     fetch(url, {
         method: 'POST',
         headers: {
