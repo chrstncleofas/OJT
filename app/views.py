@@ -91,6 +91,7 @@ def studentManagement(request):
     # Fetching data for different tabs
     approved = DataTableStudents.objects.filter(status='Approved', archivedStudents='NotArchive').order_by('id')
     pending = PendingApplication.objects.filter(StatusApplication='PendingApplication', PendingStatusArchive='NotArchive').order_by('id')
+    rejected = RejectApplication.objects.filter(RejectStatus='RejectedApplication', RejectStatusArchive='NotArchive').order_by('id')
     archive = DataTableStudents.objects.filter(archivedStudents='Archive').order_by('id')
 
     search_query_approve = request.GET.get('search-approve', '')
@@ -126,6 +127,8 @@ def studentManagement(request):
         students_list = approved
     elif active_tab == 'pending-application':
         students_list = pending
+    elif active_tab == 'reject-application':
+        students_list = rejected
     elif active_tab == 'archive':
         students_list = archive
     else:
@@ -142,6 +145,7 @@ def studentManagement(request):
     context = {
         'students': students,
         'pending': pending,
+        'rejected': rejected,
         'archive': archive,
         'firstName': firstName,
         'lastName': lastName,
