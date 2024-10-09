@@ -299,7 +299,7 @@
                                     <div class="form-row">
                                         <div class="form-group col-md-4">
                                             <label for="monday_date">Date</label>
-                                            <input type="date" id="monday_date" name="monday_date" class="form-control">
+                                            <input type="date" id="monday_date" name="monday_date" class="form-control" value="{{ current_date|date:'Y-m-d' }}">
                                         </div>
                                         <div class="form-group col-md-4">
                                             <label for="monday_description">Description</label>
@@ -311,11 +311,12 @@
                                         </div>
                                     </div>
                                 </div>
+                                
                                 <div class="tab-pane fade" id="tuesday" role="tabpanel" aria-labelledby="tuesday-tab">
                                     <div class="form-row">
                                         <div class="form-group col-md-4">
                                             <label for="tuesday_date">Date</label>
-                                            <input type="date" id="tuesday_date" name="tuesday_date" class="form-control">
+                                            <input type="date" id="tuesday_date" name="tuesday_date" class="form-control" value="{{ current_date|date:'Y-m-d' }}">
                                         </div>
                                         <div class="form-group col-md-4">
                                             <label for="tuesday_description">Description</label>
@@ -327,11 +328,12 @@
                                         </div>
                                     </div>
                                 </div>
+                                
                                 <div class="tab-pane fade" id="wednesday" role="tabpanel" aria-labelledby="wednesday-tab">
                                     <div class="form-row">
                                         <div class="form-group col-md-4">
                                             <label for="wednesday_date">Date</label>
-                                            <input type="date" id="wednesday_date" name="wednesday_date" class="form-control">
+                                            <input type="date" id="wednesday_date" name="wednesday_date" class="form-control" value="{{ current_date|date:'Y-m-d' }}">
                                         </div>
                                         <div class="form-group col-md-4">
                                             <label for="wednesday_description">Description</label>
@@ -343,11 +345,12 @@
                                         </div>
                                     </div>
                                 </div>
+
                                 <div class="tab-pane fade" id="thursday" role="tabpanel" aria-labelledby="thursday-tab">
                                     <div class="form-row">
                                         <div class="form-group col-md-4">
                                             <label for="thursday_date">Date</label>
-                                            <input type="date" id="thursday_date" name="thursday_date" class="form-control">
+                                            <input type="date" id="thursday_date" name="thursday_date" class="form-control" value="{{ current_date|date:'Y-m-d' }}">
                                         </div>
                                         <div class="form-group col-md-4">
                                             <label for="thursday_description">Description</label>
@@ -359,11 +362,12 @@
                                         </div>
                                     </div>
                                 </div>
+
                                 <div class="tab-pane fade" id="friday" role="tabpanel" aria-labelledby="friday-tab">
                                     <div class="form-row">
                                         <div class="form-group col-md-4">
                                             <label for="friday_date">Date</label>
-                                            <input type="date" id="friday_date" name="friday_date" class="form-control">
+                                            <input type="date" id="friday_date" name="friday_date" class="form-control" value="{{ current_date|date:'Y-m-d' }}">
                                         </div>
                                         <div class="form-group col-md-4">
                                             <label for="friday_description">Description</label>
@@ -376,6 +380,9 @@
                                     </div>
                                 </div>
                             </div>
+                            <button id="saveDraft" name="action" class="btn btn-primary mt-2">
+                                Save Draft <i class="fa fa-save" aria-hidden="true" style="margin-left: 5px;"></i>
+                            </button>
                             <button type="submit" name="action" value="preview_report" class="btn btn-primary mt-2">
                                 Preview Report <i class="fa fa-eye" aria-hidden="true" style="margin-left: 5px;"></i>
                             </button>
@@ -427,6 +434,76 @@
                 myModal.show();
             {% endif %}
         });
+        // Function to get the start date of the current week (Monday)
+        function getStartOfWeek() {
+            const today = new Date();
+            const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+            const difference = today.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1); // Adjust when Sunday is the first day of the week
+            const startOfWeek = new Date(today.setDate(difference));
+            return startOfWeek;
+        }
+
+        // Function to populate date fields for the week
+        function populateDateFields() {
+            const startOfWeek = getStartOfWeek();
+            const dayOffsets = [0, 1, 2, 3, 4]; // Monday to Friday offsets
+            dayOffsets.forEach((offset, index) => {
+                const date = new Date(startOfWeek);
+                date.setDate(startOfWeek.getDate() + offset);
+                document.getElementById(['monday_date', 'tuesday_date', 'wednesday_date', 'thursday_date', 'friday_date'][index]).value = date.toISOString().split('T')[0];
+            });
+        }
+
+        // Save draft to local storage
+        function saveDraft() {
+            const draft = {
+                monday: {
+                    date: document.getElementById('monday_date').value,
+                    description: document.getElementById('monday_description').value,
+                    hours: document.getElementById('monday_hours').value,
+                },
+                tuesday: {
+                    date: document.getElementById('tuesday_date').value,
+                    description: document.getElementById('tuesday_description').value,
+                    hours: document.getElementById('tuesday_hours').value,
+                },
+                wednesday: {
+                    date: document.getElementById('wednesday_date').value,
+                    description: document.getElementById('wednesday_description').value,
+                    hours: document.getElementById('wednesday_hours').value,
+                },
+                thursday: {
+                    date: document.getElementById('thursday_date').value,
+                    description: document.getElementById('thursday_description').value,
+                    hours: document.getElementById('thursday_hours').value,
+                },
+                friday: {
+                    date: document.getElementById('friday_date').value,
+                    description: document.getElementById('friday_description').value,
+                    hours: document.getElementById('friday_hours').value,
+                }
+            };
+            localStorage.setItem('progressReportDraft', JSON.stringify(draft));
+            alert('Draft saved successfully!');
+        }
+
+        // Load draft from local storage
+        function loadDraft() {
+            const savedDraft = JSON.parse(localStorage.getItem('progressReportDraft'));
+            if (savedDraft) {
+                Object.keys(savedDraft).forEach(day => {
+                    document.getElementById(`${day}_date`).value = savedDraft[day].date;
+                    document.getElementById(`${day}_description`).value = savedDraft[day].description;
+                    document.getElementById(`${day}_hours`).value = savedDraft[day].hours;
+                });
+            }
+        }
+        // Set up event listeners
+        document.getElementById('saveDraft').addEventListener('click', saveDraft);
+        window.onload = () => {
+            populateDateFields();
+            loadDraft();
+        };
     </script>
 </body>
 </html>
