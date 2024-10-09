@@ -218,7 +218,7 @@
                                     <th>Action</th>
                                 </tr>
                             </thead>
-                            <tbody id="studentTableBody">
+                            <tbody id="tableOfApproveStudent">
                                 {% for student in students %}
                                 <tr data-course="{{ student.Course }}">
                                     <td>{{ student.StudentID }}</td>
@@ -589,6 +589,30 @@
                     row.style.display = 'none';
                 }
             });
+        });
+
+        document.getElementById('search-input').addEventListener('input', function() {
+            const searchValue = this.value;
+            
+            fetch(`{% url 'studentManagement' %}?search=${searchValue}`, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+            })
+            .then(response => response.text())
+            .then(html => {
+                // Parse the response and update the table
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const newTbody = doc.getElementById('tableOfApproveStudent');
+                const currentTbody = document.getElementById('tableOfApproveStudent');
+                
+                if (newTbody) {
+                    currentTbody.innerHTML = newTbody.innerHTML;
+                }
+            })
+            .catch(error => console.error('Error:', error));
         });
     </script>
 </body>

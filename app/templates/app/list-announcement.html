@@ -248,7 +248,7 @@
         document.getElementById('search-input').addEventListener('input', function() {
             const searchValue = this.value;
             
-            fetch(`{% url 'superapp:getAllTheListAnnouncement' %}?search=${searchValue}`, {
+            fetch(`{% url 'listOfAnnouncement' %}?search=${searchValue}`, {
                 method: 'GET',
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest',
