@@ -227,72 +227,58 @@
                         </tbody>
                     </table>
                 </div>
-                <!-- Pagination Controls -->
+                <!-- Pagination Controls for List of Students -->
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <!-- Items per Page Selector -->
+                    <!-- Items per Page Selector for List of Students -->
                     <div class="form-group">
-                        <label for="perPage" class="form-label mr-2">Items per page:</label>
-                        <select id="perPage" class="form-control w-auto" onchange="updatePerPage(this.value)">
-                            <option value="5" {% if per_page == 5 %}selected{% endif %}>5</option>
-                            <option value="10" {% if per_page == 10 %}selected{% endif %}>10</option>
-                            <option value="20" {% if per_page == 20 %}selected{% endif %}>20</option>
-                            <option value="30" {% if per_page == 30 %}selected{% endif %}>30</option>
-                            <option value="50" {% if per_page == 50 %}selected{% endif %}>50</option>
-                            <option value="100" {% if per_page == 100 %}selected{% endif %}>100</option>
+                        <label for="perPageStudents" class="form-label mr-2">Items per page:</label>
+                        <select id="perPageStudents" class="form-control w-auto" onchange="updatePerPage(this.value, 'students')">
+                            <option value="5" {% if per_page_students == 5 %}selected{% endif %}>5</option>
+                            <option value="10" {% if per_page_students == 10 %}selected{% endif %}>10</option>
+                            <option value="20" {% if per_page_students == 20 %}selected{% endif %}>20</option>
+                            <option value="30" {% if per_page_students == 30 %}selected{% endif %}>30</option>
+                            <option value="50" {% if per_page_students == 50 %}selected{% endif %}>50</option>
+                            <option value="100" {% if per_page_students == 100 %}selected{% endif %}>100</option>
                         </select>
                     </div>
-                
-                    <!-- Pagination Links -->
+
+                    <!-- Pagination Links for List of Students -->
                     <ul class="pagination">
                         {% if listOfStudents.has_previous %}
                             <li class="page-item">
-                                <a class="page-link" href="?page=1&per_page={{ per_page }}&search={{ request.GET.search }}" aria-label="First">
+                                <a class="page-link" href="?page_students=1&per_page_students={{ per_page_students }}&search={{ request.GET.search }}" aria-label="First">
                                     <span aria-hidden="true">&laquo;&laquo;</span>
                                 </a>
                             </li>
                             <li class="page-item">
-                                <a class="page-link" href="?page={{ listOfStudents.previous_page_number }}&per_page={{ per_page }}&search={{ request.GET.search }}" aria-label="Previous">
+                                <a class="page-link" href="?page_students={{ listOfStudents.previous_page_number }}&per_page_students={{ per_page_students }}&search={{ request.GET.search }}" aria-label="Previous">
                                     <span aria-hidden="true">&laquo;</span>
                                 </a>
                             </li>
                         {% endif %}
-                
-                        {% if pagination_range %}
-                            {% if pagination_range|length > 0 and pagination_range|first > 1 %}
-                                <li class="page-item">
-                                    <a class="page-link" href="?page=1&per_page={{ per_page }}&search={{ request.GET.search }}">1</a>
-                                </li>
-                                <li class="page-item"><span class="page-link">...</span></li>
+
+                        {% for num in listOfStudents.paginator.page_range %}
+                            {% if listOfStudents.number == num %}
+                                <li class="page-item active" aria-current="page"><span class="page-link">{{ num }}</span></li>
+                            {% else %}
+                                <li class="page-item"><a class="page-link" href="?page_students={{ num }}&per_page_students={{ per_page_students }}&search={{ request.GET.search }}">{{ num }}</a></li>
                             {% endif %}
-                
-                            {% for num in pagination_range %}
-                                {% if listOfStudents.number == num %}
-                                    <li class="page-item active" aria-current="page"><span class="page-link">{{ num }}</span></li>
-                                {% else %}
-                                    <li class="page-item"><a class="page-link" href="?page={{ num }}&per_page={{ per_page }}&search={{ request.GET.search }}">{{ num }}</a></li>
-                                {% endif %}
-                            {% endfor %}
-                
-                            {% if pagination_range|last < total_pages %}
-                                <li class="page-item"><span class="page-link">...</span></li>
-                                <li class="page-item"><a class="page-link" href="?page={{ total_pages }}&per_page={{ per_page }}&search={{ request.GET.search }}">{{ total_pages }}</a></li>
-                            {% endif %}
-                        {% endif %}
-                
+                        {% endfor %}
+
                         {% if listOfStudents.has_next %}
                             <li class="page-item">
-                                <a class="page-link" href="?page={{ listOfStudents.next_page_number }}&per_page={{ per_page }}&search={{ request.GET.search }}" aria-label="Next">
+                                <a class="page-link" href="?page_students={{ listOfStudents.next_page_number }}&per_page_students={{ per_page_students }}&search={{ request.GET.search }}" aria-label="Next">
                                     <span aria-hidden="true">&raquo;</span>
                                 </a>
                             </li>
                             <li class="page-item">
-                                <a class="page-link" href="?page={{ listOfStudents.paginator.num_pages }}&per_page={{ per_page }}&search={{ request.GET.search }}" aria-label="Last">
+                                <a class="page-link" href="?page_students={{ listOfStudents.paginator.num_pages }}&per_page_students={{ per_page_students }}&search={{ request.GET.search }}" aria-label="Last">
                                     <span aria-hidden="true">&raquo;&raquo;</span>
                                 </a>
                             </li>
                         {% endif %}
-                    </ul>                         
-                </div>                
+                    </ul>
+                </div>               
                 <!-- List with grade students -->
                 <h4 class="mt-3 mb-2">
                     <span style="font-weight: 400;">With Grades</span>
@@ -349,53 +335,55 @@
                         {% endfor %}
                     </tbody>
                 </table>
-                <!-- Pagination Controls -->
+                <!-- Pagination Controls for List with Grades -->
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <!-- Items per Page Selector -->
+                    <!-- Items per Page Selector for List with Grades -->
                     <div class="form-group">
-                        <label for="perPage" class="form-label mr-2">Items per page:</label>
-                        <select id="perPage" class="form-control w-auto" onchange="updatePerPage(this.value)">
-                            <option value="5" {% if per_page == 5 %}selected{% endif %}>5</option>
-                            <option value="10" {% if per_page == 10 %}selected{% endif %}>10</option>
-                            <option value="20" {% if per_page == 20 %}selected{% endif %}>20</option>
-                            <option value="30" {% if per_page == 30 %}selected{% endif %}>30</option>
-                            <option value="50" {% if per_page == 50 %}selected{% endif %}>50</option>
-                            <option value="100" {% if per_page == 100 %}selected{% endif %}>100</option>
+                        <label for="perPageGrades" class="form-label mr-2">Items per page:</label>
+                        <select id="perPageGrades" class="form-control w-auto" onchange="updatePerPage(this.value, 'grades')">
+                            <option value="5" {% if per_page_grades == 5 %}selected{% endif %}>5</option>
+                            <option value="10" {% if per_page_grades == 10 %}selected{% endif %}>10</option>
+                            <option value="20" {% if per_page_grades == 20 %}selected{% endif %}>20</option>
+                            <option value="30" {% if per_page_grades == 30 %}selected{% endif %}>30</option>
+                            <option value="50" {% if per_page_grades == 50 %}selected{% endif %}>50</option>
+                            <option value="100" {% if per_page_grades == 100 %}selected{% endif %}>100</option>
                         </select>
                     </div>
-                    <!-- Pagination Links -->
+
+                    <!-- Pagination Links for List with Grades -->
                     <ul class="pagination">
-                        {% if listOfStudents.has_previous %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page=1&per_page={{ per_page }}&search={{ request.GET.search }}" aria-label="First">
-                                <span aria-hidden="true">&laquo;&laquo;</span>
-                            </a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ listOfStudents.previous_page_number }}&per_page={{ per_page }}&search={{ request.GET.search }}" aria-label="Previous">
-                                <span aria-hidden="true">&laquo;</span>
-                            </a>
-                        </li>
+                        {% if withGrade.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page_grades=1&per_page_grades={{ per_page_grades }}&search={{ request.GET.search }}" aria-label="First">
+                                    <span aria-hidden="true">&laquo;&laquo;</span>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page_grades={{ withGrade.previous_page_number }}&per_page_grades={{ per_page_grades }}&search={{ request.GET.search }}" aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
                         {% endif %}
-            
-                        {% for num in listOfStudents.paginator.page_range %}
-                            {% if listOfStudents.number == num %}
-                            <li class="page-item active" aria-current="page"><span class="page-link">{{ num }}</span></li>
+
+                        {% for num in withGrade.paginator.page_range %}
+                            {% if withGrade.number == num %}
+                                <li class="page-item active" aria-current="page"><span class="page-link">{{ num }}</span></li>
                             {% else %}
-                            <li class="page-item"><a class="page-link" href="?page={{ num }}&per_page={{ per_page }}&search={{ request.GET.search }}">{{ num }}</a></li>
+                                <li class="page-item"><a class="page-link" href="?page_grades={{ num }}&per_page_grades={{ per_page_grades }}&search={{ request.GET.search }}">{{ num }}</a></li>
                             {% endif %}
                         {% endfor %}
-                        {% if listOfStudents.has_next %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ listOfStudents.next_page_number }}&per_page={{ per_page }}&search={{ request.GET.search }}" aria-label="Next">
-                                <span aria-hidden="true">&raquo;</span>
-                            </a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ listOfStudents.paginator.num_pages }}&per_page={{ per_page }}&search={{ request.GET.search }}" aria-label="Last">
-                                <span aria-hidden="true">&raquo;&raquo;</span>
-                            </a>
-                        </li>
+
+                        {% if withGrade.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page_grades={{ withGrade.next_page_number }}&per_page_grades={{ per_page_grades }}&search={{ request.GET.search }}" aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page_grades={{ withGrade.paginator.num_pages }}&per_page_grades={{ per_page_grades }}&search={{ request.GET.search }}" aria-label="Last">
+                                    <span aria-hidden="true">&raquo;&raquo;</span>
+                                </a>
+                            </li>
                         {% endif %}
                     </ul>
                 </div>
@@ -418,6 +406,15 @@
                 }
             });
         });
+        function updatePerPage(value, type) {
+            let url = new URL(window.location.href);
+            if (type === 'students') {
+                url.searchParams.set('per_page_students', value);
+            } else if (type === 'grades') {
+                url.searchParams.set('per_page_grades', value);
+            }
+            window.location.href = url;
+        }        
     </script>
 </body>
 </html>
