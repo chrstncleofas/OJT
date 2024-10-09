@@ -991,6 +991,8 @@ def editStudentDetails(request, id):
         'lastName': lastName,
     })
 
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+
 def getAllStudentsForGrading(request):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
@@ -998,7 +1000,7 @@ def getAllStudentsForGrading(request):
     lastName = admin.last_name
 
     search_query = request.GET.get('search', '')
-    searchgrade= request.GET.get('search-items', '')
+    searchgrade = request.GET.get('search-items', '')
 
     students = DataTableStudents.objects.filter(status='Approved', archivedStudents='NotArchive').order_by('id')
     withGrade = Grade.objects.all().order_by('id')
@@ -1007,7 +1009,7 @@ def getAllStudentsForGrading(request):
         students = students.filter(
             Q(Firstname__icontains=search_query)
         )
-    
+
     name_parts = searchgrade.split()
     if len(name_parts) == 2:
         withGrade = withGrade.filter(
@@ -1019,10 +1021,7 @@ def getAllStudentsForGrading(request):
             Q(student__Firstname__icontains=searchgrade) |
             Q(student__Lastname__icontains=searchgrade)
         )
-    
-    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-        return render(request, 'app/grading.html', {'listOfStudents': students})
-    
+
     # Pagination logic
     page = request.GET.get('page', 1)
     per_page = request.GET.get('per_page', 5)
@@ -1036,12 +1035,33 @@ def getAllStudentsForGrading(request):
     except EmptyPage:
         students = paginator.page(paginator.num_pages)
 
+    # Limit pagination range to 5 pages at a time
+    max_display_pages = 5
+    current_page = students.number
+    total_pages = paginator.num_pages
+
+    # Determine start and end of the pagination range
+    start_page = max(current_page - 2, 1)
+    end_page = min(start_page + max_display_pages - 1, total_pages)
+
+    if end_page - start_page < max_display_pages:
+        start_page = max(end_page - max_display_pages + 1, 1)
+
+    pagination_range = range(start_page, end_page + 1)
+
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return render(request, 'app/grading.html', {'listOfStudents': students})
+
     return render(request, 'app/grading.html', {
         'listOfStudents': students,
         'withGrade': withGrade,
         'firstName': firstName,
-        'lastName': lastName
+        'lastName': lastName,
+        'per_page': per_page,
+        'pagination_range': pagination_range,
+        'total_pages': total_pages
     })
+
 
 @require_POST
 def update_document_score(request, id):
