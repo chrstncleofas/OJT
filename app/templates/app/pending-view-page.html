@@ -142,8 +142,8 @@
                 <div class="d-flex justify-content-between mb-3 mt-3">
                     <p class="mt-1 text-center" style="font-size: 13px; font-weight: bold; text-align: center; justify-content: center;">Application Status: <span style="font-weight: 600;">{{ students.StatusApplication }}</span></p> 
                     <div>
+                        <!-- Approve Button -->
                         <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#approveModal{{students.id}}">Approve</button>
-                        <a href="{% url 'studentManagement' %}" class="btn btn-primary">Back</a>
                         <!-- Approve Modal -->
                         <div class="modal" id="approveModal{{students.id}}" tabindex="-1" aria-labelledby="myModalLabel1" aria-hidden="true">
                             <div class="modal-dialog" role="document">
@@ -164,7 +164,8 @@
                                 </div>
                             </div>
                         </div>
-                        {% comment %} <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#rejectModal{{students.id}}">Disapprove</button> {% endcomment %}
+                        <!-- Reject Button -->
+                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#rejectModal{{students.id}}">Disapprove</button>
                         <!-- Reject Modal -->
                         <div class="modal fade" id="rejectModal{{students.id}}" tabindex="-1" role="dialog" aria-labelledby="rejectModalLabel" aria-hidden="true">
                             <div class="modal-dialog" role="document">
@@ -186,6 +187,8 @@
                                 </div>
                             </div>
                         </div>
+                        <!-- Back Button -->
+                        <a href="{% url 'studentManagement' %}" class="btn btn-primary">Back</a>
                     </div>
                 </div>
                 <form method="post">
@@ -244,10 +247,8 @@
     {% comment %}  {% endcomment %}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     {% comment %}  {% endcomment %}
-    {% comment %}  {% endcomment %}
-    <script src="{% static 'js/adminModal.js' %}"></script>
-    {% comment %}  {% endcomment %}
     <script>
+        const csrfToken = "{{ csrf_token }}"; // Global Variable for Token
         function submitRejection(studentId) {
             const reason = document.getElementById(`rejectReason${studentId}`).value;
             if (reason.trim() === "") {

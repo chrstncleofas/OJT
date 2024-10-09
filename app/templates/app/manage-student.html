@@ -649,13 +649,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     {% comment %}  {% endcomment %}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
-    {% comment %}  {% endcomment %}
-    {% comment %}  {% endcomment %}
-    {% comment %} <script src="{% static 'js/adminModal.js' %}"></script> {% endcomment %}
-    {% comment %}  {% endcomment %}
     <script>
+        const csrfToken = "{{ csrf_token }}"; // Global Variable for Token
         // Function to preview image
-        const csrfToken = "{{ csrf_token }}";
         function previewImage(event) {
             var preview = document.getElementById('preview');
             var file = document.getElementById('id_image').files[0];
@@ -668,14 +664,12 @@
                 reader.readAsDataURL(file);
             }
         }
-
         function validatePassword(studentId) {
             var inputPasswordElement = document.getElementById('adminPassword' + studentId);
             if (inputPasswordElement === null) {
                 console.error('Cannot find element with ID:', 'adminPassword' + studentId);
                 return;
             }
-
             var inputPassword = inputPasswordElement.value;
             if (!inputPassword) {
                 alert('Please enter the admin password.');
@@ -700,7 +694,6 @@
             })
             .catch(error => console.error('Error:', error));
         }
-
         function archiveStudent(studentId) {
             const url = `/coordinator/archivedStudent/${studentId}/`;
             fetch(url, {
@@ -744,7 +737,6 @@
                 }
             });
         }
-
         document.getElementById('courseFilter').addEventListener('change', function() {
             var selectedCourse = this.value;
             var rows = document.querySelectorAll('#studentTableBody tr');
@@ -756,10 +748,8 @@
                 }
             });
         });
-
         document.getElementById('search-input').addEventListener('input', function() {
             const searchValue = this.value;
-            
             fetch(`{% url 'studentManagement' %}?search=${searchValue}`, {
                 method: 'GET',
                 headers: {
