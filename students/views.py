@@ -199,12 +199,12 @@ def draw_wrapped_text(page, text, start_pos, max_width, fontsize=12, fontname="h
 def progressReport(request):
     user = request.user
     student = get_object_or_404(DataTableStudents, user=user)
-    firstName = student.Firstname
-    middleName = student.Middlename
-    lastName = student.Lastname
+    firstName = student.Firstname or ''
+    middleName = student.Middlename or ''
+    lastName = student.Lastname or ''
     notifications = Notification.objects.filter(student=student, is_read=False)
     unread_notifications_count = notifications.count()
-    full_name = firstName + ' ' + middleName + ' ' + lastName
+    full_name = f"{firstName} {middleName} {lastName}".strip()
     if request.method == 'POST':
         form = FillUpPDFForm(request.POST)
         if form.is_valid():
