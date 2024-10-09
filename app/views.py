@@ -991,8 +991,6 @@ def editStudentDetails(request, id):
         'lastName': lastName,
     })
 
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-
 def getAllStudentsForGrading(request):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
@@ -1006,9 +1004,7 @@ def getAllStudentsForGrading(request):
     withGrade = Grade.objects.all().order_by('id')
 
     if search_query:
-        students = students.filter(
-            Q(Firstname__icontains=search_query)
-        )
+        students = students.filter(Q(Firstname__icontains=search_query))
 
     name_parts = searchgrade.split()
     if len(name_parts) == 2:
@@ -1022,46 +1018,67 @@ def getAllStudentsForGrading(request):
             Q(student__Lastname__icontains=searchgrade)
         )
 
-    # Pagination logic
-    page = request.GET.get('page', 1)
-    per_page = request.GET.get('per_page', 5)
+    # Pagination logic for listOfStudents
+    page_students = request.GET.get('page_students', 1)
+    per_page_students = request.GET.get('per_page_students', 5)
 
-    paginator = Paginator(students, per_page)
-
+    paginator_students = Paginator(students, per_page_students)
     try:
-        students = paginator.page(page)
+        students = paginator_students.page(page_students)
     except PageNotAnInteger:
-        students = paginator.page(1)
+        students = paginator_students.page(1)
     except EmptyPage:
-        students = paginator.page(paginator.num_pages)
+        students = paginator_students.page(paginator_students.num_pages)
 
-    # Limit pagination range to 5 pages at a time
+    # Pagination range for listOfStudents
     max_display_pages = 5
-    current_page = students.number
-    total_pages = paginator.num_pages
+    current_page_students = students.number
+    total_pages_students = paginator_students.num_pages
 
-    # Determine start and end of the pagination range
-    start_page = max(current_page - 2, 1)
-    end_page = min(start_page + max_display_pages - 1, total_pages)
+    start_page_students = max(current_page_students - 2, 1)
+    end_page_students = min(start_page_students + max_display_pages - 1, total_pages_students)
 
-    if end_page - start_page < max_display_pages:
-        start_page = max(end_page - max_display_pages + 1, 1)
+    if end_page_students - start_page_students < max_display_pages:
+        start_page_students = max(end_page_students - max_display_pages + 1, 1)
 
-    pagination_range = range(start_page, end_page + 1)
+    pagination_range_students = range(start_page_students, end_page_students + 1)
 
-    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-        return render(request, 'app/grading.html', {'listOfStudents': students})
+    # Pagination logic for withGrade
+    page_grades = request.GET.get('page_grades', 1)
+    per_page_grades = request.GET.get('per_page_grades', 5)
+
+    paginator_grades = Paginator(withGrade, per_page_grades)
+    try:
+        withGrade = paginator_grades.page(page_grades)
+    except PageNotAnInteger:
+        withGrade = paginator_grades.page(1)
+    except EmptyPage:
+        withGrade = paginator_grades.page(paginator_grades.num_pages)
+
+    # Pagination range for withGrade
+    current_page_grades = withGrade.number
+    total_pages_grades = paginator_grades.num_pages
+
+    start_page_grades = max(current_page_grades - 2, 1)
+    end_page_grades = min(start_page_grades + max_display_pages - 1, total_pages_grades)
+
+    if end_page_grades - start_page_grades < max_display_pages:
+        start_page_grades = max(end_page_grades - max_display_pages + 1, 1)
+
+    pagination_range_grades = range(start_page_grades, end_page_grades + 1)
 
     return render(request, 'app/grading.html', {
         'listOfStudents': students,
         'withGrade': withGrade,
         'firstName': firstName,
         'lastName': lastName,
-        'per_page': per_page,
-        'pagination_range': pagination_range,
-        'total_pages': total_pages
+        'per_page_students': per_page_students,
+        'pagination_range_students': pagination_range_students,
+        'total_pages_students': total_pages_students,
+        'per_page_grades': per_page_grades,
+        'pagination_range_grades': pagination_range_grades,
+        'total_pages_grades': total_pages_grades,
     })
-
 
 @require_POST
 def update_document_score(request, id):
