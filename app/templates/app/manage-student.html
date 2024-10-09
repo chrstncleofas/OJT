@@ -186,16 +186,17 @@
                     <div class="tab-pane fade show {% if active_tab == 'approved-students' %}show active{% endif %}" id="approved-students" role="tabpanel" aria-labelledby="approved-students-tab">
                         <div class="d-flex justify-content-between mb-3 mt-3">
                             <!-- Left-aligned search bar -->
-                            <form class="form-inline">
+                            <form class="form-inline" method="get" action="{% url 'studentManagement' %}">
                                 <div class="input-group">
                                     <input type="search" name="search-approve" class="form-control" placeholder="Search..." aria-label="Search" aria-describedby="search-icon" id="search-input">
-                                    <div class="input-group-prepend" style="cursor: pointer;">
+                                    <div class="input-group-prepend" style="cursor: pointer;" onclick="this.closest('form').submit();">
                                         <span class="input-group-text" id="search-icon">
                                             <i class="fas fa-search"></i>
                                         </span>
                                     </div>
                                 </div>
-                            </form>
+                                <input type="hidden" name="tab" value="approved-students"> <!-- Preserve the active tab -->
+                            </form>                            
                             <!-- Right-aligned course filter dropdown -->
                             <div class="d-flex align-items-center">
                                 <label for="courseFilter" class="form-label mr-2 mb-0">Filter by Course:</label>
