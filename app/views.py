@@ -1031,7 +1031,7 @@ def getAllStudentsForGrading(request):
         students = paginator_students.page(paginator_students.num_pages)
 
     # Pagination range for listOfStudents
-    max_display_pages = 5
+    max_display_pages = 10
     current_page_students = students.number
     total_pages_students = paginator_students.num_pages
 

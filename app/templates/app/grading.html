@@ -407,14 +407,17 @@
             });
         });
         function updatePerPage(value, type) {
-            let url = new URL(window.location.href);
+            const url = new URL(window.location.href);
             if (type === 'students') {
                 url.searchParams.set('per_page_students', value);
+                url.searchParams.set('page_students', 1); // Reset to the first page
             } else if (type === 'grades') {
                 url.searchParams.set('per_page_grades', value);
+                url.searchParams.set('page_grades', 1); // Reset to the first page
             }
             window.location.href = url;
-        }        
+        }
+             
     </script>
 </body>
 </html>
