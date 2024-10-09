@@ -356,21 +356,21 @@ def exportTimeLogToPDF(request):
             if day_of_week in y_positions:
                 y_position = y_positions[day_of_week]
                 
-                page.insert_text((105, y_position), date, fontsize=9, color=(0, 0, 0))  # Date
-                page.insert_text((160, y_position), last_time_in.strftime('%I:%M %p'), fontsize=9, color=(0, 0, 0))
-                page.insert_text((385, y_position), time_formatted, fontsize=9, color=(0, 0, 0))
-                page.insert_text((477, y_position), total_duration_str, fontsize=9, color=(0, 0, 0))
+                page.insert_text((105, y_position + + 220), date, fontsize=9, color=(0, 0, 0))
+                page.insert_text((160, y_position + 220), last_time_in.strftime('%I:%M %p'), fontsize=9, color=(0, 0, 0))
+                page.insert_text((385, y_position + 220), time_formatted, fontsize=9, color=(0, 0, 0))
+                page.insert_text((477, y_position + 220), total_duration_str, fontsize=9, color=(0, 0, 0))
                 
                 lunch_in_log = lunch_logs.filter(timestamp__gt=last_time_in, timestamp__lt=local_time, action='LUNCH IN').first()
                 lunch_out_log = lunch_logs.filter(timestamp__gt=last_time_in, timestamp__lt=local_time, action='LUNCH OUT').first()
 
                 if lunch_out_log:
                     lunch_out_time = timezone.localtime(lunch_out_log.timestamp).strftime('%I:%M %p')
-                    page.insert_text((250, y_position), lunch_out_time, fontsize=9, color=(0, 0, 0))
+                    page.insert_text((250, y_position + 220), lunch_out_time, fontsize=9, color=(0, 0, 0))
 
                 if lunch_in_log:
                     lunch_in_time = timezone.localtime(lunch_in_log.timestamp).strftime('%I:%M %p')
-                    page.insert_text((320, y_position), lunch_in_time, fontsize=9, color=(0, 0, 0))
+                    page.insert_text((320, y_position + 220), lunch_in_time, fontsize=9, color=(0, 0, 0))
 
                 y_positions[day_of_week] += 20
                 last_time_in = None
