@@ -233,6 +233,7 @@
                     <div class="form-group">
                         <label for="perPageStudents" class="form-label mr-2">Items per page:</label>
                         <select id="perPageStudents" class="form-control w-auto" onchange="updatePerPage(this.value, 'students')">
+                            <option value="5" {% if per_page_students == 5 %}selected{% endif %}>5</option>
                             <option value="10" {% if per_page_students == 10 %}selected{% endif %}>10</option>
                             <option value="20" {% if per_page_students == 20 %}selected{% endif %}>20</option>
                             <option value="30" {% if per_page_students == 30 %}selected{% endif %}>30</option>
