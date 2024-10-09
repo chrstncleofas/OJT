@@ -1022,7 +1022,7 @@ def getAllStudentsForGrading(request):
 
     # Pagination logic
     page = request.GET.get('page', 1)
-    per_page = request.GET.get('per_page', 5)
+    per_page = request.GET.get('per_page', 10)
 
     paginator = Paginator(students, per_page)
 
