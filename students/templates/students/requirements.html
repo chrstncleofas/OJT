@@ -113,7 +113,15 @@
     <div class="d-flex" id="wrapper">
         <!-- Sidebar -->
         <div class="bg-light border-right vh-150" id="sidebar-wrapper">
-            <a href="{% url 'students:main-page' %}" style="text-decoration: none !important; color: black !important;"><div class="sidebar-heading">OJT Management System</div></a>
+            <a href="{% url 'students:main-page' %}" style="text-decoration: none !important; color: black !important;" class="text-center">
+                <div class="sidebar-heading" style="display: flex; align-items: center; justify-content: flex-start;">
+                    <img src="{% static 'img/Logo.png' %}" alt="Logo" style="width: 50px; height: 50px; margin-right: 2px;">
+                    <div style="display: flex; flex-direction: column; line-height: 1; margin-top: 2px;">
+                        <span style="font-size: 18px; font-weight: bold; margin-bottom: 0;" class="text-left mb-1">ON THE JOB</span>
+                        <span style="font-size: 15px;">Management System</span>
+                    </div>
+                </div>
+            </a>
             <div class="list-group list-group-flush">
                 <a href="{% url 'students:dashboard' %}" class="list-group-item list-group-item-action bg-light">
                     <i class="fas fa-tachometer-alt"></i> Dashboard
