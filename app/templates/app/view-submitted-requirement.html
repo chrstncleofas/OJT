@@ -201,7 +201,7 @@
                                                                 </div>
                                                                 <div class="modal-footer">
                                                                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                                                    <button type="button" class="btn btn-primary" id="modalReloadButton">Reload</button>
+                                                                    <button type="button" class="btn btn-primary" id="modalReloadButton">Okay</button>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -307,10 +307,10 @@
                                                     {% csrf_token %}
                                                     <select class="form-control score-dropdown" name="score" onchange="this.form.submit();">
                                                         <option value="0">Select</option>
-                                                        <option value="5" {% if document.score == 5 %}selected{% endif %}>Before due date</option>
-                                                        <option value="4" {% if document.score == 4 %}selected{% endif %}>On the due date</option>
-                                                        <option value="3" {% if document.score == 3 %}selected{% endif %}>After a day of due date</option>
-                                                        <option value="2" {% if document.score == 2 %}selected{% endif %}>2 days more</option>
+                                                        <option value="4" {% if document.score == 4 %}selected{% endif %}>Before due date</option>
+                                                        <option value="3" {% if document.score == 3 %}selected{% endif %}>On the due date</option>
+                                                        <option value="2" {% if document.score == 2 %}selected{% endif %}>After a day of due date</option>
+                                                        <option value="1" {% if document.score == 1 %}selected{% endif %}>2 days more</option>
                                                     </select>
                                                 </form>
                                             </td>
