@@ -79,6 +79,8 @@ def mainDashboard(request):
         }
     )
 
+from django.db.models import Q
+
 def studentManagement(request):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
@@ -86,26 +88,27 @@ def studentManagement(request):
     firstName = admin.first_name
     lastName = admin.last_name
 
+    # Fetching data for different tabs
     approved = DataTableStudents.objects.filter(status='Approved', archivedStudents='NotArchive').order_by('id')
     pending = PendingApplication.objects.filter(StatusApplication='PendingApplication', PendingStatusArchive='NotArchive').order_by('id')
     archive = DataTableStudents.objects.filter(archivedStudents='Archive').order_by('id')
 
     search_query = request.GET.get('search-approve', '')
 
-    approve_students = DataTableStudents.objects.all().order_by('id')
-
+    # Use the filtered approved students if a search query exists
     if search_query:
-        approve_students = approve_students.filter(
-            Q(StudentID__icontains=search_query),
-            Q(Firstname__icontains=search_query),
-            Q(Middlename__icontains=search_query),
-            Q(Lastname__icontains=search_query),
+        approved = approved.filter(
+            Q(StudentID__icontains=search_query) |
+            Q(Firstname__icontains=search_query) |
+            Q(Middlename__icontains=search_query) |
+            Q(Lastname__icontains=search_query)
         )
 
     active_tab = request.GET.get('tab', 'approved-students')
     page = request.GET.get('page', 1)
     per_page = int(request.GET.get('per_page', 10))
 
+    # Use the updated `approved` queryset after filtering
     if active_tab == 'approved-students':
         students_list = approved
     elif active_tab == 'pending-application':
@@ -135,6 +138,7 @@ def studentManagement(request):
     }
 
     return render(request, 'app/manage-student.html', context)
+
 
 def profile(request):
     user = request.user
