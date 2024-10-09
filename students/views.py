@@ -229,7 +229,7 @@ def progressReport(request):
             }
             full_name = firstName + ' ' + lastName
             # Draw text fields
-            page.insert_text(coordinates['name_field'], full_name, fontsize=12, color=(0, 0, 0))
+            page.insert_text(coordinates['name_field'], form.cleaned_data['student_name'], fontsize=12, color=(0, 0, 0))
             # Draw Internship Classification
             if form.cleaned_data['internship_classification'] == 'local':
                 page.insert_text(coordinates['classification_local'], '✓', fontsize=45, color=(0, 0, 0))
@@ -254,7 +254,7 @@ def progressReport(request):
             page.insert_text(coordinates['hte_name'], form.cleaned_data['hte_name'], fontsize=12, color=(0, 0, 0))
             page.insert_text(coordinates['hte_address'], form.cleaned_data['hte_address'], fontsize=12, color=(0, 0, 0))
             page.insert_text(coordinates['department_division'], form.cleaned_data['department_division'], fontsize=12, color=(0, 0, 0))
-            page.insert_text(coordinates['intern_name'], full_name, fontsize=12, color=(0, 0, 0))
+            page.insert_text(coordinates['intern_name'], form.cleaned_data['student_name'], fontsize=12, color=(0, 0, 0))
             text_fontsize = 9
             days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday']
             y_start = 350
@@ -307,6 +307,7 @@ def progressReport(request):
             'form': form,
             'firstName': firstName,
             'lastName': lastName,
+            'full_name': full_name,
             'notifications': notifications,
             'unread_notifications_count': unread_notifications_count,
         }

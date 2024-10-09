@@ -219,6 +219,10 @@
                             {% csrf_token %}
                             <div class="form-row">
                                 <div class="form-group col-md-3">
+                                    <label for="{{ form.student_name.id_for_label }}" class="form-label" style="font-weight: 500;">Name of Student</label>
+                                    <input type="text" id="{{ form.student_name.id_for_label }}" name="{{ form.student_name.name }}" class="form-control" placeholder="Enter student name" value="{{ full_name }}">
+                                </div>
+                                <div class="form-group col-md-3">
                                    <label for="{{ form.hte_name.id_for_label }}" class="form-label" style="font-weight: 500;">Host Training Establishment</label>
                                     <input type="text" id="{{ form.hte_name.id_for_label }}" name="{{ form.hte_name.name }}"  class="form-control" placeholder="Enter Host Training Establishmente">
                                 </div>
