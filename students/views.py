@@ -408,7 +408,7 @@ def log_lunch(request):
 
 @login_required
 @never_cache
-def TimeInAndTimeOut(request):
+def ClockInAndOut(request):
     user = request.user
     student = get_object_or_404(DataTableStudents, user=user)
     schedule_exists = Schedule.objects.filter(student=student).exists()
