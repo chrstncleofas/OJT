@@ -305,7 +305,7 @@ def typeTheDetailsProgressReportPdf(request):
 
             if not buffer.getvalue():
                 messages.error(request, "PDF generation failed.")
-                return redirect('students:progressReport')
+                return redirect('students:progress-report')
 
             action = request.POST.get('action')
             if action == 'preview_report':
@@ -319,7 +319,7 @@ def typeTheDetailsProgressReportPdf(request):
                 report_instance.report_file.save(file_name, buffer)
 
                 messages.success(request, "Report submitted successfully!")
-                return redirect('students:progressReport')
+                return redirect('students:progress-report')
 
     else:
         form = ProgressReportForm()

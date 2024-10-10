@@ -306,7 +306,7 @@
                                         </div>
                                         <div class="form-group col-md-4">
                                             <label for="monday_hours">Number of Hours</label>
-                                            <input type="number" id="monday_hours" name="monday_hours" class="form-control" value="{{ work_hours_per_day.monday }}">
+                                            <input type="number" id="monday_hours" name="monday_hours" class="form-control" value="{{ total_work_hours }}">
                                         </div>
                                     </div>
                                 </div>
@@ -323,7 +323,7 @@
                                         </div>
                                         <div class="form-group col-md-4">
                                             <label for="tuesday_hours">Number of Hours</label>
-                                            <input type="number" id="tuesday_hours" name="tuesday_hours" class="form-control" value="{{ work_hours_per_day.tuesday }}">
+                                            <input type="number" id="tuesday_hours" name="tuesday_hours" class="form-control">
                                         </div>
                                     </div>
                                 </div>
@@ -340,7 +340,7 @@
                                         </div>
                                         <div class="form-group col-md-4">
                                             <label for="wednesday_hours">Number of Hours</label>
-                                            <input type="number" id="wednesday_hours" name="wednesday_hours" class="form-control" value="{{ work_hours_per_day.wednesday }}">
+                                            <input type="number" id="wednesday_hours" name="wednesday_hours" class="form-control">
                                         </div>
                                     </div>
                                 </div>
@@ -357,7 +357,7 @@
                                         </div>
                                         <div class="form-group col-md-4">
                                             <label for="thursday_hours">Number of Hours</label>
-                                            <input type="number" id="thursday_hours" name="thursday_hours" class="form-control" value="{{ work_hours_per_day.thursday }}">
+                                            <input type="number" id="thursday_hours" name="thursday_hours" class="form-control">
                                         </div>
                                     </div>
                                 </div>
@@ -374,7 +374,7 @@
                                         </div>
                                         <div class="form-group col-md-4">
                                             <label for="friday_hours">Number of Hours</label>
-                                            <input type="number" id="friday_hours" name="friday_hours" class="form-control" value="{{ work_hours_per_day.friday }}">
+                                            <input type="number" id="friday_hours" name="friday_hours" class="form-control">
                                         </div>
                                     </div>
                                 </div>
@@ -440,13 +440,6 @@
             e.preventDefault();
             $("#wrapper").toggleClass("toggled");
         });
-        // Initialize Bootstrap tooltips
-        document.addEventListener('DOMContentLoaded', function () {
-            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-            tooltipTriggerList.map(function (tooltipTriggerEl) {
-                return new bootstrap.Tooltip(tooltipTriggerEl);
-            });
-        });
 
         document.addEventListener('DOMContentLoaded', function() {
             {% if messages %}
@@ -456,7 +449,6 @@
                 myModal.show();
             {% endif %}
         });
-        
         // Function to get the start date of the current week (Monday)
         function getStartOfWeek() {
             const today = new Date();
@@ -465,7 +457,7 @@
             const startOfWeek = new Date(today.setDate(difference));
             return startOfWeek;
         }
-        
+
         // Function to populate date fields for the week
         function populateDateFields() {
             const startOfWeek = getStartOfWeek();
@@ -476,8 +468,8 @@
                 document.getElementById(['monday_date', 'tuesday_date', 'wednesday_date', 'thursday_date', 'friday_date'][index]).value = date.toISOString().split('T')[0];
             });
         }
-        
-        // Save draft to local storage and show the modal
+
+        // Save draft to local storage
         function saveDraft() {
             const draft = {
                 monday: {
@@ -506,13 +498,10 @@
                     hours: document.getElementById('friday_hours').value,
                 }
             };
-            localStorage.setItem('progressReportDraft', JSON.stringify(draft));
-        
             // Show the draft saved modal
             var draftSavedModal = new bootstrap.Modal(document.getElementById('draftSavedModal'));
             draftSavedModal.show();
         }
-        
         // Load draft from local storage
         function loadDraft() {
             const savedDraft = JSON.parse(localStorage.getItem('progressReportDraft'));
@@ -524,7 +513,6 @@
                 });
             }
         }
-        
         // Set up event listeners
         document.getElementById('saveDraft').addEventListener('click', saveDraft);
         window.onload = () => {
