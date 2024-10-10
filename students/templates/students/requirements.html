@@ -200,8 +200,7 @@
                                                 {{ notification.message }}
                                             </button>
                                         </form>
-                                        <!-- Add a separator line -->
-                                        <div class="dropdown-divider"></div> <!-- Bootstrap separator -->
+                                        <div class="dropdown-divider"></div>
                                     {% endfor %}
                                 {% else %}
                                     <a class="dropdown-item" href="#">No new notifications</a>
@@ -219,7 +218,6 @@
                             <a href="{% url 'students:dashboard' %}" style="cursor: pointer; text-decoration: none; color: black;">Dashboard</a> / Requirements
                         </p>
                         <h4 class="mt-2 mb-3">List of Requirements</h4>
-                        <!-- Table to display uploaded requirements -->
                         <table class="table table-striped table-bordered mt-2">
                             <thead>
                                 <tr>
@@ -246,7 +244,6 @@
                                 {% endfor %}
                             </tbody>
                         </table>
-                        <!-- Requirement Upload Form -->
                         <!-- Remaining Requirements to Submit -->
                         <h6 class="mt-2 mb-2" style="font-size: 12px;">Remaining Requirements to Submit</h6>
                         <ul>

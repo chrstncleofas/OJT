@@ -710,6 +710,7 @@ def requirements(request):
     student = get_object_or_404(DataTableStudents, user=user)
     notifications = Notification.objects.filter(student=student, is_read=False)
     unread_notifications_count = notifications.count()
+
     if request.method == 'POST':
         form = SubmittedRequirement(request.POST, request.FILES, student=student)
         if form.is_valid():
@@ -717,25 +718,40 @@ def requirements(request):
             submission.student = student
             submission.save()
             return HttpResponseRedirect(reverse('students:requirements'))
+
     form = SubmittedRequirement(student=student)
 
-    required_docs = ['Application Form', 'Parent Consent', 'Notice of Acceptance / MOA', 
-                     'Endorsement Letter', 'Internship Contract Agreement', 'Medical Certificate', 'Evaluation Form',
-                     'Progress Report', 'Internship Time Sheet', 'Internship Exit Survey', 'Student Performance Evaluation',
-                     'Supporting Document of Time Sheet', 'Supporting Document of Progress Report']
+    required_docs = [
+        'Application Form', 'Parent Consent', 'Notice of Acceptance / MOA',
+        'Endorsement Letter', 'Internship Contract Agreement', 'Medical Certificate',
+        'Evaluation Form', 'Progress Report', 'Internship Time Sheet', 
+        'Internship Exit Survey', 'Student Performance Evaluation',
+        'Supporting Document of Time Sheet', 'Supporting Document of Progress Report'
+    ]
+
+    # Get all submitted documents that are not rejected
+    submitted_docs = TableSubmittedRequirement.objects.filter(
+        student=student
+    ).exclude(
+        id__in=ApprovedDocument.objects.filter(student=student).values_list('id', flat=True)
+    ).values_list('nameOfDocs', flat=True)
 
     requirements = TableRequirements.objects.all().order_by('id')
-    submitted_docs = TableSubmittedRequirement.objects.filter(student=student).values_list('nameOfDocs', flat=True)
-    remaining_docs = [doc for doc in required_docs if doc not in submitted_docs]
+
+    # Filter out already approved documents from the required documents list
+    approved_docs = ApprovedDocument.objects.filter(student=student).values_list('nameOfDocs', flat=True)
+    remaining_docs = [doc for doc in required_docs if doc not in submitted_docs and doc not in approved_docs]
+
     return render(request, 'students/requirements.html', {
         'form': form,
-        'remaining_docs': remaining_docs,
         'requirements': requirements,
+        'remaining_docs': remaining_docs,
         'firstName': student.Firstname,
         'lastName': student.Lastname,
         'notifications': notifications,
         'unread_notifications_count': unread_notifications_count,
     })
+
 
 @never_cache
 @csrf_protect

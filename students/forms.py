@@ -6,7 +6,8 @@ from students.models import DataTableStudents,\
     TableSubmittedRequirement,\
     PendingApplication,\
     Grade,\
-    LunchLog
+    LunchLog,\
+    ApprovedDocument
 
 COURSE_CHOICES = [
     ('', '--- Select Course ---'),
@@ -337,7 +338,6 @@ class ProgressReportForm(forms.Form):
 
 
 class SubmittedRequirement(forms.ModelForm):
-    
     REQUIRED_DOCS = [
         ('', '--- Select Document ---'),
         ('Application Form', 'Application Form'),
@@ -371,7 +371,8 @@ class SubmittedRequirement(forms.ModelForm):
 
         if student:
             submitted_docs = TableSubmittedRequirement.objects.filter(student=student).values_list('nameOfDocs', flat=True)
-            remaining_docs = [doc for doc in self.REQUIRED_DOCS if doc[0] not in submitted_docs]
+            approved_docs = ApprovedDocument.objects.filter(student=student).values_list('nameOfDocs', flat=True)
+            remaining_docs = [doc for doc in self.REQUIRED_DOCS if doc[0] not in submitted_docs and doc[0] not in approved_docs]
 
             # Set the available choices for the dropdown
             self.fields['nameOfDocs'].choices = remaining_docs
