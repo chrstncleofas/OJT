@@ -206,14 +206,37 @@ def typeTheDetailsProgressReportPdf(request):
     unread_notifications_count = notifications.count()
     full_name = f"{firstName} {middleName} {lastName}".strip()
 
-    # Calculate total work hours from the student's time logs for the current week
-    current_week_start = timezone.now().date()
-    time_logs = TimeLog.objects.filter(student=student, timestamp__date__gte=current_week_start)
-    total_work_hours = sum(
-        (time_logs[i + 1].timestamp - time_logs[i].timestamp).total_seconds() / 3600
-        for i in range(0, len(time_logs) - 1, 2)  # Iterate through time logs in pairs (Time In/Out)
-        if i + 1 < len(time_logs) and time_logs[i + 1].timestamp > time_logs[i].timestamp
-    )
+    # Calculate total work hours for each day in the current week
+    current_date = timezone.now().date()
+    week_start = current_date - timedelta(days=current_date.weekday())
+    week_end = week_start + timedelta(days=6)
+
+    work_hours_per_day = {
+        'monday': 0,
+        'tuesday': 0,
+        'wednesday': 0,
+        'thursday': 0,
+        'friday': 0,
+    }
+
+    # Retrieve time logs for the current week for the student
+    time_logs = TimeLog.objects.filter(student=student, timestamp__date__range=[week_start, week_end]).order_by('timestamp')
+
+    # Calculate work hours per day from the time logs
+    for i in range(0, len(time_logs) - 1, 2):
+        day = time_logs[i].timestamp.weekday()
+        if i + 1 < len(time_logs) and time_logs[i + 1].timestamp > time_logs[i].timestamp:
+            work_duration = (time_logs[i + 1].timestamp - time_logs[i].timestamp).total_seconds() / 3600
+            if day == 0:  # Monday
+                work_hours_per_day['monday'] += work_duration
+            elif day == 1:  # Tuesday
+                work_hours_per_day['tuesday'] += work_duration
+            elif day == 2:  # Wednesday
+                work_hours_per_day['wednesday'] += work_duration
+            elif day == 3:  # Thursday
+                work_hours_per_day['thursday'] += work_duration
+            elif day == 4:  # Friday
+                work_hours_per_day['friday'] += work_duration
 
     if request.method == 'POST':
         form = ProgressReportForm(request.POST)
@@ -238,9 +261,9 @@ def typeTheDetailsProgressReportPdf(request):
                 'total_hours': (506, 652)
             }
 
-            # Draw text fields on the PDF
+            # Insert the student details and other values into the PDF
             page.insert_text(coordinates['name_field'], form.cleaned_data['student_name'], fontsize=12, color=(0, 0, 0))
-            
+
             # Draw Internship Classification
             if form.cleaned_data['internship_classification'] == 'local':
                 page.insert_text(coordinates['classification_local'], '✓', fontsize=45, color=(0, 0, 0))
@@ -271,7 +294,8 @@ def typeTheDetailsProgressReportPdf(request):
             page.insert_text(coordinates['department_division'], form.cleaned_data['department_division'], fontsize=12, color=(0, 0, 0))
             page.insert_text(coordinates['intern_name'], form.cleaned_data['student_name'], fontsize=12, color=(0, 0, 0))
 
-            # Draw total hours from the calculated time log data or the manually entered data
+            # Insert the total work hours into the PDF
+            total_work_hours = sum(work_hours_per_day.values())
             page.insert_text(coordinates['total_hours'], str(total_work_hours), fontsize=12, color=(0, 0, 0))
 
             buffer = BytesIO()
@@ -311,7 +335,8 @@ def typeTheDetailsProgressReportPdf(request):
             'full_name': full_name,
             'notifications': notifications,
             'unread_notifications_count': unread_notifications_count,
-            'total_work_hours': total_work_hours  # Pass the calculated hours to the template
+            'work_hours_per_day': work_hours_per_day,
+            'current_date': current_date,
         }
     )
 
