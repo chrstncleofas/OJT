@@ -752,7 +752,6 @@ def requirements(request):
         'unread_notifications_count': unread_notifications_count,
     })
 
-
 @never_cache
 @csrf_protect
 def studentLogin(request):
