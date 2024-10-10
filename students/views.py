@@ -205,6 +205,16 @@ def typeTheDetailsProgressReportPdf(request):
     notifications = Notification.objects.filter(student=student, is_read=False)
     unread_notifications_count = notifications.count()
     full_name = f"{firstName} {middleName} {lastName}".strip()
+
+    # Calculate total work hours from the student's time logs for the current week
+    current_week_start = timezone.now().date()
+    time_logs = TimeLog.objects.filter(student=student, timestamp__date__gte=current_week_start)
+    total_work_hours = sum(
+        (time_logs[i + 1].timestamp - time_logs[i].timestamp).total_seconds() / 3600
+        for i in range(0, len(time_logs) - 1, 2)  # Iterate through time logs in pairs (Time In/Out)
+        if i + 1 < len(time_logs) and time_logs[i + 1].timestamp > time_logs[i].timestamp
+    )
+
     if request.method == 'POST':
         form = ProgressReportForm(request.POST)
         if form.is_valid():
@@ -227,53 +237,43 @@ def typeTheDetailsProgressReportPdf(request):
                 'department_division': (250, 290),
                 'total_hours': (506, 652)
             }
-            # Draw text fields
+
+            # Draw text fields on the PDF
             page.insert_text(coordinates['name_field'], form.cleaned_data['student_name'], fontsize=12, color=(0, 0, 0))
+            
             # Draw Internship Classification
             if form.cleaned_data['internship_classification'] == 'local':
                 page.insert_text(coordinates['classification_local'], '✓', fontsize=45, color=(0, 0, 0))
             elif form.cleaned_data['internship_classification'] == 'international':
                 page.insert_text(coordinates['classification_international'], '✓', fontsize=45, color=(0, 0, 0))
+
             # Draw Local Condition
             if form.cleaned_data['local_condition'] == 'inCampus':
                 page.insert_text(coordinates['classification_in_campus'], '✓', fontsize=45, color=(0, 0, 0))
             elif form.cleaned_data['local_condition'] == 'offCampus':
                 page.insert_text(coordinates['classification_off_campus'], '✓', fontsize=45, color=(0, 0, 0))
+
             # Draw Modality
             if form.cleaned_data['internship_modality'] == 'actual':
                 page.insert_text(coordinates['modality_actual'], '✓', fontsize=45, color=(0, 0, 0))
             elif form.cleaned_data['internship_modality'] == 'virtual':
                 page.insert_text(coordinates['modality_virtual'], '✓', fontsize=45, color=(0, 0, 0))
-            # Draw Virtual
+
+            # Draw Virtual Conditions
             if form.cleaned_data['virtual_conditions'] == 'wfh':
                 page.insert_text(coordinates['virtual_wfh'], '✓', fontsize=45, color=(0, 0, 0))
             elif form.cleaned_data['virtual_conditions'] == 'under':
                 page.insert_text(coordinates['virtual_alternative'], '✓', fontsize=45, color=(0, 0, 0))
-            # Draw 
+
+            # Fill other fields on the PDF
             page.insert_text(coordinates['hte_name'], form.cleaned_data['hte_name'], fontsize=12, color=(0, 0, 0))
             page.insert_text(coordinates['hte_address'], form.cleaned_data['hte_address'], fontsize=12, color=(0, 0, 0))
             page.insert_text(coordinates['department_division'], form.cleaned_data['department_division'], fontsize=12, color=(0, 0, 0))
             page.insert_text(coordinates['intern_name'], form.cleaned_data['student_name'], fontsize=12, color=(0, 0, 0))
-            text_fontsize = 9
-            days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday']
-            y_start = 350
-            description_max_width = 265
-            total_hours = 0
-            for day in days:
-                date = form.cleaned_data.get(f'{day}_date')
-                description = form.cleaned_data.get(f'{day}_description')
-                hours = form.cleaned_data.get(f'{day}_hours')
-                if date:
-                    page.insert_text((140, y_start + 20), date.strftime('%Y-%m-%d'), fontsize=text_fontsize, color=(0, 0, 0))
-                if description:
-                    draw_wrapped_text(page, description, (205, y_start - 5), description_max_width, fontsize=text_fontsize)           
-                if hours:
-                    page.insert_text((500, y_start + 15), str(hours), fontsize=text_fontsize, color=(0, 0, 0))
-                    total_hours += hours        
-                y_start += 60
-            # 
-            page.insert_text(coordinates['total_hours'], str(total_hours), fontsize=text_fontsize, color=(0, 0, 0))
-            # 
+
+            # Draw total hours from the calculated time log data or the manually entered data
+            page.insert_text(coordinates['total_hours'], str(total_work_hours), fontsize=12, color=(0, 0, 0))
+
             buffer = BytesIO()
             pdf_document.save(buffer)
             pdf_document.close()
@@ -298,7 +298,8 @@ def typeTheDetailsProgressReportPdf(request):
                 return redirect('students:progressReport')
 
     else:
-        form = ProgressReportForm()    
+        form = ProgressReportForm()
+
     return render(
         request, 
         'students/progress-report.html', 
@@ -310,6 +311,7 @@ def typeTheDetailsProgressReportPdf(request):
             'full_name': full_name,
             'notifications': notifications,
             'unread_notifications_count': unread_notifications_count,
+            'total_work_hours': total_work_hours  # Pass the calculated hours to the template
         }
     )
 
