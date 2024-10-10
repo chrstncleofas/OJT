@@ -128,7 +128,7 @@
                 <a href="{% url 'students:requirements' %}" class="list-group-item list-group-item-action bg-light">
                     <i class="fas fa-tasks"></i> Requirements
                 </a>
-                <a href="{% url 'students:progressReport' %}" class="list-group-item list-group-item-action bg-light">
+                <a href="{% url 'students:progress-report' %}" class="list-group-item list-group-item-action bg-light">
                     <i class="fas fa-chart-line"></i> Progress Report
                 </a>
                 <a href="{% url 'students:documents' %}" class="list-group-item list-group-item-action bg-light">
@@ -214,7 +214,7 @@
                             <a href="{% url 'students:dashboard' %}" style="cursor: pointer; text-decoration: none; color: black;">Dashboard</a> / Progress Report
                         </p>
                         <h4 class="mt-2 mb-3">Progress Report</h4>
-                        <form method="post" action="{% url 'students:progressReport' %}">
+                        <form method="post" action="{% url 'students:progress-report' %}">
                             {% csrf_token %}
                             <div class="form-row">
                                 <div class="form-group col-md-3">

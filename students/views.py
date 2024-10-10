@@ -196,7 +196,7 @@ def draw_wrapped_text(page, text, start_pos, max_width, fontsize=12, fontname="h
 
 @login_required
 @never_cache
-def progressReport(request):
+def typeTheDetailsProgressReportPdf(request):
     user = request.user
     student = get_object_or_404(DataTableStudents, user=user)
     firstName = student.Firstname or ''
