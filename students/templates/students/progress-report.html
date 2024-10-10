@@ -379,11 +379,11 @@
                                     </div>
                                 </div>
                             </div>
-                            <button id="saveDraft" name="action" class="btn btn-primary mt-2">
-                                Save Draft <i class="fa fa-save" aria-hidden="true" style="margin-left: 5px;"></i>
+                            <button id="saveDraft" name="action" class="btn btn-icon-only btn-primary mt-2" id="saveDraft" data-bs-toggle="tooltip" data-bs-placement="top" title="Save Draft">
+                                <i class="fa fa-save"></i>
                             </button>
-                            <button type="submit" name="action" value="preview_report" class="btn btn-primary mt-2">
-                                Preview Report <i class="fa fa-eye" aria-hidden="true" style="margin-left: 5px;"></i>
+                            <button type="submit" name="action" value="preview_report" class="btn btn-primary mt-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Preview Report">
+                                <i class="fa fa-eye"></i>
                             </button>
                             <button type="submit" name="action" value="submit_report" class="btn btn-primary mt-2">
                                 Submit Report <i class="fa fa-paper-plane" aria-hidden="true" style="margin-left: 5px;"></i>
@@ -439,6 +439,13 @@
         $(".navbar-toggler").click(function(e) {
             e.preventDefault();
             $("#wrapper").toggleClass("toggled");
+        });
+        // Initialize Bootstrap tooltips
+        document.addEventListener('DOMContentLoaded', function () {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
         });
 
         document.addEventListener('DOMContentLoaded', function() {
