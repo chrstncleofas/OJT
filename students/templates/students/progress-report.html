@@ -408,6 +408,22 @@
                                     </div>
                                 </div>
                             </div>
+                            <!-- Draft Saved Modal -->
+                            <div class="modal fade" id="draftSavedModal" tabindex="-1" aria-labelledby="draftSavedModalLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="draftSavedModalLabel">Draft Saved</h5>
+                                        </div>
+                                        <div class="modal-body">
+                                            Your draft has been saved successfully!
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </form>
                     </div>
                 </div>
@@ -433,6 +449,7 @@
                 myModal.show();
             {% endif %}
         });
+        
         // Function to get the start date of the current week (Monday)
         function getStartOfWeek() {
             const today = new Date();
@@ -441,7 +458,7 @@
             const startOfWeek = new Date(today.setDate(difference));
             return startOfWeek;
         }
-
+        
         // Function to populate date fields for the week
         function populateDateFields() {
             const startOfWeek = getStartOfWeek();
@@ -452,8 +469,8 @@
                 document.getElementById(['monday_date', 'tuesday_date', 'wednesday_date', 'thursday_date', 'friday_date'][index]).value = date.toISOString().split('T')[0];
             });
         }
-
-        // Save draft to local storage
+        
+        // Save draft to local storage and show the modal
         function saveDraft() {
             const draft = {
                 monday: {
@@ -483,9 +500,12 @@
                 }
             };
             localStorage.setItem('progressReportDraft', JSON.stringify(draft));
-            alert('Draft saved successfully!');
+        
+            // Show the draft saved modal
+            var draftSavedModal = new bootstrap.Modal(document.getElementById('draftSavedModal'));
+            draftSavedModal.show();
         }
-
+        
         // Load draft from local storage
         function loadDraft() {
             const savedDraft = JSON.parse(localStorage.getItem('progressReportDraft'));
@@ -497,7 +517,7 @@
                 });
             }
         }
-
+        
         // Set up event listeners
         document.getElementById('saveDraft').addEventListener('click', saveDraft);
         window.onload = () => {
