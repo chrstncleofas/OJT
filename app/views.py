@@ -436,7 +436,7 @@ def logoutView(request) -> HttpResponseRedirect:
             description='Logout page'
         )
     logout(request)
-    return redirect(home)
+    return redirect('homepage:home')
 
 def isAdmin(user):
     user_admin = user.is_superuser

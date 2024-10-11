@@ -1,13 +1,15 @@
+from homepage import views
+from django.urls import path
 from django.conf import settings
-from django.contrib import admin
-from django.urls import path, include
 from django.conf.urls.static import static
 
+app_name = 'homepage'
+
 urlpatterns = [
-    path('', include('homepage.urls')),
-    path('students/', include('students.urls')),
-    path('coordinator/', include('app.urls')),
-    path('secret-page/', include('superapp.urls')),
+    path('', views.homePage, name='home'),
+    path('announcement', views.getAnnouncement, name='announcement'),
+    path('students/login/', views.studentLogin, name='student_login'),
+    path('coordinator/login/', views.coordinatorLogin, name='coordinator_login'),
 ]
 
 if settings.DEBUG:

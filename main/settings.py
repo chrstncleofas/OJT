@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'app.apps.AppConfig',
     'superapp.apps.SuperappConfig',
     'students.apps.StudentsConfig',
+    'homepage.apps.HomepageConfig',
     'storages',
     'whitenoise.runserver_nostatic',
 ]

@@ -1,0 +1,195 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OJT Management System - Home</title>
+    <link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .form-container {
+            display: none; /* Itago ang mga forms by default */
+            margin-top: 20px;
+        }
+        .form-container.active {
+            display: block; /* Ipakita ang form kapag active */
+        }
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+        }
+        .navbar-brand img {
+            width: 50px;
+            height: 50px;
+            margin-right: 15px;
+        }
+        .navbar-brand p {
+            margin: 0;
+            margin-left: -10px;
+            color: darkblue;
+            font-size: 1.15rem;
+        }
+        .outer-container {
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            margin-top: 10px;
+            border-radius: 6px;
+        }
+        #footerMain{
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+        }     
+        /* Style for the navbar */
+        .navbar {
+            transition: background-color 0.3s ease;
+            z-index: 1000;
+        }
+        
+        /* Default background color when at the top */
+        .navbar-scroll {
+            background-color: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .scrolled {
+            background-color: rgba(0, 0, 0, 0.9);
+        }
+        body {
+            padding-top: 70px;
+        }
+        @media (max-width: 900px) {
+            .custom-hide-image {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light navbar-scroll fixed-top">
+        <a class="navbar-brand" href="{% url 'homepage:home' %}">
+            <img src="{% static 'img/Logo.png' %}" alt="Logo" style="width:50px; height: 50px; margin-left: 15px;">
+            <p>On the Job Training Management System</p>
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link text-dark" href="{% url 'homepage:home' %}">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-dark" href="">Gallery</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-dark mr-2" href="{% url 'homepage:announcement' %}">Announcement</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    {% comment %} Main Con {% endcomment %}
+    <div class="container mt-5 d-flex justify-content-center align-items-center">
+        <div id="button-container" class="justify-content-center align-items-center text-center mt-5">
+            <h5 class="mb-0" style="font-weight: 700;">College of Communication</h5>
+            <h3 class="mb-4 mt-2" style="font-weight: 700;">Information Technology</h3>
+            <div class="d-flex flex-column align-items-center">
+                <button class="btn btn-primary btn-lg mb-3" style="padding: 9px; font-size: 1.5rem; width: 250px;" onclick="showForm('coordinator')">Coordinator</button>
+                <button class="btn btn-primary btn-lg mb-3" style="padding: 9px; font-size: 1.5rem; width: 250px;" onclick="showForm('student')">Student</button>
+                <button class="btn btn-danger btn-lg" style="padding: 9px; font-size: 1.5rem; width: 250px;" onclick="showForm('student')">Student Register</button>
+            </div>
+        </div>                              
+        <!-- Student Login Form -->
+        <div id="student-form" class="form-container mt-0" style="width: 80%; max-width: 600px;">
+            <button class="btn btn-light btn-sm mb-2" onclick="goBack()">&larr; Back</button>
+            <h3 class="text-center mt-2">Student Login</h3>
+            <form id="student-login-form" action="/students/login/" method="POST" class="w-50 mx-auto mt-3">
+                {% csrf_token %}
+                <div id="student-error-message" class="alert alert-danger" style="display: none;"></div> <!-- Error message here -->
+                <div class="form-group">
+                    <label for="student-username">Username:</label>
+                    <input type="text" class="form-control" id="student-username" name="Username" required>
+                </div>
+                <div class="form-group">
+                    <label for="student-password">Password:</label>
+                    <input type="password" class="form-control" id="student-password" name="Password" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Login</button>
+            </form>
+        </div>
+        <!-- Coordinator Login Form -->
+        <div id="coordinator-form" class="form-container mt-0" style="width: 80%; max-width: 600px;">
+            <button class="btn btn-light btn-sm mb-2" onclick="goBack()">&larr; Back</button>
+            <h3 class="text-center mt-2">Coordinator Login</h3>
+            <form id="coordinator-login-form" action="/coordinator/login/" method="POST" class="w-50 mx-auto mt-3">
+                {% csrf_token %}
+                <div id="coordinator-error-message" class="alert alert-danger" style="display: none;"></div> <!-- Error message here -->
+                <div class="form-group">
+                    <label for="coordinator-username">Username:</label>
+                    <input type="text" class="form-control" id="coordinator-username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="coordinator-password">Password:</label>
+                    <input type="password" class="form-control" id="coordinator-password" name="password" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Login</button>
+            </form>
+        </div>
+    </div>
+    <script>
+        function showForm(type) {
+            document.getElementById('button-container').style.display = 'none';
+
+            document.getElementById('student-form').classList.remove('active');
+            document.getElementById('coordinator-form').classList.remove('active');
+            if (type === 'student') {
+                document.getElementById('student-form').classList.add('active');
+            } else if (type === 'coordinator') {
+                document.getElementById('coordinator-form').classList.add('active');
+            }
+        }
+        function goBack() {
+            document.getElementById('student-form').classList.remove('active');
+            document.getElementById('coordinator-form').classList.remove('active');
+            document.getElementById('button-container').style.display = 'block';
+            // Clear error messages
+            document.getElementById('student-error-message').style.display = 'none';
+            document.getElementById('coordinator-error-message').style.display = 'none';
+        }
+        
+        // Handling form submissions with AJAX
+        document.getElementById('student-login-form').onsubmit = function(e) {
+            e.preventDefault(); // Iwasan ang default na pag-submit ng form
+
+            const formData = new FormData(this);
+            fetch(this.action, {
+                method: 'POST',
+                body: formData
+            }).then(response => response.json()).then(data => {
+                if (data.error) {
+                    document.getElementById('student-error-message').innerText = data.error;
+                    document.getElementById('student-error-message').style.display = 'block'; // Ipakita ang error message
+                } else if (data.redirect_url) {
+                    window.location.href = data.redirect_url; // I-redirect ang user
+                }
+            }).catch(error => console.error('Error:', error));
+        };
+
+        document.getElementById('coordinator-login-form').onsubmit = function(e) {
+            e.preventDefault(); // Iwasan ang default na pag-submit ng form
+
+            const formData = new FormData(this);
+            fetch(this.action, {
+                method: 'POST',
+                body: formData
+            }).then(response => response.json()).then(data => {
+                if (data.error) {
+                    document.getElementById('coordinator-error-message').innerText = data.error;
+                    document.getElementById('coordinator-error-message').style.display = 'block'; // Ipakita ang error message
+                } else if (data.redirect_url) {
+                    window.location.href = data.redirect_url; // I-redirect ang user
+                }
+            }).catch(error => console.error('Error:', error));
+        };
+    </script>
+</body>
+</html>

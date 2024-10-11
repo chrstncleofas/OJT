@@ -1,0 +1,192 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon">
+    <title>OJT Management System - Home</title>
+    <style>
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+        }
+        .navbar-brand img {
+            width: 50px;
+            height: 50px;
+            margin-right: 15px;
+        }
+        .navbar-brand p {
+            margin: 0;
+            margin-left: -10px;
+            color: darkblue;
+            font-size: 1.15rem;
+        }
+        .footer {
+            background-color: #f8f9fa;
+            padding: 20px 0;
+            text-align: center;
+            margin-top: 26px;
+        }
+        .footer p {
+            margin: 0;
+            color: #6c757d;
+        }
+        .outer-container {
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            margin-top: 10px;
+            border-radius: 6px;
+        }
+        span.category-class{
+            padding: 5px;
+            border-radius: 51px;           
+            background-color: red;
+            color: #fff;
+            font-size: 10px;
+        }
+        /* Style for the navbar */
+        .navbar {
+            transition: background-color 0.3s ease;
+            z-index: 1000;
+        }
+        
+        /* Default background color when at the top */
+        .navbar-scroll {
+            background-color: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Background color when scrolling */
+        .scrolled {
+            background-color: rgba(0, 0, 0, 0.9);
+        }
+        body {
+            padding-top: 70px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light navbar-scroll fixed-top">
+        <a class="navbar-brand" href="{% url 'homepage:home' %}">
+            <img src="{% static 'img/Logo.png' %}" alt="Logo" style="width:50px; height: 50px; margin-left: 15px;">
+            <p>On the Job Training Management System</p>
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+                <a class="nav-link text-dark" href="{% url 'homepage:home' %}">Home</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-dark" href="">Gallery</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-dark mr-2" href="{% url 'homepage:announcement' %}">Announcement</a>
+            </li>
+        </ul>
+        </div>
+    </nav>
+    <!--Card  -->
+    <div class="container mt-5 mb-4">
+        <div class="outer-container">
+            <h3 class="mb-2">Announcement</h3>
+            <p>List of latest announcements</p>
+            <!-- Card design for announcement -->
+            <div class="row">
+                {% for announcement in announcements %}
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100">
+                            {% if announcement.Image %}
+                                <img src="{{ announcement.Image.url }}" class="card-img-top mb-0" alt="{{ announcement.Title }}">
+                            {% endif %}
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <p class="card-text mb-3" style="font-size: 10px; font-weight: bold; color: gray;">
+                                            <span style="font-weight: normal;">Start Date: </span>{{ announcement.StartDate }}
+                                        </p>
+                                    </div>
+                                    <div class="col-6 text-right">
+                                        <p class="card-text mb-3" style="font-size: 10px; font-weight: bold; color: gray;">
+                                            <span style="font-weight: normal;">End Date: </span>{{ announcement.EndDate }}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <h6 style="font-size: 17px;" class="card-title">{{ announcement.Title }}</h6>
+                                    </div>
+                                </div>
+                                <p class="card-text" style="text-align: justify;">{{ announcement.Description }}</p>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>    
+    <!-- Footer -->
+    <footer class="bg-light py-4 mt-6" id="footerMain">
+        <div class="container">
+          <div class="row justify-content-between align-items-center">
+            <!-- Logo and description -->
+            <div class="col-md-6 d-flex align-items-center">
+              <a href="">
+                <img src="{% static 'img/Logo.png' %}"
+                     alt="ojt" class="img-fluid grayscale" width="80" height="80">
+              </a>
+              <div class="pl-3 mt-3">
+                <h5 class="mb-0">On the Job</h5>
+                <p style="font-size: 18px">Training Management System</p>
+            </div>
+            </div>
+            <!-- Social media icon -->
+            <div class="col-md-3 text-md-right text-center mt-3 mt-md-0">
+              <a href="https://www.facebook.com/profile.php?id=100057567874785" target="_blank">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-facebook"
+                     viewBox="0 0 24 24">
+                  <path d="M9 8H6v4h3v12h5V12h4l1-4h-5V6c0-1 .334-1 1-1h3V0h-4c-3 0-4 1-4 4v4z"/>
+                </svg>
+                <span class="sr-only">Facebook page</span>
+              </a>
+            </div>
+          </div>    
+          <!-- Divider -->
+          <hr class="my-4">
+          <!-- Links and Copyright -->
+          <div class="row align-items-center">
+            <div class="col-md-6 d-flex flex-wrap justify-content-center justify-content-md-start mb-3 mb-md-0">
+              <a href="" class="mr-3">Privacy Policy</a>
+            </div>
+            <div class="col-md-6 text-center text-md-right">
+              <span>Beta Version - &copy; 2024</span>
+            </div>
+          </div>
+        </div>
+    </footer>
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.navbar');
+    
+            // Change background color when scrolled past 50px
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+    </script>
+</body>
+</html>

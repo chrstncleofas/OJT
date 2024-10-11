@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OJT Management System Login</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Custom styles for form visibility */
+        .form-container {
+            display: none; /* Hide forms by default */
+            margin-top: 20px;
+        }
+
+        .form-container.active {
+            display: block; /* Show form when active */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container mt-5">
+        <h2 class="text-center">OJT Management System</h2>
+        <div class="text-center mt-4">
+            <button class="btn btn-primary mx-2" onclick="showForm('student')">Student</button>
+            <button class="btn btn-secondary mx-2" onclick="showForm('coordinator')">Coordinator</button>
+        </div>
+
+        <!-- Student Login Form -->
+        <div id="student-form" class="form-container">
+            <h3 class="text-center mt-4">Student Login</h3>
+            <form action="/student/login" method="POST" class="w-50 mx-auto mt-3">
+                <!-- {% csrf_token %} -->
+                <div class="form-group">
+                    <label for="student-username">Username:</label>
+                    <input type="text" class="form-control" id="student-username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="student-password">Password:</label>
+                    <input type="password" class="form-control" id="student-password" name="password" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Login</button>
+            </form>
+        </div>
+
+        <!-- Coordinator Login Form -->
+        <div id="coordinator-form" class="form-container">
+            <h3 class="text-center mt-4">Coordinator Login</h3>
+            <form action="/coordinator/login" method="POST" class="w-50 mx-auto mt-3">
+                <!-- {% csrf_token %} -->
+                <div class="form-group">
+                    <label for="coordinator-username">Username:</label>
+                    <input type="text" class="form-control" id="coordinator-username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="coordinator-password">Password:</label>
+                    <input type="password" class="form-control" id="coordinator-password" name="password" required>
+                </div>
+                <button type="submit" class="btn btn-secondary btn-block">Login</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS, Popper.js, and jQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.6/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        // Function to show the correct form based on the button clicked
+        function showForm(type) {
+            // Hide all forms
+            document.getElementById('student-form').classList.remove('active');
+            document.getElementById('coordinator-form').classList.remove('active');
+
+            // Show the selected form based on the type
+            if (type === 'student') {
+                document.getElementById('student-form').classList.add('active');
+            } else if (type === 'coordinator') {
+                document.getElementById('coordinator-form').classList.add('active');
+            }
+        }
+    </script>
+
+</body>
+</html>

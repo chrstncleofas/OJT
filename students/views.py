@@ -140,8 +140,8 @@ def aboutLogin(request):
         }
     )
 
-@login_required
 @never_cache
+@login_required
 def mainPageForDashboard(request) -> HttpResponse:
     user = request.user
     student = get_object_or_404(DataTableStudents, user=user)
@@ -828,7 +828,7 @@ def studentLogin(request):
 
 def studentLogout(request) -> HttpResponseRedirect:
     logout(request)
-    return redirect('students:login')
+    return redirect('homepage:home')
 
 @login_required
 @never_cache
