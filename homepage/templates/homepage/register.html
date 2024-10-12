@@ -1,0 +1,236 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>OJT Management System - Home</title>
+    <link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script>
+        window.onload = function() {
+            const isLoggedIn = localStorage.getItem('isLoggedIn');
+            if (isLoggedIn) {
+                window.location.href = "{% url 'students:dashboard' %}";
+            }
+        }
+    </script>
+    <style>
+        .form-container {
+            display: none; /* Itago ang mga forms by default */
+            margin-top: 20px;
+        }
+        .form-container.active {
+            display: block; /* Ipakita ang form kapag active */
+        }
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+        }
+        .navbar-brand img {
+            width: 50px;
+            height: 50px;
+            margin-right: 15px;
+        }
+        .navbar-brand p {
+            margin: 0;
+            margin-left: -10px;
+            color: darkblue;
+            font-size: 1.15rem;
+        }
+        .outer-container {
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            margin-top: 10px;
+            border-radius: 6px;
+        }
+        #footerMain{
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+        }     
+        /* Style for the navbar */
+        .navbar {
+            transition: background-color 0.3s ease;
+            z-index: 1000;
+        }
+        
+        /* Default background color when at the top */
+        .navbar-scroll {
+            background-color: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .scrolled {
+            background-color: rgba(0, 0, 0, 0.9);
+        }
+        body {
+            padding-top: 70px;
+        }
+        @media (max-width: 900px) {
+            .custom-hide-image {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light navbar-scroll fixed-top">
+        <a class="navbar-brand" href="{% url 'homepage:home' %}">
+            <img src="{% static 'img/Logo.png' %}" alt="Logo" style="width:50px; height: 50px; margin-left: 15px;">
+            <p>On the Job Training Management System</p>
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link text-dark" href="{% url 'homepage:home' %}">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-dark" href="">Gallery</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-dark mr-2" href="{% url 'homepage:announcement' %}">Announcement</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <section class="container mt-4 mb-2">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Student Registration</h5>
+                        {% if messages %}
+                            {% for message in messages %}
+                                {% if message.tags == 'success' %}
+                                    <div class="alert alert-success" role="alert">
+                                        {{ message }}
+                                    </div>
+                                {% elif message.tags == 'error' %}
+                                    <div class="alert alert-danger" role="alert">
+                                        {{ message }}
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                        {% if pending_registration_form.errors %}
+                            <div class="alert alert-danger">
+                                {% for field, errors in pending_registration_form.errors.items %}
+                                    {% for error in errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <form method="post" action="{% url 'homepage:student-register' %}">
+                            {% csrf_token %}
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="StudentID">Student ID <span style="font-size: 11px; color: red; font-weight: bold">*</span></label>
+                                        <input type="text" class="form-control" id="PendingStudentID" name="PendingStudentID" required placeholder="Ex. 24-1-1-0001" oninput="formatStudentID(this)">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="Firstname">First Name <span style="font-size: 11px; color: red; font-weight: bold">*</span></label>
+                                        {{ pending_registration_form.PendingFirstname }}
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="Middlename">Middle Name <span style="font-size: 11px; color: grey;">( Optional )</span></label>
+                                        {{ pending_registration_form.PendingMiddlename }}
+                                    </div>
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="form-group">
+                                        <label for="Lastname">Last Name <span style="font-size: 11px; color: red; font-weight: bold">*</span></label>
+                                        {{ pending_registration_form.PendingLastname }}
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="Prefix">Extension name <span style="font-size: 11px; color: grey;">( Optional )</span></label>
+                                        {{ pending_registration_form.PendingPrefix }}
+                                    </div>
+                                </div> 
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="Course">Program <span style="font-size: 11px; color: red; font-weight: bold">*</span></label>
+                                        {{ pending_registration_form.PendingCourse }}
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="PendingEmail">Email <span style="font-size: 11px; color: red; font-weight: bold">*</span></label>
+                                        {{ pending_registration_form.PendingEmail }}
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="Number">Mobile No. <span style="font-size: 11px; color: red; font-weight: bold">*</span></label>
+                                        {{ pending_registration_form.PendingNumber }}
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label for="Address">Address <span style="font-size: 11px; color: red; font-weight: bold">*</span></label>
+                                        {{ pending_registration_form.PendingAddress }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="Username">Username <span style="font-size: 11px; color: red; font-weight: bold">*</span></label>
+                                        {{ pending_registration_form.PendingUsername }}
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="Password">Password <span style="font-size: 11px; color: red; font-weight: bold">*</span></label>
+                                        {{ pending_registration_form.PendingPassword }}
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="ConfirmPassword">Confirm Password <span style="font-size: 11px; color: red; font-weight: bold">*</span></label>
+                                        {{ pending_registration_form.confirmPassword }}
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Register</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <script>
+        function formatStudentID(input) {
+            let value = input.value.replace(/\D/g, '');
+            if (value.length >= 8) {
+                let year = value.slice(0, 2);
+                let course = value[2] || '0';
+                let section = '1';
+                let number = value.slice(3);
+                if (number.length < 4) {
+                    number = number.padStart(4, '0');
+                } else {
+                    number = number.slice(-4);
+                }
+                input.value = `${year}-${course}-${section}-${number}`; 
+            } else {
+                input.value = value;
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,11 +1,16 @@
+from django.conf import settings
+from django.contrib import messages  
 from django.http import JsonResponse
 from app.utils import saveActivityLogs
+from django.core.mail import send_mail
 from app.models import TableAnnouncement
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
+from django.template.loader import render_to_string
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_protect
 from students.models import PendingApplication, DataTableStudents
+from students.forms import PendingStudentRegistrationForm
 
 def homePage(request):
     return render(request, 'homepage/home-page.html')
@@ -68,5 +73,64 @@ def getAnnouncement(request):
         request, 'homepage/announcement-page.html', 
         {
             'announcements': enabledAnnouncement
+        }
+    )
+
+@never_cache
+def studentRegister(request):
+    if request.method == 'POST':
+        pending_registration_form = PendingStudentRegistrationForm(request.POST)
+        if pending_registration_form.is_valid():
+            studentId = pending_registration_form.cleaned_data['PendingStudentID']
+            email = pending_registration_form.cleaned_data['PendingEmail']
+            username = pending_registration_form.cleaned_data['PendingUsername']
+            phone_number = pending_registration_form.cleaned_data['PendingNumber']
+            if DataTableStudents.objects.filter(Email=email).exists():
+                messages.error(request, "Email already exists.")
+            elif DataTableStudents.objects.filter(Username=username).exists():
+                messages.error(request, "Username already exists.")
+            elif DataTableStudents.objects.filter(StudentID=studentId).exists():
+                messages.error(request, "Student ID already exists.")
+            else:
+                pending_registration = PendingApplication(
+                    PendingEmail=email,
+                    PendingUsername=username,
+                    PendingPassword=pending_registration_form.cleaned_data['PendingPassword'],
+                    PendingFirstname=pending_registration_form.cleaned_data['PendingFirstname'],
+                    PendingMiddlename=pending_registration_form.cleaned_data.get('PendingMiddlename', ''),
+                    PendingLastname=pending_registration_form.cleaned_data['PendingLastname'],
+                    PendingPrefix=pending_registration_form.cleaned_data.get('PendingPrefix', ''),
+                    PendingStudentID=pending_registration_form.cleaned_data['PendingStudentID'],
+                    PendingAddress=pending_registration_form.cleaned_data['PendingAddress'],
+                    PendingNumber=phone_number,
+                    PendingCourse=pending_registration_form.cleaned_data['PendingCourse'],
+                )
+                pending_registration.save()
+                
+                subject = 'Registration Pending Approval'
+                message = render_to_string('homepage/registration_email.txt', {
+                    'first_name': pending_registration.PendingFirstname,
+                    'last_name': pending_registration.PendingLastname,
+                    'email': pending_registration.PendingEmail,
+                    'username': pending_registration.PendingUsername,
+                })
+
+                # Padala ang email
+                recipient_list = [pending_registration.PendingEmail]
+                send_mail(subject, message, settings.EMAIL_HOST_USER, recipient_list, fail_silently=False)
+                
+                # Padala ang SMS notification
+                # sms_message = f"Hello {pending_registration.PendingFirstname}, your registration is pending approval."
+                # send_sms(phone_number, sms_message)
+
+                messages.success(request, "Your registration is pending approval by the admin.")
+                return redirect('homepage:student-register')
+    else:
+        pending_registration_form = PendingStudentRegistrationForm()
+
+    return render(
+        request, 'homepage/register.html', 
+        {
+            'pending_registration_form': pending_registration_form
         }
     )

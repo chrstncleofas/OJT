@@ -10,13 +10,13 @@ from students.models import DataTableStudents,\
     ApprovedDocument
 
 COURSE_CHOICES = [
-    ('', '--- Select Course ---'),
-    ('BS Computer Science', 'BS Computer Science'),
-    ('BS Information Technology', 'BS Information Technology'),
+    ('', '--- Select Program ---'),
+    ('CS-3RD', 'CS-3RD'),
+    ('IT-4TH', 'IT-4TH'),
 ]
 
 PREFIX_CHOICES = [
-    ('', '--- Select Prefix ---'),
+    ('', '--- Select Extension ---'),
     ('Jr', 'Jr'),
     ('III', 'III'),
     ('Senior', 'Senior'),
@@ -86,15 +86,15 @@ class StudentRegistrationForm(forms.ModelForm):
         widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ex. 09610090120'})
     )
 
-    Year = forms.ChoiceField(
-        choices=YEAR_CHOICES,
-        widget=forms.Select(attrs={'class': 'form-control'}),
-        required=False
-    )
+    # Year = forms.ChoiceField(
+    #     choices=YEAR_CHOICES,
+    #     widget=forms.Select(attrs={'class': 'form-control'}),
+    #     required=False
+    # )
 
     class Meta:
         model = DataTableStudents
-        fields = ['StudentID', 'Firstname', 'Middlename', 'Lastname', 'Prefix', 'Address', 'Number' ,'Course', 'Year']
+        fields = ['StudentID', 'Firstname', 'Middlename', 'Lastname', 'Prefix', 'Address', 'Number' ,'Course']
         widgets = {
             'Firstname': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter First Name'}),
             'Middlename': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Middle Name'}),
@@ -107,7 +107,6 @@ class StudentRegistrationForm(forms.ModelForm):
         self.fields['Firstname'].required = True
         self.fields['Middlename'].required = False
         self.fields['Lastname'].required = True
-        self.fields['Course'].required = True
         self.fields['Year'].required = True
 
 class PendingStudentRegistrationForm(forms.ModelForm):
@@ -134,12 +133,6 @@ class PendingStudentRegistrationForm(forms.ModelForm):
         widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ex. 09610090120'})
     )
 
-    PendingYear = forms.ChoiceField(
-        choices=YEAR_CHOICES,
-        widget=forms.Select(attrs={'class': 'form-control'}),
-        required=False
-    )
-
     PendingPassword = forms.CharField(
         widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Enter password'}),
         label='Password'
@@ -153,7 +146,7 @@ class PendingStudentRegistrationForm(forms.ModelForm):
 
     class Meta:
         model = PendingApplication
-        fields = ['PendingStudentID', 'PendingFirstname', 'PendingMiddlename', 'PendingLastname', 'PendingPrefix', 'PendingEmail', 'PendingAddress', 'PendingNumber' ,'PendingCourse', 'PendingYear', 'PendingUsername', 'PendingPassword']
+        fields = ['PendingStudentID', 'PendingFirstname', 'PendingMiddlename', 'PendingLastname', 'PendingPrefix', 'PendingEmail', 'PendingAddress', 'PendingNumber', 'PendingCourse', 'PendingUsername', 'PendingPassword']
         widgets = {
             'PendingFirstname': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter First Name'}),
             'PendingMiddlename': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Middle Name'}),
@@ -171,15 +164,26 @@ class PendingStudentRegistrationForm(forms.ModelForm):
         if password and confirm_password and password != confirm_password:
             self.add_error('confirmPassword', "Password and Confirm Password do not match")
 
+    def clean_PendingNumber(self):
+        number = self.cleaned_data.get('PendingNumber')
+
+        # Check for correct length
+        if len(number) != 11:
+            raise forms.ValidationError("Mobile number must be exactly 11 digits.")
+
+        # Check if the number is numeric
+        if not number.isdigit():
+            raise forms.ValidationError("Mobile number must be numeric.")
+
+        return number
+
     def __init__(self, *args, **kwargs):
         super(PendingStudentRegistrationForm, self).__init__(*args, **kwargs)
         self.fields['PendingFirstname'].required = True
         self.fields['PendingMiddlename'].required = False
         self.fields['PendingLastname'].required = True
         self.fields['PendingCourse'].required = True
-        self.fields['PendingYear'].required = True
 
-    
 class StudentProfileForm(forms.ModelForm):
 
     class Meta:
