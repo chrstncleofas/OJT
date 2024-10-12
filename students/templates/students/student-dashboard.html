@@ -28,12 +28,12 @@
             overflow: hidden;
             background-color: #ffffff;
         }
-    
+        
         .preview-box img {
             max-width: 100%;
             max-height: 100%;
         }
-    
+        
         .preview-box::before {
             color: #888;
             font-size: 16px;
@@ -45,11 +45,11 @@
             height: 100%;
             content: 'Browse File';
         }
-    
+        
         .preview-box.with-image::before {
             display: none;
         }
-    
+        
         .edit-btn {
             position: relative;
             bottom: 10px;
@@ -63,26 +63,26 @@
             font-size: 48px;
             font-weight: bold;
         }
-    
+        
         .calendar {
             font-family: 'Arial', sans-serif;
         }
-    
+        
         .calendar th {
             background-color: #f8f9fa;
             color: #6c757d;
         }
-    
+        
         .calendar td {
             padding: 10px;
             width: 40px;
             height: 40px;
         }
-    
+        
         .bg-primary {
             background-color: #007bff !important;
         }
-    
+        
         .text-white {
             color: #fff !important;
         }
@@ -96,7 +96,7 @@
             word-wrap: break-word;  /* Allow long words to break */
             white-space: normal;  /* Ensure text can break into multiple lines */
         }
-
+        
         .dropdown-item {
             white-space: normal;
             overflow-wrap: break-word;
@@ -104,129 +104,146 @@
             padding: 10px;
         }
     </style>
+    <script>
+        window.onload = function() {
+            const isLoggedIn = localStorage.getItem('isLoggedIn');
+            if (isLoggedIn) {
+                window.location.href = "{% url 'students:dashboard' %}";
+            }
+    
+            const loginForm = document.getElementById('loginForm');
+            if (loginForm) {
+                loginForm.addEventListener('submit', function() {
+                    localStorage.setItem('isLoggedIn', true);
+                });
+            }
+        }
+    </script>
 </head>
 <body>
-    <div class="d-flex" id="wrapper">
-        <!-- Sidebar -->
-        <div class="bg-light border-right vh-100" id="sidebar-wrapper">
-            <a href="{% url 'students:dashboard' %}" style="text-decoration: none !important; color: black !important;" class="text-center">
-                <div class="sidebar-heading" style="display: flex; align-items: center; justify-content: flex-start;">
-                    <img src="{% static 'img/Logo.png' %}" alt="Logo" style="width: 50px; height: 50px; margin-right: 2px;">
-                    <div style="display: flex; flex-direction: column; line-height: 1; margin-top: 2px;">
-                        <span style="font-size: 18px; font-weight: 500; margin-bottom: 0;" class="text-left mb-1">On the Job</span>
-                        <span style="font-size: 15px;">Management System</span>
+    {% if user.is_authenticated %}
+        <div class="d-flex" id="wrapper">
+            <!-- Sidebar -->
+            <div class="bg-light border-right vh-100" id="sidebar-wrapper">
+                <a href="{% url 'students:dashboard' %}" style="text-decoration: none !important; color: black !important;" class="text-center">
+                    <div class="sidebar-heading" style="display: flex; align-items: center; justify-content: flex-start;">
+                        <img src="{% static 'img/Logo.png' %}" alt="Logo" style="width: 50px; height: 50px; margin-right: 2px;">
+                        <div style="display: flex; flex-direction: column; line-height: 1; margin-top: 2px;">
+                            <span style="font-size: 18px; font-weight: 500; margin-bottom: 0;" class="text-left mb-1">On the Job</span>
+                            <span style="font-size: 15px;">Management System</span>
+                        </div>
                     </div>
-                </div>
-            </a>
-            <div class="list-group list-group-flush">
-                <a href="{% url 'students:dashboard' %}" class="list-group-item list-group-item-action bg-light">
-                    <i class="fas fa-tachometer-alt"></i> Dashboard
                 </a>
-                <a href="{% url 'students:clockin' %}" class="list-group-item list-group-item-action bg-light">
-                    <i class="fas fa-clock"></i> Clock In
-                </a>
-                <a href="{% url 'students:requirements' %}" class="list-group-item list-group-item-action bg-light">
-                    <i class="fas fa-tasks"></i> Requirements
-                </a>
-                <a href="{% url 'students:progress-report' %}" class="list-group-item list-group-item-action bg-light">
-                    <i class="fas fa-chart-line"></i> Progress Report
-                </a>
-                <a href="{% url 'students:list-of-document' %}" class="list-group-item list-group-item-action bg-light">
-                    <i class="fa fa-paper-plane" aria-hidden="true"></i> Submitted Documents
-                </a>
-                <a data-toggle="modal" data-target="#logout" class="list-group-item list-group-item-action bg-light" style="cursor: pointer;">
-                    <i class="fas fa-sign-out-alt"></i> Logout
-                </a>
-            </div>
-        </div>
-        <div class="modal fade" id="logout" tabindex="-1" role="dialog" aria-labelledby="loginModalLabel" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="loginModalLabel">Logout</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <p>Are you sure do want to leave this page</p>
-                    </div>
-                    <div class="modal-footer">
-                        <form>
-                            <a href="{% url 'students:logout' %}" class="btn btn-primary">Logout</a>
-                        </form>
-                    </div>
+                <div class="list-group list-group-flush">
+                    <a href="{% url 'students:dashboard' %}" class="list-group-item list-group-item-action bg-light">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </a>
+                    <a href="{% url 'students:clockin' %}" class="list-group-item list-group-item-action bg-light">
+                        <i class="fas fa-clock"></i> Clock In
+                    </a>
+                    <a href="{% url 'students:requirements' %}" class="list-group-item list-group-item-action bg-light">
+                        <i class="fas fa-tasks"></i> Requirements
+                    </a>
+                    <a href="{% url 'students:progress-report' %}" class="list-group-item list-group-item-action bg-light">
+                        <i class="fas fa-chart-line"></i> Progress Report
+                    </a>
+                    <a href="{% url 'students:list-of-document' %}" class="list-group-item list-group-item-action bg-light">
+                        <i class="fa fa-paper-plane" aria-hidden="true"></i> Submitted Documents
+                    </a>
+                    <a data-toggle="modal" data-target="#logout" class="list-group-item list-group-item-action bg-light" style="cursor: pointer;">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
                 </div>
             </div>
-        </div>
-        <!-- Page Content -->
-        <div id="page-content-wrapper">
-            <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
-                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <ul class="navbar-nav ml-auto mt-2 mt-lg-0">
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <i class="fas fa-user mr-2"></i>{{ firstName }} {{ lastName }}
-                            </a>
-                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                <a class="dropdown-item" href="{% url 'students:profile' %}">Profile</a>
-                                <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="{% url 'students:changePassword' %}">Change Password</a>
-                                <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="{% url 'students:logout' %}">Logout</a>
-                            </div>
-                        </li>
-                        <li class="nav-item dropdown mt-1">
-                            <a class="nav-link d-flex align-items-center" href="#" id="notificationDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <i class="fas fa-bell mr-2"></i>
-                                {% if unread_notifications_count > 0 %}
-                                    <span class="badge badge-danger">{{ unread_notifications_count }}</span>
-                                {% endif %}
-                            </a>
-                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="notificationDropdown">
-                                <h6 class="dropdown-header">Notifications</h6>
-                                {% if notifications %}
-                                    {% for notification in notifications %}
-                                        <form action="{% url 'students:mark_notification_as_read' notification.id %}" method="POST" style="display:inline;">
-                                            {% csrf_token %}
-                                            <button type="submit" class="dropdown-item" title="{{ notification.message }}">
-                                                {{ notification.message }}
-                                            </button>
-                                        </form>
-                                        <!-- Add a separator line -->
-                                        <div class="dropdown-divider"></div> <!-- Bootstrap separator -->
-                                    {% endfor %}
-                                {% else %}
-                                    <a class="dropdown-item" href="#">No new notifications</a>
-                                {% endif %}
-                            </div>
-                        </li>                                                                                  
-                    </ul>
-                </div>                
-            </nav>
-            <div class="container-fluid">
-                <div class="row mb-4">
-                    <div class="col-lg-12">
-                        <p class="mt-3 mb-1">Clock and Calendar</p>
-                        <h4 class="mt-2 mb-3">Home Page</h4>
-                        <div class="row">
-                            <!-- Clock -->
-                            <div class="col-md-12 text-center">
-                                <div id="clock" class="display-4"></div>
-                            </div>
-                            <!-- Calendar -->
-                            <div class="col-md-12 text-center mt-4">
-                                <div id="calendar" class="calendar"></div>
-                            </div>
+            <div class="modal fade" id="logout" tabindex="-1" role="dialog" aria-labelledby="loginModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="loginModalLabel">Logout</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Are you sure do want to leave this page</p>
+                        </div>
+                        <div class="modal-footer">
+                            <form>
+                                <a href="{% url 'students:logout' %}" class="btn btn-primary">Logout</a>
+                            </form>
                         </div>
                     </div>
                 </div>
-            </div>                
+            </div>
+            <!-- Page Content -->
+            <div id="page-content-wrapper">
+                <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
+                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                        <ul class="navbar-nav ml-auto mt-2 mt-lg-0">
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <i class="fas fa-user mr-2"></i>{{ firstName }} {{ lastName }}
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                    <a class="dropdown-item" href="{% url 'students:profile' %}">Profile</a>
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item" href="{% url 'students:changePassword' %}">Change Password</a>
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item" href="{% url 'students:logout' %}">Logout</a>
+                                </div>
+                            </li>
+                            <li class="nav-item dropdown mt-1">
+                                <a class="nav-link d-flex align-items-center" href="#" id="notificationDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <i class="fas fa-bell mr-2"></i>
+                                    {% if unread_notifications_count > 0 %}
+                                        <span class="badge badge-danger">{{ unread_notifications_count }}</span>
+                                    {% endif %}
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="notificationDropdown">
+                                    <h6 class="dropdown-header">Notifications</h6>
+                                    {% if notifications %}
+                                        {% for notification in notifications %}
+                                            <form action="{% url 'students:mark_notification_as_read' notification.id %}" method="POST" style="display:inline;">
+                                                {% csrf_token %}
+                                                <button type="submit" class="dropdown-item" title="{{ notification.message }}">
+                                                    {{ notification.message }}
+                                                </button>
+                                            </form>
+                                            <!-- Add a separator line -->
+                                            <div class="dropdown-divider"></div> <!-- Bootstrap separator -->
+                                        {% endfor %}
+                                    {% else %}
+                                        <a class="dropdown-item" href="#">No new notifications</a>
+                                    {% endif %}
+                                </div>
+                            </li>                                                                                  
+                        </ul>
+                    </div>                
+                </nav>
+                <div class="container-fluid">
+                    <div class="row mb-4">
+                        <div class="col-lg-12">
+                            <p class="mt-3 mb-1">Clock and Calendar</p>
+                            <h4 class="mt-2 mb-3">Home Page</h4>
+                            <div class="row">
+                                <!-- Clock -->
+                                <div class="col-md-12 text-center">
+                                    <div id="clock" class="display-4"></div>
+                                </div>
+                                <!-- Calendar -->
+                                <div class="col-md-12 text-center mt-4">
+                                    <div id="calendar" class="calendar"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>                
+            </div>
         </div>
-    </div>
+    {% endif %}
     <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
@@ -314,14 +331,7 @@
             document.getElementById('calendar').innerHTML = calendarHTML;
         }
 
-        generateCalendar();
-        history.pushState(null, null, location.href);
-        history.back();
-        history.forward();
-        window.onpopstate = function ()
-        {
-            history.go(1);
-        };       
+        generateCalendar();    
     </script>
 </body>
 </html>

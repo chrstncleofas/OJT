@@ -37,6 +37,7 @@ def studentHome(request) -> HttpResponse:
 
 @never_cache
 @csrf_protect
+@login_required
 def studentDashboard(request) -> HttpResponse:
     images = TableContent.objects.all().order_by('id')
     return render(
@@ -48,6 +49,7 @@ def studentDashboard(request) -> HttpResponse:
 
 @login_required
 @never_cache
+@csrf_protect
 def welcomeDashboard(request) -> HttpResponse:
     user = request.user
     student = get_object_or_404(DataTableStudents, user=user)
@@ -67,42 +69,6 @@ def welcomeDashboard(request) -> HttpResponse:
             'images': images
         }
     )
-
-@never_cache
-@csrf_protect
-@login_required
-def studentLogin(request):
-    if request.method == 'POST':
-        username = request.POST.get('Username')
-        password = request.POST.get('Password')
-        pending_app = PendingApplication.objects.filter(PendingUsername=username, StatusApplication="PendingApplication").first()
-        if pending_app:
-            messages.warning(request, 'Your account is not yet approved. Please wait for admin approval.')
-            return render(request, 'students/login.html')
-        user = authenticate(request, username=username, password=password)
-        
-        if user:
-            try:
-                student = DataTableStudents.objects.get(user=user)
-                if student.status == 'RejectedApplication':
-                    messages.error(request, 'Your account has been rejected. Please contact the admin for further details.')
-                    return render(request, 'students/login.html')
-                elif student.archivedStudents == 'Archive':
-                    messages.error(request, 'Your account has been locked due to inactivity. Please contact your admin.')
-                    return render(request, 'students/login.html')
-                if user.is_active:
-                    login(request, user)
-                    request.session['is_logged_in'] = True
-                    return redirect('students:main-page')
-                else:
-                    messages.error(request, 'Your account is disabled.')
-            
-            except DataTableStudents.DoesNotExist:
-                messages.error(request, 'Invalid username or password.')
-        else:
-            messages.error(request, 'Invalid username or password.')
-
-    return render(request, 'students/login.html')
 
 def getAnnouncement(request):
     enabledAnnouncement = TableAnnouncement.objects.filter(Status='enable')

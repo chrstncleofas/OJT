@@ -42,9 +42,13 @@ CHANGE_PASSWORD = 'app/changePassword.html'
 def home(request) -> Union[HttpResponseRedirect, HttpResponsePermanentRedirect, HttpResponse]:        
     return render(request, HOME_URL_PATH)
 
+@login_required
+@csrf_exempt
 def dashboard(request) -> HttpResponse:
     return render(request, DASHBOARD)
 
+@login_required
+@csrf_exempt
 def mainDashboard(request):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
@@ -78,8 +82,6 @@ def mainDashboard(request):
             'lastName': lastName
         }
     )
-
-from django.db.models import Q
 
 def studentManagement(request):
     user = request.user
