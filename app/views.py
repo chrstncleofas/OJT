@@ -428,7 +428,7 @@ def unArchivedStudent(request, id):
     messages.success(request, f'{student.Firstname} {student.Lastname} has been remove to archived.')
     return redirect(reverse('studentManagement'))
 
-def logoutView(request) -> HttpResponseRedirect:
+def logoutView(request):
     user = request.user
     if user.is_authenticated:
         saveActivityLogs(
@@ -438,6 +438,8 @@ def logoutView(request) -> HttpResponseRedirect:
             description='Logout page'
         )
     logout(request)
+    if 'is_logged_in' in request.session:
+        del request.session['is_logged_in']
     return redirect('homepage:home')
 
 def isAdmin(user):

@@ -1,0 +1,53 @@
+.form-container {
+    display: none; /* Itago ang mga forms by default */
+    margin-top: 20px;
+}
+.form-container.active {
+    display: block; /* Ipakita ang form kapag active */
+}
+.navbar-brand {
+    display: flex;
+    align-items: center;
+}
+.navbar-brand img {
+    width: 50px;
+    height: 50px;
+    margin-right: 15px;
+}
+.navbar-brand p {
+    margin: 0;
+    margin-left: -10px;
+    color: darkblue;
+    font-size: 1.15rem;
+}
+.outer-container {
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    margin-top: 10px;
+    border-radius: 6px;
+}
+#footerMain{
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+}     
+/* Style for the navbar */
+.navbar {
+    transition: background-color 0.3s ease;
+    z-index: 1000;
+}
+
+/* Default background color when at the top */
+.navbar-scroll {
+    background-color: rgba(255, 255, 255, 0.8);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+.scrolled {
+    background-color: rgba(0, 0, 0, 0.9);
+}
+body {
+    padding-top: 70px;
+}
+@media (max-width: 900px) {
+    .custom-hide-image {
+        display: none;
+    }
+}

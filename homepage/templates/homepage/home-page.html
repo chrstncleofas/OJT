@@ -17,13 +17,6 @@
             if (isLoggedIn) {
                 window.location.href = "{% url 'students:dashboard' %}";
             }
-    
-            const loginForm = document.getElementById('loginForm');
-            if (loginForm) {
-                loginForm.addEventListener('submit', function() {
-                    localStorage.setItem('isLoggedIn', true);
-                });
-            }
         }
     </script>
     <style>

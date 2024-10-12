@@ -157,7 +157,7 @@
                     </div>
                     <div class="modal-footer">
                         <form>
-                            <a href="{% url 'students:logout' %}" class="btn btn-primary">Logout</a>
+                            <a href="javascript:void(0);" onclick="logout()" class="btn btn-primary">Logout</a>
                         </form>
                     </div>
                 </div>
@@ -180,7 +180,7 @@
                                 <div class="dropdown-divider"></div>
                                 <a class="dropdown-item" href="{% url 'students:changePassword' %}">Change Password</a>
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="{% url 'students:logout' %}">Logout</a>
+                                <a class="dropdown-item" data-toggle="modal" data-target="#logout">Logout</a>
                             </div>
                         </li>
                         <li class="nav-item dropdown mt-1">
@@ -289,6 +289,11 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script> 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // Clear localStorage on logout and redirect to Django logout URL
+        function logout() {
+            localStorage.removeItem('isLoggedIn'); // Clear the 'isLoggedIn' flag from localStorage
+            window.location.href = '{% url 'students:logout' %}'; // Redirect to the Django logout URL
+        }
         $(".navbar-toggler").click(function(e) {
             e.preventDefault();
             $("#wrapper").toggleClass("toggled");

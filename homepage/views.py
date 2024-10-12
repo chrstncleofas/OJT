@@ -5,7 +5,6 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_protect
-from django.contrib.auth.decorators import login_required
 from students.models import PendingApplication, DataTableStudents
 
 def homePage(request):
