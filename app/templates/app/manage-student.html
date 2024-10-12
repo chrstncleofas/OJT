@@ -103,7 +103,7 @@
                     </div>
                     <div class="modal-footer">
                         <form>
-                            <a href="{% url 'logout' %}" class="btn btn-primary">Logout</a>
+                            <a href="javascript:void(0);" onclick="logout()" class="btn btn-primary">Logout</a>
                         </form>
                     </div>
                 </div>
@@ -127,7 +127,7 @@
                                 <div class="dropdown-divider"></div>
                                 <a class="dropdown-item" href="{% url 'changePass' %}">Change Password</a>
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
+                                <a class="dropdown-item" data-toggle="modal" data-target="#logout">Logout</a>
                             </div>
                         </li>
                     </ul>
@@ -648,6 +648,10 @@
     {% comment %}  {% endcomment %}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <script>
+        function logout() {
+            localStorage.removeItem('isLoggedIn'); // Clear the 'isLoggedIn' flag from localStorage
+            window.location.href = '{% url 'logout' %}'; // Redirect to the Django logout URL
+        }
         // Initialize Hover Tooltips
         document.addEventListener('DOMContentLoaded', function () {
             var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
