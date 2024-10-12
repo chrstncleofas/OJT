@@ -61,6 +61,15 @@
                                 {% endif %}
                             {% endfor %}
                         {% endif %}
+                        {% if pending_registration_form.errors %}
+                            <div class="alert alert-danger">
+                                {% for field, errors in pending_registration_form.errors.items %}
+                                    {% for error in errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
                         <form method="post" action="{% url 'students:register' %}">
                             {% csrf_token %}
                             <div class="row">

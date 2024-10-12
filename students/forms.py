@@ -166,10 +166,10 @@ class PendingStudentRegistrationForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
         password = cleaned_data.get("PendingPassword")
-        confirm_password = cleaned_data.get("confirm_password")
+        confirm_password = cleaned_data.get("confirmPassword")
 
         if password and confirm_password and password != confirm_password:
-            self.add_error('confirm_password', "Password and Confirm Password do not match")
+            self.add_error('confirmPassword', "Password and Confirm Password do not match")
 
     def __init__(self, *args, **kwargs):
         super(PendingStudentRegistrationForm, self).__init__(*args, **kwargs)
@@ -181,6 +181,7 @@ class PendingStudentRegistrationForm(forms.ModelForm):
 
     
 class StudentProfileForm(forms.ModelForm):
+
     class Meta:
         model = DataTableStudents
         fields = ['Firstname', 'Lastname', 'Email', 'Course', 'Year', 'Image']
