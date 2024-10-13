@@ -291,8 +291,8 @@
     <script>
         // Clear localStorage on logout and redirect to Django logout URL
         function logout() {
-            localStorage.removeItem('isLoggedIn'); // Clear the 'isLoggedIn' flag from localStorage
-            window.location.href = '{% url 'students:logout' %}'; // Redirect to the Django logout URL
+            localStorage.removeItem('is_student_logged_in');
+            window.location.href = '{% url 'students:logout' %}';
         }
         $(".navbar-toggler").click(function(e) {
             e.preventDefault();

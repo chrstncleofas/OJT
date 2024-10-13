@@ -649,8 +649,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <script>
         function logout() {
-            localStorage.removeItem('isLoggedIn'); // Clear the 'isLoggedIn' flag from localStorage
-            window.location.href = '{% url 'logout' %}'; // Redirect to the Django logout URL
+            localStorage.removeItem('is_coordinator_logged_in');
+            window.location.href = '{% url 'logout' %}';
         }
         // Initialize Hover Tooltips
         document.addEventListener('DOMContentLoaded', function () {

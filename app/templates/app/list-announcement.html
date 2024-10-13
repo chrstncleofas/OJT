@@ -241,8 +241,8 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
     <script>
         function logout() {
-            localStorage.removeItem('isLoggedIn'); // Clear the 'isLoggedIn' flag from localStorage
-            window.location.href = '{% url 'logout' %}'; // Redirect to the Django logout URL
+            localStorage.removeItem('is_coordinator_logged_in');
+            window.location.href = '{% url 'logout' %}';
         }
         $(".navbar-toggler").click(function(e) {
             e.preventDefault();

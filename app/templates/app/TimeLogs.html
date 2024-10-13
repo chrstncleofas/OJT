@@ -379,8 +379,8 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
         function logout() {
-            localStorage.removeItem('isLoggedIn'); // Clear the 'isLoggedIn' flag from localStorage
-            window.location.href = '{% url 'logout' %}'; // Redirect to the Django logout URL
+            localStorage.removeItem('is_coordinator_logged_in');
+            window.location.href = '{% url 'logout' %}';
         }
         function toggleEdit(button) {
             // Get the input field

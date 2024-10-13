@@ -13,11 +13,26 @@
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <script>
         window.onload = function() {
-            const isLoggedIn = localStorage.getItem('isLoggedIn');
-            if (isLoggedIn) {
+            const isStudentLoggedIn = localStorage.getItem('is_student_logged_in');
+            const isCoordinatorLoggedIn = localStorage.getItem('is_coordinator_logged_in');
+            if (isStudentLoggedIn) {
                 window.location.href = "{% url 'students:dashboard' %}";
+            } else if (isCoordinatorLoggedIn) {
+                window.location.href = "{% url 'mainDashboard' %}";
             }
-        }
+            const studentLoginForm = document.getElementById('student-login-form');
+            if (studentLoginForm) {
+                studentLoginForm.addEventListener('submit', function() {
+                    localStorage.setItem('isStudentLoggedIn', true);
+                });
+            }
+            const coordinatorLoginForm = document.getElementById('coordinator-login-form');
+            if (coordinatorLoginForm) {
+                coordinatorLoginForm.addEventListener('submit', function() {
+                    localStorage.setItem('isCoordinatorLoggedIn', true);
+                });
+            }
+        }        
     </script>
     <style>
         .form-container {

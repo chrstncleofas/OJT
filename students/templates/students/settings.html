@@ -242,8 +242,8 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         function logout() {
-            localStorage.removeItem('isLoggedIn');
-            window.location.href = '/logout/';
+            localStorage.removeItem('is_student_logged_in');
+            window.location.href = '{% url 'students:logout' %}';
         }
         $(".navbar-toggler").click(function(e) {
             e.preventDefault();

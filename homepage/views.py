@@ -30,23 +30,24 @@ def studentLogin(request):
         pending_app = PendingApplication.objects.filter(PendingUsername=username, StatusApplication="PendingApplication").first()
         if pending_app:
             return JsonResponse({'error': 'Your account is not yet approved. Please wait for admin approval.'})
-        user = authenticate(request, username=username, password=password)   
+        user = authenticate(request, username=username, password=password)
         if user:
             try:
                 student = DataTableStudents.objects.get(user=user)
                 if student.status == 'RejectedApplication':
-                    return JsonResponse({'error': 'Your account has been rejected. Please contact the admin for further details.'})
+                    return JsonResponse({'error': 'Your account has been rejected. Please contact the admin.'})
                 elif student.archivedStudents == 'Archive':
                     return JsonResponse({'error': 'Your account has been locked due to inactivity. Please contact your admin.'})
                 if user.is_active:
                     login(request, user)
-                    request.session['is_logged_in'] = True
+                    request.session['is_student_logged_in'] = True
                     return JsonResponse({'redirect_url': '/students/dashboard/'})
             except DataTableStudents.DoesNotExist:
                 return JsonResponse({'error': 'Student account not found.'})
         else:
             return JsonResponse({'error': 'Invalid username or password.'})
     return render(request, 'homepage/home-page.html')
+
 
 @never_cache
 @csrf_protect
@@ -61,8 +62,7 @@ def coordinatorLogin(request):
             if user.is_staff and not user.is_superuser:
                 if user.is_active:
                     login(request, user)
-                    request.session['is_logged_in'] = True
-                    request.session['admin_password'] = user.password
+                    request.session['is_coordinator_logged_in'] = True  # Setting the session variable
                     saveActivityLogs(user=user, action='LOGIN', request=request, description='Login admin/coordinator')
                     return JsonResponse({'redirect_url': '/coordinator/mainDashboard'})
             else:

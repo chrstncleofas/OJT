@@ -794,8 +794,8 @@ def studentLogin(request):
 
 def studentLogout(request) -> HttpResponseRedirect:
     logout(request)
-    if 'is_logged_in' in request.session:
-        del request.session['is_logged_in']
+    if 'is_student_logged_in' in request.session:
+        del request.session['is_student_logged_in']
     return redirect('homepage:home')
 
 @login_required

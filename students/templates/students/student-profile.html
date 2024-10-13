@@ -236,8 +236,8 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
         function logout() {
-            localStorage.removeItem('isLoggedIn');
-            window.location.href = '/logout/';
+            localStorage.removeItem('is_student_logged_in');
+            window.location.href = '{% url 'students:logout' %}';
         }
         document.addEventListener("DOMContentLoaded", function() {
             var imageInput = document.getElementById('id_Image');
