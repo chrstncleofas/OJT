@@ -154,6 +154,17 @@
             display: block;
             padding: 10px;
         }
+        .calendar table {
+            margin-top: -8px;
+            margin;-right: -50px;
+            font-size: 10px; /* Paliitin ang font size */
+            width: 101%;
+        }
+        
+        .calendar th, .calendar td {
+            padding: 3px; /* Paliitin ang padding */
+            text-align: center; /* Center ang text */
+        }
     </style>
 </head>
 <body>
@@ -173,17 +184,17 @@
                 <a href="{% url 'students:dashboard' %}" class="list-group-item list-group-item-action bg-light">
                     <i class="fas fa-tachometer-alt"></i> Dashboard
                 </a>
-                <a href="{% url 'students:clockin' %}" class="list-group-item list-group-item-action bg-light">
-                    <i class="fas fa-clock"></i> Clock In
-                </a>
                 <a href="{% url 'students:requirements' %}" class="list-group-item list-group-item-action bg-light">
                     <i class="fas fa-tasks"></i> Requirements
                 </a>
-                <a href="{% url 'students:progress-report' %}" class="list-group-item list-group-item-action bg-light">
-                    <i class="fas fa-chart-line"></i> Progress Report
-                </a>
                 <a href="{% url 'students:list-of-document' %}" class="list-group-item list-group-item-action bg-light">
                     <i class="fa fa-paper-plane" aria-hidden="true"></i> Submitted Documents
+                </a>
+                <a href="{% url 'students:clockin' %}" class="list-group-item list-group-item-action bg-light">
+                    <i class="fas fa-clock"></i> Clock In
+                </a>
+                <a href="{% url 'students:progress-report' %}" class="list-group-item list-group-item-action bg-light">
+                    <i class="fas fa-chart-line"></i> Progress Report
                 </a>
                 <a data-toggle="modal" data-target="#logout" class="list-group-item list-group-item-action bg-light" style="cursor: pointer;">
                     <i class="fas fa-sign-out-alt"></i> Logout
@@ -282,32 +293,37 @@
                             <a href="{% url 'students:dashboard' %}" style="cursor: pointer; text-decoration: none; color: black;">Dashboard</a> / Clock IN and Clock Out
                         </p>
                         <div class="row mb-1 ml-1 mr-0">
-                            <div class="col-md-4">
+                            <div class="col-md-3 mr-0">
+                                <div class="text-center mt-4">
+                                    <div id="calendar" class="calendar"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
                                 <div class="card text-white bg-primary mb-3">
                                     <div class="card-header text-dark" style="font-weight: 600;">Total Work Hours</div>
                                     <div class="card-body">
                                         <div class="row">
-                                            <input type="text" style="width: 331px; font-size: 15px;" name="total_work_time" class="form-control ml-0" value="{{ total_work_time }}" readonly>
+                                            <input type="text" style="width: 230px; font-size: 15px;" name="total_work_time" class="form-control ml-0" value="{{ total_work_time }}" readonly>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <div class="card text-white bg-warning mb-3">
                                     <div class="card-header text-dark" style="font-weight: 600;">Remaining Hours</div>
                                     <div class="card-body">
                                         <div class="row">
-                                            <input type="text" style="width: 331px; font-size: 15px;" name="remaining_hours_time" class="form-control ml-0 mr-1" value="{{ remaining_hours_time }}" readonly>
+                                            <input type="text" style="width: 230px; font-size: 15px;" name="remaining_hours_time" class="form-control ml-0 mr-1" value="{{ remaining_hours_time }}" readonly>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <div class="card text-white bg-success mb-3">
                                     <div class="card-header" style="font-weight: 600;">Required Duration</div>
                                     <div class="card-body">
                                         <div class="row">
-                                            <input type="text" style="width: 331px; font-size: 15px;" name="required_hours_time" class="form-control ml-0" value="{{ required_hours_time }}" readonly>
+                                            <input type="text" style="width: 230px; font-size: 15px;" name="required_hours_time" class="form-control ml-0" value="{{ required_hours_time }}" readonly>
                                         </div>
                                     </div>
                                 </div>
@@ -600,6 +616,48 @@
                 });
             });
         });
+        // Calendar Script
+        function generateCalendar() {
+            const now = new Date();
+            const currentMonth = now.getMonth();
+            const currentYear = now.getFullYear();
+            const currentDate = now.getDate();
+
+            const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            const months = [
+                'January', 'February', 'March', 'April', 'May', 'June',
+                'July', 'August', 'September', 'October', 'November', 'December'
+            ];
+
+            const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+            const lastDate = new Date(currentYear, currentMonth + 1, 0).getDate();
+
+            let calendarHTML = `<table class="table table-bordered"><thead><tr><th colspan="7" class="text-center">${months[currentMonth]} ${currentYear}</th></tr><tr>`;
+            daysOfWeek.forEach(day => {
+                calendarHTML += `<th class="text-center">${day}</th>`;
+            });
+            calendarHTML += `</tr></thead><tbody><tr>`;
+
+            for (let i = 0; i < firstDay; i++) {
+                calendarHTML += `<td></td>`;
+            }
+
+            for (let day = 1; day <= lastDate; day++) {
+                if ((day + firstDay - 1) % 7 === 0) {
+                    calendarHTML += `</tr><tr>`;
+                }
+                if (day === currentDate) {
+                    calendarHTML += `<td class="bg-primary text-white text-center"><strong>${day}</strong></td>`;
+                } else {
+                    calendarHTML += `<td class="text-center">${day}</td>`;
+                }
+            }
+
+            calendarHTML += `</tr></tbody></table>`;
+            document.getElementById('calendar').innerHTML = calendarHTML;
+        }
+
+        generateCalendar(); 
     </script>
 </body>
 </html>
