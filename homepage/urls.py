@@ -11,6 +11,8 @@ urlpatterns = [
     path('students/login/', views.studentLogin, name='student_login'),
     path('coordinator/login/', views.coordinatorLogin, name='coordinator_login'),
     path('student-register', views.studentRegister, name='student-register'),
+    path('forgot_password/', views.forgot_password, name='forgot_password'),
+    path('reset_password/<str:token>/', views.reset_password, name='reset_password'),
 ]
 
 if settings.DEBUG:

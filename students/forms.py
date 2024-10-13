@@ -62,53 +62,6 @@ class UserForm(forms.ModelForm):
         
         return cleaned_data
 
-class StudentRegistrationForm(forms.ModelForm):
-    StudentID = forms.CharField(
-        max_length=16, 
-        label='Student ID',
-        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ex. 18-0000'})
-    )
-
-    Course = forms.ChoiceField(
-        choices=COURSE_CHOICES,
-        widget=forms.Select(attrs={'class': 'form-control'})
-    )
-
-    Prefix = forms.ChoiceField(
-        choices=PREFIX_CHOICES,
-        widget=forms.Select(attrs={'class': 'form-control'}),
-        required=False
-    )
-
-    Number = forms.CharField(
-        max_length=11, 
-        label='Number',
-        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ex. 09610090120'})
-    )
-
-    # Year = forms.ChoiceField(
-    #     choices=YEAR_CHOICES,
-    #     widget=forms.Select(attrs={'class': 'form-control'}),
-    #     required=False
-    # )
-
-    class Meta:
-        model = DataTableStudents
-        fields = ['StudentID', 'Firstname', 'Middlename', 'Lastname', 'Prefix', 'Address', 'Number' ,'Course']
-        widgets = {
-            'Firstname': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter First Name'}),
-            'Middlename': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Middle Name'}),
-            'Lastname': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Last Name'}),
-            'Address': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Full Address'}),
-        }
-
-    def __init__(self, *args, **kwargs):
-        super(StudentRegistrationForm, self).__init__(*args, **kwargs)
-        self.fields['Firstname'].required = True
-        self.fields['Middlename'].required = False
-        self.fields['Lastname'].required = True
-        self.fields['Year'].required = True
-
 class PendingStudentRegistrationForm(forms.ModelForm):
     PendingStudentID = forms.CharField(
         max_length=16, 

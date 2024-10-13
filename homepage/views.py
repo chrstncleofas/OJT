@@ -1,3 +1,4 @@
+from django.urls import reverse
 from django.conf import settings
 from django.contrib import messages  
 from django.http import JsonResponse
@@ -5,12 +6,15 @@ from app.utils import saveActivityLogs
 from django.core.mail import send_mail
 from app.models import TableAnnouncement
 from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404
+from django.utils.crypto import get_random_string
 from django.contrib.auth import authenticate, login
 from django.template.loader import render_to_string
 from django.views.decorators.cache import never_cache
+from django.contrib.auth.hashers import make_password
 from django.views.decorators.csrf import csrf_protect
 from students.models import PendingApplication, DataTableStudents
-from students.forms import PendingStudentRegistrationForm
+from students.forms import PendingStudentRegistrationForm, ResetPasswordForm
 
 def homePage(request):
     return render(request, 'homepage/home-page.html')
@@ -134,3 +138,42 @@ def studentRegister(request):
             'pending_registration_form': pending_registration_form
         }
     )
+
+@never_cache
+def forgot_password(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        user = DataTableStudents.objects.filter(Email=email).first()
+        if user:
+            token = get_random_string(32)
+            user.reset_token = token
+            user.save()
+            reset_link = request.build_absolute_uri(reverse('homepage:reset_password', args=[token]))
+            send_mail(
+                'Password Reset Request',
+                f'Click the link to reset your password: {reset_link}',
+                settings.EMAIL_HOST_USER,
+                [email],
+                fail_silently=False
+            )
+            messages.success(request, 'Password reset link has been sent to your email.')
+        else:
+            messages.error(request, 'Email not found.')
+    return render(request, 'homepage/forgot_password.html')
+
+@never_cache
+def reset_password(request, token):
+    user = get_object_or_404(DataTableStudents, reset_token=token).user
+    if request.method == 'POST':
+        form = ResetPasswordForm(request.POST)
+        if form.is_valid():
+            new_password = form.cleaned_data['new_password']
+            user.password = make_password(new_password)
+            user.reset_token = None
+            user.save()
+            messages.success(request, 'Your password has been reset successfully.')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = ResetPasswordForm()
+    return render(request, 'homepage/reset_password.html', {'form': form, 'token': token})

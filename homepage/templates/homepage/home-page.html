@@ -124,6 +124,9 @@
                     <label for="student-password">Password:</label>
                     <input type="password" class="form-control" id="student-password" name="Password" required>
                 </div>
+                <div class="mb-2">
+                    <a href="{% url 'homepage:forgot_password' %}">Forgot Password?</a>
+                </div>
                 <button type="submit" class="btn btn-primary btn-block">Login</button>
             </form>
         </div>
