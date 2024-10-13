@@ -235,8 +235,8 @@
                             <div class="row">
                                 <!-- Clock -->
                                 <div class="col-md-12 d-flex justify-content-end align-items-center">
-                                    <h5 style="font-size: 23px; margin-top: 7px; font-weight: 600;" class="mr-2">Time :</h5>
-                                    <h5 id="clock" class="text-dark" style="font-weight: 600;"></h5>
+                                    <h5 style="font-size: 23px; margin-top: 7px; font-weight: 620;" class="mr-2">Time :</h5>
+                                    <h5 id="clock" class="text-dark" style="font-weight: bold;"></h5>
                                 </div>                                
                                 <div class="row mb-1 ml-1 mr-0">
                                     <div class="col-md-4 mb-4" style="cursor: pointer;">
@@ -312,7 +312,6 @@
             e.preventDefault();
             $("#wrapper").toggleClass("toggled");
         });
-        // Clock Script with 12-Hour Format
         function updateClock() {
             const now = new Date();
             let hours = now.getHours();
@@ -321,9 +320,11 @@
             hours = hours % 12;
             hours = hours ? hours : 12; // The hour '0' should be '12'
             const timeString = `${hours}:${minutes} ${ampm}`;
-            document.getElementById('clock').innerText = timeString;
+            
+            const clockElement = document.getElementById('clock');
+            clockElement.innerText = timeString;
+            clockElement.style.fontWeight = 'bold'; // Set the same font-weight here
         }
-        setInterval(updateClock, 1000);
         updateClock();
     </script>
 </body>
