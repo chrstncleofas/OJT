@@ -52,7 +52,7 @@ def dashboard(request) -> HttpResponse:
 @login_required
 @never_cache
 @csrf_exempt
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True, name='dispatch')
 def mainDashboard(request):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)

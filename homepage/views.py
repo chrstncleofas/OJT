@@ -32,14 +32,14 @@ def redirect_authenticated_user(view_func):
 @redirect_authenticated_user
 @never_cache
 @csrf_protect
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True, name='dispatch')
 def homePage(request):
     return render(request, 'homepage/home-page.html')
 
 @redirect_authenticated_user
 @never_cache
 @csrf_protect
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True, name='dispatch')
 def studentLogin(request):
     if request.user.is_authenticated:
         return redirect('students:dashboard')
@@ -70,7 +70,7 @@ def studentLogin(request):
 @redirect_authenticated_user
 @never_cache
 @csrf_protect
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True, name='dispatch')
 def coordinatorLogin(request):
     if request.user.is_authenticated:
         return redirect('mainDashboard')

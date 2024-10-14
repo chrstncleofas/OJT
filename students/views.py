@@ -51,7 +51,7 @@ def studentDashboard(request) -> HttpResponse:
 @login_required
 @never_cache
 @csrf_protect
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True, name='dispatch')
 def welcomeDashboard(request) -> HttpResponse:
     user = request.user
     student = get_object_or_404(DataTableStudents, user=user)
