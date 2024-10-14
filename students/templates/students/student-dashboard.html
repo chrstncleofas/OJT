@@ -109,21 +109,6 @@
             margin-top: 8px;
         }
     </style>
-    <script>
-        window.onload = function() {
-            const isLoggedIn = localStorage.getItem('isLoggedIn');
-            if (isLoggedIn) {
-                window.location.href = "{% url 'students:dashboard' %}";
-            }
-    
-            const loginForm = document.getElementById('loginForm');
-            if (loginForm) {
-                loginForm.addEventListener('submit', function() {
-                    localStorage.setItem('isLoggedIn', true);
-                });
-            }
-        }
-    </script>
 </head>
 <body>
     {% if user.is_authenticated %}
@@ -304,6 +289,16 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script> 
     <script>
+        window.onload = function() {
+            // Preventing back button navigation loop
+            if (window.history.length > 1) {
+                window.history.pushState(null, document.title, window.location.href);
+                window.addEventListener('popstate', function(event) {
+                    // Handle back button behavior appropriately
+                    window.history.pushState(null, document.title, window.location.href);
+                });
+            }
+        };
         function logout() {
             localStorage.removeItem('isLoggedIn');
             window.location.href = '{% url 'students:logout' %}';

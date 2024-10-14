@@ -1,3 +1,4 @@
+from functools import wraps
 from django.urls import reverse
 from django.conf import settings
 from django.contrib import messages  
@@ -13,14 +14,32 @@ from django.template.loader import render_to_string
 from django.views.decorators.cache import never_cache
 from django.contrib.auth.hashers import make_password
 from django.views.decorators.csrf import csrf_protect
+from django.views.decorators.cache import cache_control
 from students.models import PendingApplication, DataTableStudents
 from students.forms import PendingStudentRegistrationForm, ResetPasswordForm
 
+def redirect_authenticated_user(view_func):
+    @wraps(view_func)
+    def _wrapped_view(request, *args, **kwargs):
+        if request.user.is_authenticated:
+            if hasattr(request.user, 'datatablestudents'):
+                return redirect('students:dashboard')
+            elif request.user.is_staff and not request.user.is_superuser:
+                return redirect('mainDashboard')
+        return view_func(request, *args, **kwargs)
+    return _wrapped_view
+
+@redirect_authenticated_user
+@never_cache
+@csrf_protect
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def homePage(request):
     return render(request, 'homepage/home-page.html')
 
+@redirect_authenticated_user
 @never_cache
 @csrf_protect
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def studentLogin(request):
     if request.user.is_authenticated:
         return redirect('students:dashboard')
@@ -48,9 +67,10 @@ def studentLogin(request):
             return JsonResponse({'error': 'Invalid username or password.'})
     return render(request, 'homepage/home-page.html')
 
-
+@redirect_authenticated_user
 @never_cache
 @csrf_protect
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def coordinatorLogin(request):
     if request.user.is_authenticated:
         return redirect('mainDashboard')
@@ -62,7 +82,7 @@ def coordinatorLogin(request):
             if user.is_staff and not user.is_superuser:
                 if user.is_active:
                     login(request, user)
-                    request.session['is_coordinator_logged_in'] = True  # Setting the session variable
+                    request.session['is_coordinator_logged_in'] = True
                     saveActivityLogs(user=user, action='LOGIN', request=request, description='Login admin/coordinator')
                     return JsonResponse({'redirect_url': '/coordinator/mainDashboard'})
             else:

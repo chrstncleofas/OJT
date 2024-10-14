@@ -5,6 +5,24 @@ from app.models import CustomUser
 
 logger = logging.getLogger(__name__)
 
+def is_student(user):
+    """
+    Check if the user is a student.
+    Returns True if the user is a student, otherwise False.
+    """
+    try:
+        DataTableStudents.objects.get(user=user)
+        return True
+    except DataTableStudents.DoesNotExist:
+        return False
+
+def is_coordinator(user):
+    """
+    Check if the user is a coordinator (staff but not superuser).
+    Returns True if the user is a coordinator, otherwise False.
+    """
+    return isinstance(user, CustomUser) and user.is_staff and not user.is_superuser
+
 class CustomMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
@@ -22,15 +40,9 @@ class CustomMiddleware:
 
             # Redirect logged-in users away from the homepage to their respective dashboards
             elif request.path == '/':
-                try:
-                    # Check if the user is a student
-                    student = DataTableStudents.objects.get(user=request.user)
+                if is_student(request.user):
                     return redirect('/students/dashboard/')
-                except DataTableStudents.DoesNotExist:
-                    pass  # The user is not a student
-
-                # Check if the user is a coordinator (staff but not superuser)
-                if isinstance(request.user, CustomUser) and request.user.is_staff and not request.user.is_superuser:
+                elif is_coordinator(request.user):
                     return redirect('/coordinator/mainDashboard')
 
         # Handle the response and log 404 errors if any

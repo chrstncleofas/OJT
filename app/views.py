@@ -17,11 +17,13 @@ from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 from app.models import CustomUser, TableAnnouncement
 from django.contrib.auth.hashers import make_password
+from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
+from django.views.decorators.cache import cache_control
 from django.contrib.auth.decorators import user_passes_test
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from students.forms import EditStudentForm, ScheduleSettingForm, GradeForm
@@ -48,7 +50,9 @@ def dashboard(request) -> HttpResponse:
     return render(request, DASHBOARD)
 
 @login_required
+@never_cache
 @csrf_exempt
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def mainDashboard(request):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)

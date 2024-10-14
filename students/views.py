@@ -11,6 +11,7 @@ from django.shortcuts import render, redirect
 from datetime import datetime, timedelta, time
 from django.shortcuts import get_object_or_404
 from django.utils.crypto import get_random_string
+from django.views.decorators.cache import cache_control
 from django.template.loader import render_to_string
 from django.contrib.auth import update_session_auth_hash
 from django.views.decorators.cache import never_cache
@@ -50,6 +51,7 @@ def studentDashboard(request) -> HttpResponse:
 @login_required
 @never_cache
 @csrf_protect
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def welcomeDashboard(request) -> HttpResponse:
     user = request.user
     student = get_object_or_404(DataTableStudents, user=user)

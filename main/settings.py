@@ -53,6 +53,9 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'main.middleware.CustomMiddleware',
     'students.middleware.DisableCacheMiddleware',
+    'homepage.middleware.DisableCacheMiddleware',
+    'app.middleware.DisableCacheMiddleware',
+    'superapp.middleware.DisableCacheMiddleware',
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True
