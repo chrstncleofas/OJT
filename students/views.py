@@ -53,13 +53,14 @@ def studentDashboard(request) -> HttpResponse:
 @csrf_protect
 @cache_control(no_cache=True, must_revalidate=True, no_store=True, name='dispatch')
 def welcomeDashboard(request) -> HttpResponse:
-    user = request.user
-    student = get_object_or_404(DataTableStudents, user=user)
-    firstName = student.Firstname
-    lastName = student.Lastname
-    images = TableContent.objects.all().order_by('id')
-    notifications = Notification.objects.filter(student=student, is_read=False)
-    unread_notifications_count = notifications.count()
+    if request.user.is_authenticated:
+        user = request.user
+        student = get_object_or_404(DataTableStudents, user=user)
+        firstName = student.Firstname
+        lastName = student.Lastname
+        images = TableContent.objects.all().order_by('id')
+        notifications = Notification.objects.filter(student=student, is_read=False)
+        unread_notifications_count = notifications.count()
     return render(
         request,
         'students/student-main-dashboard.html',

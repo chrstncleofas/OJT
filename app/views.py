@@ -20,6 +20,7 @@ from django.contrib.auth.hashers import make_password
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
+from django.http import JsonResponse, HttpResponseForbidden
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
@@ -52,18 +53,26 @@ def dashboard(request) -> HttpResponse:
 @login_required
 @never_cache
 @csrf_exempt
-@cache_control(no_cache=True, must_revalidate=True, no_store=True, name='dispatch')
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def mainDashboard(request):
+    # Check if the user is staff but not a superuser
+    if not request.user.is_staff or request.user.is_superuser:
+        return HttpResponseForbidden("You do not have permission to access this page.")
+
+    # Proceed with the existing logic if the user has the right permissions
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
     firstName = admin.first_name
     lastName = admin.last_name
+
     # Approve
     approve = DataTableStudents.objects.filter(status='Approved', archivedStudents='NotArchive').order_by('id')
     approve_count = approve.count()
+    
     # Pending
     pending = PendingApplication.objects.filter(StatusApplication='PendingApplication', PendingStatusArchive='NotArchive').order_by('id')
     pending_count = pending.count()
+    
     # Rejected
     reject = RejectApplication.objects.filter(RejectStatus='RejectedApplication', RejectStatusArchive='NotArchive').order_by('id')
     reject_count = reject.count()
