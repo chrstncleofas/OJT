@@ -13,6 +13,10 @@ from app.forms import SetRenderingHoursForm
 from app.forms import CustomUserCreationForm
 from django.shortcuts import render, redirect
 from django.shortcuts import get_object_or_404
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.cache import never_cache
+from django.views.decorators.csrf import csrf_protect
+from django.views.decorators.cache import cache_control
 from app.models import CustomUser, StoreActivityLogs
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
@@ -36,17 +40,26 @@ def superHome(request) -> Union[HttpResponseRedirect, HttpResponsePermanentRedir
 def superAdminDashboard(request) -> HttpResponse:
     return render(request, DASHBOARD)
 
+@login_required
+@never_cache
+@csrf_exempt
+@cache_control(no_cache=True, must_revalidate=True, no_store=True, name='dispatch')
 def mainDashboard(request):
     user = request.user
+    if user.is_superuser:
+        return render(request, 'superapp/main-dashboard.html')
     admin = get_object_or_404(CustomUser, id=user.id)
     firstName = admin.first_name
     lastName = admin.last_name
+
     # Approve
     approve = DataTableStudents.objects.filter(status='Approved', archivedStudents='NotArchive')
     approve_count = approve.count()
+    
     # Pending
     pending = PendingApplication.objects.filter(StatusApplication='PendingApplication')
     pending_count = pending.count()
+    
     # Rejected
     reject = RejectApplication.objects.filter(RejectStatus='RejectedApplication')
     reject_count = reject.count()

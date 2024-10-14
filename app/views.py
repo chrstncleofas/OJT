@@ -53,7 +53,7 @@ def dashboard(request) -> HttpResponse:
 @login_required
 @never_cache
 @csrf_exempt
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True, name='dispatch')
 def mainDashboard(request):
     # Check if the user is staff but not a superuser
     if not request.user.is_staff or request.user.is_superuser:
