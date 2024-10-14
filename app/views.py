@@ -57,7 +57,7 @@ def dashboard(request) -> HttpResponse:
 def mainDashboard(request):
     # Check if the user is staff but not a superuser
     if not request.user.is_staff or request.user.is_superuser:
-        return HttpResponseForbidden("You do not have permission to access this page.")
+        return render(request, 'main/404.html', status=403)
 
     # Proceed with the existing logic if the user has the right permissions
     user = request.user

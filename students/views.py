@@ -6,22 +6,20 @@ from django.conf import settings
 from django.utils import timezone
 from django.contrib import messages
 from django.core.mail import send_mail
-from django.utils.timezone import localtime
 from django.shortcuts import render, redirect
 from datetime import datetime, timedelta, time
 from django.shortcuts import get_object_or_404
 from django.utils.crypto import get_random_string
-from django.views.decorators.cache import cache_control
 from django.template.loader import render_to_string
-from django.contrib.auth import update_session_auth_hash
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_protect
+from django.views.decorators.cache import cache_control
+from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse, HttpResponseRedirect
-from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.hashers import check_password, make_password
 from app.models import TableAnnouncement, TableRequirements, TableContent
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseForbidden
 from students.models import DataTableStudents, TimeLog, Schedule, TableSubmittedReport, TableSubmittedRequirement, PendingApplication, ApprovedDocument, ReturnToRevisionDocument, LunchLog, Notification
 from students.forms import ChangePasswordForm, StudentProfileForm, ScheduleSettingForm, ProgressReportForm, SubmittedRequirement, PendingStudentRegistrationForm, TimeLogForm, ResetPasswordForm, LunchLogForm
 
@@ -53,14 +51,19 @@ def studentDashboard(request) -> HttpResponse:
 @csrf_protect
 @cache_control(no_cache=True, must_revalidate=True, no_store=True, name='dispatch')
 def welcomeDashboard(request) -> HttpResponse:
-    if request.user.is_authenticated:
-        user = request.user
-        student = get_object_or_404(DataTableStudents, user=user)
-        firstName = student.Firstname
-        lastName = student.Lastname
-        images = TableContent.objects.all().order_by('id')
-        notifications = Notification.objects.filter(student=student, is_read=False)
-        unread_notifications_count = notifications.count()
+    # Check if the user is NOT a staff or a superuser
+    if request.user.is_staff or request.user.is_superuser:
+        return render(request, 'main/404.html', status=403)
+    
+    # Proceed if the user is a student
+    user = request.user
+    student = get_object_or_404(DataTableStudents, user=user)
+    firstName = student.Firstname
+    lastName = student.Lastname
+    images = TableContent.objects.all().order_by('id')
+    notifications = Notification.objects.filter(student=student, is_read=False)
+    unread_notifications_count = notifications.count()
+
     return render(
         request,
         'students/student-main-dashboard.html',
