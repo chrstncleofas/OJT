@@ -184,48 +184,73 @@
             e.preventDefault();
             $("#wrapper").toggleClass("toggled");
         });
-        window.onload = function() {
-            // Preventing back button navigation loop
+        document.addEventListener('DOMContentLoaded', () => {
+            initDashboardFilters();
+            setupCustomDateFilter();
+            preventBackNavigationLoop();
+        });
+        
+        // Initializes the default filter and sets up event listeners for predefined filters
+        function initDashboardFilters() {
+            console.log("Initializing dashboard filters.");
+        
+            // Set the default filter to "Today"
+            setDefaultFilter('today');
+        
+            // Add event listeners to predefined filter buttons (Today, Yesterday, Week)
+            const filterButtons = document.querySelectorAll('input[name="dateFilter"]');
+            filterButtons.forEach((button) => {
+                button.addEventListener('change', handleDateFilterChange);
+            });
+        }
+        
+        // Sets up the custom date range filter functionality
+        function setupCustomDateFilter() {
+            const filterButton = document.getElementById('filterButton');
+            filterButton.addEventListener('click', (event) => {
+                event.preventDefault();
+                const startDate = document.getElementById('start-date').value;
+                const endDate = document.getElementById('end-date').value;
+        
+                if (startDate && endDate) {
+                    console.log(`Filtering by custom date range: Start Date = ${startDate}, End Date = ${endDate}`);
+                    updateCounts('custom', startDate, endDate);
+                } else {
+                    console.warn('Both start date and end date must be selected for the custom filter.');
+                }
+            });
+        }
+        
+        // Sets the default filter to the specified value and updates the counts
+        function setDefaultFilter(filterType) {
+            document.getElementById(filterType).checked = true;
+            updateCounts(filterType);
+        }
+        
+        // Handles the date filter button change event
+        function handleDateFilterChange(event) {
+            const selectedFilter = event.target.id;
+            console.log(`Date filter selected: ${selectedFilter}`);
+            updateCounts(selectedFilter);
+        }
+        
+        // Prevents back button navigation from causing unnecessary reload loops
+        function preventBackNavigationLoop() {
             if (window.history.length > 1) {
                 window.history.pushState(null, document.title, window.location.href);
-                window.addEventListener('popstate', function(event) {
-                    // Handle back button behavior appropriately
+                window.addEventListener('popstate', () => {
                     window.history.pushState(null, document.title, window.location.href);
                 });
             }
-        };
-        function logout() {
-            localStorage.removeItem('is_coordinator_logged_in');
-            window.location.href = '{% url 'logout' %}';
         }
-        document.addEventListener('DOMContentLoaded', function () {
-            // Set "Today" as the default filter
-            document.getElementById('today').checked = true;
-            updateCounts('today');
-        
-            // Event listener for date filter buttons
-            document.querySelectorAll('input[name="dateFilter"]').forEach(function (radio) {
-                radio.addEventListener('change', function () {
-                    console.log("Radio button clicked:", this.id); // Log the clicked radio button's ID
-                    updateCounts(this.id); // Update counts based on the selected filter
-                });
-            });
-        
-            // Event listener for the custom date filter
-            document.getElementById('filterButton').addEventListener('click', function () {
-                const startDate = document.getElementById('start-date').value;
-                const endDate = document.getElementById('end-date').value;
-                updateCounts('custom', startDate, endDate);
-            });
-        });     
+        // Sends an AJAX request to update the counts based on the selected filter
         function updateCounts(filterType, startDate = null, endDate = null) {
-            // Use the URL defined above
             let url = `${mainDashboardUrl}?filterType=${filterType}`;
             if (startDate && endDate) {
                 url += `&startDate=${startDate}&endDate=${endDate}`;
             }
         
-            console.log("Fetching data from URL:", url);
+            console.log(`Fetching data from URL: ${url}`);
         
             fetch(url, {
                 method: 'GET',
@@ -239,30 +264,18 @@
                 }
                 return response.json();
             })
-            .then(data => {
-                document.querySelector('.count.approved').textContent = data.approve_count;
-                document.querySelector('.count.pending').textContent = data.pending_count;
-                document.querySelector('.count.rejected').textContent = data.reject_count;
-            })
+            .then(data => updateDashboardCounts(data))
             .catch(error => console.error('Error fetching data:', error));
         }
-        {% comment %}  {% endcomment %}
-        function loadLogs() {
-            $.ajax({
-                url: "{% url 'mainDashboard' %}",
-                type: "GET",
-                success: function(data) {
-                    document.querySelector('.count.approved').textContent = data.approve_count;
-                    document.querySelector('.count.pending').textContent = data.pending_count;
-                    document.querySelector('.count.rejected').textContent = data.reject_count;
-                },
-                error: function(xhr, status, error) {
-                    console.error('Error fetching data:', error);
-                }
-            });
-        }
-        setInterval(loadLogs, 10000);
-        loadLogs();           
+        
+        // Updates the dashboard counts displayed on the UI
+        function updateDashboardCounts(data) {
+            console.log("Data received from server:", data);
+        
+            document.querySelector('.count.approved').textContent = data.approve_count;
+            document.querySelector('.count.pending').textContent = data.pending_count;
+            document.querySelector('.count.rejected').textContent = data.reject_count;
+        }                   
     </script>
 </body>
 </html>
