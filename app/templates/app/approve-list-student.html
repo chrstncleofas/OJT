@@ -445,7 +445,33 @@
                 })
                 .catch(error => console.error('Error:', error));
             }
-        });        
+        });
+        document.querySelectorAll('input[name="dateFilter"]').forEach(function(radio) {
+            radio.addEventListener('change', function() {
+                const selectedDateFilter = this.id; // 'today', 'yesterday', or 'week'
+                const perPage = document.getElementById('perPage').value; // Get the current items per page value
+                
+                // Fetch updated list of students based on the selected date filter
+                fetch(`{% url 'approve-student-list' %}?dateFilter=${selectedDateFilter}&per_page=${perPage}`, {
+                    method: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                })
+                .then(response => response.text())
+                .then(html => {
+                    // Parse the response and update the table
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const newTbody = doc.getElementById('studentTableBody');
+                    const currentTbody = document.getElementById('studentTableBody');
+        
+                    if (newTbody) {
+                        currentTbody.innerHTML = newTbody.innerHTML;
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            });    
     </script>
 </body>
 </html>

@@ -5,6 +5,7 @@ from typing import Union
 from django.urls import reverse
 from django.db.models import Sum
 from django.db.models import Q
+from django.utils import timezone
 from django.conf import settings
 from django.contrib import messages
 from django.core.mail import send_mail
@@ -148,6 +149,19 @@ def getAllApproveStudents(request):
             Q(Middlename__icontains=search_query_approve) |
             Q(Lastname__icontains=search_query_approve)
         )
+
+    # Date filtering logic
+    date_filter = request.GET.get('dateFilter', '')
+    today = timezone.now().date()
+    
+    if date_filter == 'today':
+        students_list = students_list.filter(created_at__date=today)
+    elif date_filter == 'yesterday':
+        yesterday = today - timedelta(days=1)
+        students_list = students_list.filter(created_at__date=yesterday)
+    elif date_filter == 'week':
+        one_week_ago = today - timedelta(days=7)
+        students_list = students_list.filter(created_at__date__gte=one_week_ago)
 
     # Pagination logic
     page = request.GET.get('page', 1)
