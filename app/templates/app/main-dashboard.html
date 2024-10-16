@@ -215,10 +215,6 @@
         }
         setInterval(loadLogs, 10000);
         loadLogs();
-        window.history.pushState(null, "", window.location.href);
-        window.onpopstate = function() {
-            window.history.pushState(null, "", window.location.href);
-        };
         document.addEventListener('DOMContentLoaded', function () {
             // Set "Today" as the default filter
             document.getElementById('today').checked = true;
