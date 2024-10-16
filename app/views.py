@@ -127,6 +127,8 @@ def mainDashboard(request):
         }
     )
 
+@login_required
+@never_cache
 def getAllApproveStudents(request):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
@@ -171,6 +173,8 @@ def getAllApproveStudents(request):
 
     return render(request, 'app/approve-list-student.html', context)
 
+@login_required
+@never_cache
 def getAllPendingStudents(request):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
@@ -215,6 +219,8 @@ def getAllPendingStudents(request):
 
     return render(request, 'app/pending-list-student.html', context)
 
+@login_required
+@never_cache
 def getAllRejectStudents(request):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
