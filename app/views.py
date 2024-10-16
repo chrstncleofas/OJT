@@ -71,7 +71,7 @@ def mainDashboard(request):
     week_start = today - timedelta(days=today.weekday())
 
     # Get filter type from the request
-    filter_type = request.GET.get('filterType', 'today')
+    filter_type = request.GET.get('filterType', 'yesterday')
     start_date = request.GET.get('startDate')
     end_date = request.GET.get('endDate')
 

@@ -198,10 +198,26 @@
             // Set the default filter to "Today"
             setDefaultFilter('today');
         
-            // Add event listeners to predefined filter buttons (Today, Yesterday, Week)
+            // Add event listeners to the predefined filter buttons (Today, Yesterday, Week)
             const filterButtons = document.querySelectorAll('input[name="dateFilter"]');
+            console.log(`Found ${filterButtons.length} filter buttons.`);
+        
             filterButtons.forEach((button) => {
-                button.addEventListener('change', handleDateFilterChange);
+                console.log(`Setting up event listener for button with ID: ${button.id}`);
+                button.addEventListener('change', handleDateFilterChange); // Listen for change events
+            });
+        
+            // Add click listeners to the labels for better handling of Bootstrap's styling
+            const filterLabels = document.querySelectorAll('.btn-group-toggle .btn');
+            filterLabels.forEach((label) => {
+                label.addEventListener('click', () => {
+                    const input = label.querySelector('input[name="dateFilter"]');
+                    if (input) {
+                        input.checked = true; // Set the radio button as checked
+                        updateCounts(input.id); // Call updateCounts with the selected filter
+                        console.log(`Filter manually set to: ${input.id} on click`);
+                    }
+                });
             });
         }
         
