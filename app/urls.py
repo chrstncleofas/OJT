@@ -18,6 +18,7 @@ urlpatterns = [
     path('studentManagement', views.studentManagement, name='studentManagement'),
     path('approve-student-list', views.getAllApproveStudents, name='approve-student-list'),
     path('pending-student-list', views.getAllPendingStudents, name='pending-student-list'),
+    path('reject-student-list', views.getAllRejectStudents, name='reject-student-list'),
     path('editStudentDetails/<int:id>/', views.editStudentDetails, name='editStudentDetails'),
     # 
     path('approve_student/<int:id>/', views.approveStudent, name='approve_student'),

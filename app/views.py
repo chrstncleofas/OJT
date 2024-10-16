@@ -215,6 +215,51 @@ def getAllPendingStudents(request):
 
     return render(request, 'app/pending-list-student.html', context)
 
+def getAllRejectStudents(request):
+    user = request.user
+    admin = get_object_or_404(CustomUser, id=user.id)
+
+    firstName = admin.first_name
+    lastName = admin.last_name
+
+    # Fetch all approved students
+    students_list = RejectApplication.objects.filter(RejectStatus='RejectedApplication', RejectStatusArchive='NotArchive').order_by('id')
+    archive = DataTableStudents.objects.filter(archivedStudents='Archive').order_by('id')
+
+    # Search filter logic
+    search_query_approve = request.GET.get('search-approve', '')
+    if search_query_approve:
+        students_list = students_list.filter(
+            Q(StudentID__icontains=search_query_approve) |
+            Q(Firstname__icontains=search_query_approve) |
+            Q(Middlename__icontains=search_query_approve) |
+            Q(Lastname__icontains=search_query_approve)
+        )
+
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return render(request, 'app/reject-list-student.html', {'students': students})
+
+    # Pagination logic
+    page = request.GET.get('page', 1)
+    per_page = int(request.GET.get('per_page', 10))
+
+    paginator = Paginator(students_list, per_page)
+    try:
+        students = paginator.page(page)
+    except PageNotAnInteger:
+        students = paginator.page(1)
+    except EmptyPage:
+        students = paginator.page(paginator.num_pages)
+
+    context = {
+        'students': students,
+        'firstName': firstName,
+        'lastName': lastName,
+        'per_page': per_page,
+    }
+
+    return render(request, 'app/reject-list-student.html', context)
+
 def studentManagement(request):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
