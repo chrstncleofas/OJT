@@ -170,9 +170,14 @@ def getAllApproveStudents(request):
     if start_date and end_date:
         students_list = students_list.filter(created_at__date__gte=start_date, created_at__date__lte=end_date)
 
-    # Pagination logic
-    page = request.GET.get('page', 1)
-    per_page = int(request.GET.get('per_page', 10))
+    # Handle the case where per_page might be empty
+    if per_page == '':
+        per_page = 10  # Set default value for per_page if it's an empty string
+    else:
+        try:
+            per_page = int(per_page)
+        except ValueError:
+            per_page = 10  # Fall back to default if conversion fails
 
     paginator = Paginator(students_list, per_page)
     try:
