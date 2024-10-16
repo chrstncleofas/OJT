@@ -204,7 +204,6 @@ def getAllApproveStudents(request):
 
     return render(request, 'app/approve-list-student.html', context)
 
-
 @login_required
 @never_cache
 def getAllPendingStudents(request):
