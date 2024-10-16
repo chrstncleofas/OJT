@@ -198,21 +198,6 @@
             localStorage.removeItem('is_coordinator_logged_in');
             window.location.href = '{% url 'logout' %}';
         }
-        {% comment %}  {% endcomment %}
-        function loadLogs() {
-            $.ajax({
-                url: "{% url 'mainDashboard' %}",
-                type: "GET",
-                success: function(data) {
-                    document.querySelector('.count.approved').textContent = data.approve_count;
-                    document.querySelector('.count.pending').textContent = data.pending_count;
-                    document.querySelector('.count.rejected').textContent = data.reject_count;
-                },
-                error: function(xhr, status, error) {
-                    console.error('Error fetching data:', error);
-                }
-            });
-        }
         document.addEventListener('DOMContentLoaded', function () {
             // Set "Today" as the default filter
             document.getElementById('today').checked = true;
@@ -232,8 +217,7 @@
                 const endDate = document.getElementById('end-date').value;
                 updateCounts('custom', startDate, endDate);
             });
-        });
-        
+        });     
         function updateCounts(filterType, startDate = null, endDate = null) {
             // Use the URL defined above
             let url = `${mainDashboardUrl}?filterType=${filterType}`;
@@ -261,6 +245,21 @@
                 document.querySelector('.count.rejected').textContent = data.reject_count;
             })
             .catch(error => console.error('Error fetching data:', error));
+        }
+        {% comment %}  {% endcomment %}
+        function loadLogs() {
+            $.ajax({
+                url: "{% url 'mainDashboard' %}",
+                type: "GET",
+                success: function(data) {
+                    document.querySelector('.count.approved').textContent = data.approve_count;
+                    document.querySelector('.count.pending').textContent = data.pending_count;
+                    document.querySelector('.count.rejected').textContent = data.reject_count;
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error fetching data:', error);
+                }
+            });
         }
         setInterval(loadLogs, 10000);
         loadLogs();           
