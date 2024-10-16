@@ -180,6 +180,10 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script>
         const mainDashboardUrl = "{% url 'mainDashboard' %}";
+        $(".navbar-toggler").click(function(e) {
+            e.preventDefault();
+            $("#wrapper").toggleClass("toggled");
+        });
         window.onload = function() {
             // Preventing back button navigation loop
             if (window.history.length > 1) {
@@ -194,10 +198,6 @@
             localStorage.removeItem('is_coordinator_logged_in');
             window.location.href = '{% url 'logout' %}';
         }
-        $(".navbar-toggler").click(function(e) {
-            e.preventDefault();
-            $("#wrapper").toggleClass("toggled");
-        });
         {% comment %}  {% endcomment %}
         function loadLogs() {
             $.ajax({
