@@ -149,9 +149,6 @@ def getAllApproveStudents(request):
             Q(Lastname__icontains=search_query_approve)
         )
 
-    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-        return render(request, 'app/approve-list-student.html', {'students': students})
-
     # Pagination logic
     page = request.GET.get('page', 1)
     per_page = int(request.GET.get('per_page', 10))
@@ -194,9 +191,6 @@ def getAllPendingStudents(request):
             Q(PendingMiddlename__icontains=search_query_approve) |
             Q(PendingLastname__icontains=search_query_approve)
         )
-
-    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-        return render(request, 'app/pending-list-student.html', {'students': students})
 
     # Pagination logic
     page = request.GET.get('page', 1)
@@ -241,9 +235,6 @@ def getAllRejectStudents(request):
             Q(RejectMiddlename__icontains=search_query_approve) |
             Q(RejectLastname__icontains=search_query_approve)
         )
-
-    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-        return render(request, 'app/reject-list-student.html', {'students': students})
 
     # Pagination logic
     page = request.GET.get('page', 1)
