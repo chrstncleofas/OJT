@@ -188,6 +188,7 @@
             initDashboardFilters();
             setupCustomDateFilter();
             preventBackNavigationLoop();
+            setupLogout();
         });
         
         // Initializes the default filter and sets up event listeners for predefined filters
@@ -275,7 +276,22 @@
             document.querySelector('.count.approved').textContent = data.approve_count;
             document.querySelector('.count.pending').textContent = data.pending_count;
             document.querySelector('.count.rejected').textContent = data.reject_count;
-        }                   
+        }             
+        
+        // Sets up the logout functionality
+        function setupLogout() {
+            const logoutButton = document.querySelector('#logoutButton'); // Assuming you have a logout button in the DOM
+
+            if (logoutButton) {
+                logoutButton.addEventListener('click', logout);
+            }
+        }
+
+        // Clears local storage and redirects to the logout URL
+        function logout() {
+            localStorage.removeItem('is_coordinator_logged_in');
+            window.location.href = '{% url 'logout' %}';
+        }
     </script>
 </body>
 </html>
