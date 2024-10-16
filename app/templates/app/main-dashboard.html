@@ -104,7 +104,6 @@
                     </div>
                     <!-- Date Filter -->
                     <div class="col-lg-12 d-flex justify-content-end align-items-center mb-3">
-                        <!-- Date Filter Buttons -->
                         <div class="btn-group btn-group-toggle mr-3" data-toggle="buttons">
                             <label class="btn btn-light border rounded mr-1 active">
                                 <input type="radio" name="dateFilter" id="today" autocomplete="off" checked> Today
@@ -116,7 +115,6 @@
                                 <input type="radio" name="dateFilter" id="week" autocomplete="off"> Week
                             </label>
                         </div>
-                        <!-- Start Date and End Date Inputs -->
                         <div class="form-inline">
                             <div class="form-group mr-1">
                                 <label for="start-date" class="sr-only">Start Date</label>
@@ -181,6 +179,7 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script>
+        const mainDashboardUrl = "{% url 'mainDashboard' %}";
         window.onload = function() {
             // Preventing back button navigation loop
             if (window.history.length > 1) {
@@ -228,7 +227,8 @@
             // Event listener for date filter buttons
             document.querySelectorAll('input[name="dateFilter"]').forEach(function (radio) {
                 radio.addEventListener('change', function () {
-                    updateCounts(this.id);
+                    console.log("Radio button clicked:", this.id); // Log the clicked radio button's ID
+                    updateCounts(this.id); // Update counts based on the selected filter
                 });
             });
         
@@ -241,10 +241,13 @@
         });
         
         function updateCounts(filterType, startDate = null, endDate = null) {
-            let url = `/mainDashboard/?filterType=${filterType}`;
+            // Use the URL defined above
+            let url = `${mainDashboardUrl}?filterType=${filterType}`;
             if (startDate && endDate) {
                 url += `&startDate=${startDate}&endDate=${endDate}`;
             }
+        
+            console.log("Fetching data from URL:", url);
         
             fetch(url, {
                 method: 'GET',
@@ -252,14 +255,19 @@
                     'X-Requested-With': 'XMLHttpRequest'
                 }
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
             .then(data => {
                 document.querySelector('.count.approved').textContent = data.approve_count;
                 document.querySelector('.count.pending').textContent = data.pending_count;
                 document.querySelector('.count.rejected').textContent = data.reject_count;
             })
             .catch(error => console.error('Error fetching data:', error));
-        }        
+        }           
     </script>
 </body>
 </html>

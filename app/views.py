@@ -3,13 +3,13 @@ import os
 import json
 from typing import Union
 from django.urls import reverse
-from datetime import timedelta
 from django.db.models import Sum
 from django.db.models import Q
 from django.conf import settings
 from django.contrib import messages
 from django.core.mail import send_mail
 from app.utils import saveActivityLogs
+from datetime import datetime, timedelta
 from .forms import CustomPasswordChangeForm
 from app.forms import SetRenderingHoursForm
 from django.shortcuts import render, redirect
@@ -50,12 +50,11 @@ def home(request) -> Union[HttpResponseRedirect, HttpResponsePermanentRedirect, 
 def dashboard(request) -> HttpResponse:
     return render(request, DASHBOARD)
 
-from datetime import datetime, timedelta
 
 @login_required
 @never_cache
 @csrf_exempt
-@cache_control(no_cache=True, must_revalidate=True, no_store=True, name='dispatch')
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def mainDashboard(request):
     # Check if the user is staff but not a superuser
     if not request.user.is_staff or request.user.is_superuser:
@@ -78,25 +77,32 @@ def mainDashboard(request):
 
     # Apply date filters based on the selected filter type
     if filter_type == 'today':
-        date_filter = today
+        approve = DataTableStudents.objects.filter(status='Approved', archivedStudents='NotArchive', created_at__date=today)
+        pending = PendingApplication.objects.filter(StatusApplication='PendingApplication', PendingStatusArchive='NotArchive', created_at__date=today)
+        reject = RejectApplication.objects.filter(RejectStatus='RejectedApplication', RejectStatusArchive='NotArchive', created_at__date=today)
+
     elif filter_type == 'yesterday':
-        date_filter = yesterday
+        # Use range to capture the entire day of yesterday
+        yesterday_start = yesterday
+        yesterday_end = today  # This ensures the full range of yesterday
+        approve = DataTableStudents.objects.filter(status='Approved', archivedStudents='NotArchive', created_at__range=(yesterday_start, yesterday_end))
+        pending = PendingApplication.objects.filter(StatusApplication='PendingApplication', PendingStatusArchive='NotArchive', created_at__range=(yesterday_start, yesterday_end))
+        reject = RejectApplication.objects.filter(RejectStatus='RejectedApplication', RejectStatusArchive='NotArchive', created_at__range=(yesterday_start, yesterday_end))
+
     elif filter_type == 'week':
-        date_filter = week_start
+        approve = DataTableStudents.objects.filter(status='Approved', archivedStudents='NotArchive', created_at__date__range=(week_start, today))
+        pending = PendingApplication.objects.filter(StatusApplication='PendingApplication', PendingStatusArchive='NotArchive', created_at__date__range=(week_start, today))
+        reject = RejectApplication.objects.filter(RejectStatus='RejectedApplication', RejectStatusArchive='NotArchive', created_at__date__range=(week_start, today))
+
     elif filter_type == 'custom' and start_date and end_date:
         start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
         end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
+        approve = DataTableStudents.objects.filter(status='Approved', archivedStudents='NotArchive', created_at__date__range=(start_date, end_date))
+        pending = PendingApplication.objects.filter(StatusApplication='PendingApplication', PendingStatusArchive='NotArchive', created_at__date__range=(start_date, end_date))
+        reject = RejectApplication.objects.filter(RejectStatus='RejectedApplication', RejectStatusArchive='NotArchive', created_at__date__range=(start_date, end_date))
 
-    # Approve
-    if filter_type in ['today', 'yesterday', 'week']:
-        approve = DataTableStudents.objects.filter(status='Approved', archivedStudents='NotArchive', created_at__gte=date_filter).order_by('id')
-        pending = PendingApplication.objects.filter(StatusApplication='PendingApplication', PendingStatusArchive='NotArchive', created_at__gte=date_filter).order_by('id')
-        reject = RejectApplication.objects.filter(RejectStatus='RejectedApplication', RejectStatusArchive='NotArchive', created_at__gte=date_filter).order_by('id')
-
-    elif filter_type == 'custom':
-        approve = DataTableStudents.objects.filter(status='Approved', archivedStudents='NotArchive', created_at__gte=date_filter).order_by('id')
-        pending = PendingApplication.objects.filter(StatusApplication='PendingApplication', PendingStatusArchive='NotArchive', created_at__gte=date_filter).order_by('id')
-        reject = RejectApplication.objects.filter(RejectStatus='RejectedApplication', RejectStatusArchive='NotArchive', created_at__gte=date_filter).order_by('id')
+    else:
+        approve = pending = reject = []
 
     approve_count = approve.count()
     pending_count = pending.count()
@@ -111,7 +117,7 @@ def mainDashboard(request):
 
     return render(
         request,
-        MAIN_DASHBOARD,
+        'app/main-dashboard.html',
         {
             'approve_count': approve_count,
             'pending_count': pending_count,
@@ -120,7 +126,6 @@ def mainDashboard(request):
             'lastName': lastName
         }
     )
-
 
 def getAllApproveStudents(request):
     user = request.user
