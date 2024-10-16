@@ -185,10 +185,10 @@ def getAllPendingStudents(request):
     search_query_approve = request.GET.get('search-approve', '')
     if search_query_approve:
         students_list = students_list.filter(
-            Q(StudentID__icontains=search_query_approve) |
-            Q(Firstname__icontains=search_query_approve) |
-            Q(Middlename__icontains=search_query_approve) |
-            Q(Lastname__icontains=search_query_approve)
+            Q(PendingStudentID__icontains=search_query_approve) |
+            Q(PendingFirstname__icontains=search_query_approve) |
+            Q(PendingMiddlename__icontains=search_query_approve) |
+            Q(PendingLastname__icontains=search_query_approve)
         )
 
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
@@ -230,10 +230,10 @@ def getAllRejectStudents(request):
     search_query_approve = request.GET.get('search-approve', '')
     if search_query_approve:
         students_list = students_list.filter(
-            Q(StudentID__icontains=search_query_approve) |
-            Q(Firstname__icontains=search_query_approve) |
-            Q(Middlename__icontains=search_query_approve) |
-            Q(Lastname__icontains=search_query_approve)
+            Q(RejectStudentID__icontains=search_query_approve) |
+            Q(RejectFirstname__icontains=search_query_approve) |
+            Q(RejectMiddlename__icontains=search_query_approve) |
+            Q(RejectLastname__icontains=search_query_approve)
         )
 
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
