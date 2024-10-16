@@ -470,21 +470,28 @@
                 customFilterButton.addEventListener('click', function () {
                     const startDate = document.getElementById('start-date').value;
                     const endDate = document.getElementById('end-date').value;
-                    const perPage = document.getElementById('perPage').value;
-    
+                    const perPage = document.getElementById('perPage').value || 10; // Default to 10 if perPage is not set
+
+                    console.log(`Fetching data with startDate: ${startDate}, endDate: ${endDate}, perPage: ${perPage}`); // Debug log
+
                     fetch(`{% url 'approve-student-list' %}?start_date=${startDate}&end_date=${endDate}&per_page=${perPage}`, {
                         method: 'GET',
                         headers: {
                             'X-Requested-With': 'XMLHttpRequest',
                         },
                     })
-                    .then(response => response.text())
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok: ' + response.statusText);
+                        }
+                        return response.text();
+                    })
                     .then(html => {
                         const parser = new DOMParser();
                         const doc = parser.parseFromString(html, 'text/html');
                         const newTbody = doc.getElementById('studentTableBody');
                         const currentTbody = document.getElementById('studentTableBody');
-    
+
                         if (newTbody) {
                             currentTbody.innerHTML = newTbody.innerHTML;
                         }
@@ -499,7 +506,9 @@
             document.querySelectorAll('input[name="dateFilter"]').forEach(function (radio) {
                 radio.addEventListener('change', function () {
                     const selectedDateFilter = this.id; // 'today', 'yesterday', or 'week'
-                    const perPage = document.getElementById('perPage').value; // Get current items per page value
+                    const perPage = document.getElementById('perPage').value || 10; // Default to 10 if perPage is not set
+
+                    console.log(`Fetching data for date filter: ${selectedDateFilter}, perPage: ${perPage}`); // Debug log
                     
                     fetch(`{% url 'approve-student-list' %}?dateFilter=${selectedDateFilter}&per_page=${perPage}`, {
                         method: 'GET',
@@ -507,13 +516,18 @@
                             'X-Requested-With': 'XMLHttpRequest',
                         },
                     })
-                    .then(response => response.text())
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok: ' + response.statusText);
+                        }
+                        return response.text();
+                    })
                     .then(html => {
                         const parser = new DOMParser();
                         const doc = parser.parseFromString(html, 'text/html');
                         const newTbody = doc.getElementById('studentTableBody');
                         const currentTbody = document.getElementById('studentTableBody');
-    
+
                         if (newTbody) {
                             currentTbody.innerHTML = newTbody.innerHTML;
                         }
