@@ -153,7 +153,7 @@ def getAllApproveStudents(request):
     # Date filtering logic
     date_filter = request.GET.get('dateFilter', 'today')  # Default to 'today'
     today = timezone.now().date()
-    
+
     if date_filter == 'today':
         students_list = students_list.filter(created_at__date=today)
     elif date_filter == 'yesterday':
@@ -166,16 +166,21 @@ def getAllApproveStudents(request):
     # Handle custom date range filtering
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
-    
+
     if start_date and end_date:
         students_list = students_list.filter(created_at__date__gte=start_date, created_at__date__lte=end_date)
 
-    # Handle the case where per_page might be empty
-    if per_page == '':
-        per_page = 10  # Set default value for per_page if it's an empty string
-    else:
+    # Pagination logic
+    page = request.GET.get('page', 1)
+
+    # Initialize per_page with a default value
+    per_page = 10  # Default value if not provided
+
+    # Get per_page value from request and validate
+    per_page_value = request.GET.get('per_page')
+    if per_page_value:  # Only set per_page if value is provided
         try:
-            per_page = int(per_page)
+            per_page = int(per_page_value)  # Convert to int
         except ValueError:
             per_page = 10  # Fall back to default if conversion fails
 
@@ -196,7 +201,7 @@ def getAllApproveStudents(request):
     # Check if the request is an AJAX request
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         return render(request, 'app/approve-list-student.html', context)
-    
+
     return render(request, 'app/approve-list-student.html', context)
 
 
