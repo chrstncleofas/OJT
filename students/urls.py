@@ -21,12 +21,12 @@ urlpatterns = [
     path('log_lunch/', views.log_lunch, name='log_lunch'),
     path('dashboard/', views.mainPageForDashboard, name='dashboard'),
     path('announcement/', views.getAnnouncement, name='announcement'),
-    path('progress-report', views.typeTheDetailsProgressReportPdf, name='progress-report'),
-    path('list-of-document/', views.getAllSubmittedDocuments, name='list-of-document'),
+    path('changePassword/', views.changePassword, name='changePassword'),
     path('forgot_password/', views.forgot_password, name='forgot_password'),
     path('reset_password/<str:token>/', views.reset_password, name='reset_password'),
-    path('changePassword/', views.changePassword, name='changePassword'),
+    path('list-of-document/', views.getAllSubmittedDocuments, name='list-of-document'),
     path('announcement-page/', views.getAnnouncementNotLogin, name='announcement-page'),
+    path('progress-report', views.typeTheDetailsProgressReportPdf, name='progress-report'),
     path('mark-notification-as-read/<int:id>/', views.mark_notification_as_read, name='mark_notification_as_read'),
     
 ]

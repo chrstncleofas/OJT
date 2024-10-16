@@ -11,8 +11,14 @@ from students.models import DataTableStudents,\
 
 COURSE_CHOICES = [
     ('', '--- Select Program ---'),
-    ('CS-3RD', 'CS-3RD'),
-    ('IT-4TH', 'IT-4TH'),
+    ('BS Information Technology', 'BS Information Technology'),
+    ('BS Computer Science', 'BS Computer Science'),
+]
+
+YEAR_CHOICES = [
+    ('', '--- Select Year ---'),
+    ('4th Year', '4th Year'),
+    ('3rd Year', '4th Year'),
 ]
 
 PREFIX_CHOICES = [
@@ -71,7 +77,12 @@ class PendingStudentRegistrationForm(forms.ModelForm):
 
     PendingCourse = forms.ChoiceField(
         choices=COURSE_CHOICES,
-        widget=forms.Select(attrs={'class': 'form-control'})
+        widget=forms.Select(attrs={'class': 'form-control', 'id': 'PendingCourse'})
+    )
+
+    PendingYear = forms.CharField(
+        widget=forms.TextInput(attrs={'class': 'form-control', 'id': 'PendingYear', 'placeholder': 'Enter year'}),
+        required=True
     )
 
     PendingPrefix = forms.ChoiceField(
@@ -99,7 +110,7 @@ class PendingStudentRegistrationForm(forms.ModelForm):
 
     class Meta:
         model = PendingApplication
-        fields = ['PendingStudentID', 'PendingFirstname', 'PendingMiddlename', 'PendingLastname', 'PendingPrefix', 'PendingEmail', 'PendingAddress', 'PendingNumber', 'PendingCourse', 'PendingUsername', 'PendingPassword']
+        fields = ['PendingStudentID', 'PendingFirstname', 'PendingMiddlename', 'PendingLastname', 'PendingPrefix', 'PendingEmail', 'PendingAddress', 'PendingNumber', 'PendingCourse', 'PendingYear', 'PendingUsername', 'PendingPassword']
         widgets = {
             'PendingFirstname': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter First Name'}),
             'PendingMiddlename': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Middle Name'}),
@@ -136,6 +147,15 @@ class PendingStudentRegistrationForm(forms.ModelForm):
         self.fields['PendingMiddlename'].required = False
         self.fields['PendingLastname'].required = True
         self.fields['PendingCourse'].required = True
+        self.fields['PendingYear'].required = True
+
+        # Optional: Set a default year based on a pre-selected course (if needed)
+        if self.data and 'PendingCourse' in self.data:
+            course = self.data['PendingCourse']
+            if course == 'BS Information Technology':
+                self.fields['PendingYear'].initial = '4th Year'
+            elif course == 'BS Computer Science':
+                self.fields['PendingYear'].initial = '3rd Year'
 
 class StudentProfileForm(forms.ModelForm):
 

@@ -169,14 +169,20 @@
                                 </div>
                                 <div class="col-md-4">
                                     <div class="form-group">
-                                        <label for="PendingEmail">Email <span style="font-size: 11px; color: red; font-weight: bold">*</span></label>
-                                        {{ pending_registration_form.PendingEmail }}
+                                        <label for="PendingYear">Year <span style="font-size: 11px; color: red; font-weight: bold">*</span></label>
+                                        <input type="text" class="form-control" id="PendingYear" name="PendingYear" placeholder="------" readonly>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
                                     <div class="form-group">
                                         <label for="Number">Mobile No. <span style="font-size: 11px; color: red; font-weight: bold">*</span></label>
                                         {{ pending_registration_form.PendingNumber }}
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label for="PendingEmail">Email <span style="font-size: 11px; color: red; font-weight: bold">*</span></label>
+                                        {{ pending_registration_form.PendingEmail }}
                                     </div>
                                 </div>
                                 <div class="col-md-12">
@@ -231,6 +237,30 @@
                 input.value = value;
             }
         }
+        document.addEventListener('DOMContentLoaded', function() {
+            const courseField = document.getElementById('PendingCourse'); // Reference the course dropdown
+            const yearField = document.getElementById('PendingYear'); // Reference the year input field
+    
+            // Function to update year field based on course selection
+            function updateYearField() {
+                const selectedCourse = courseField.value;
+    
+                // Clear existing value
+                yearField.value = ''; // Clear the year input field
+    
+                // Set year based on course selection
+                if (selectedCourse === 'BS Information Technology') {
+                    yearField.value = '4th Year'; // Set to 4th Year
+                } else if (selectedCourse === 'BS Computer Science') {
+                    yearField.value = '3rd Year'; // Set to 3rd Year
+                } else {
+                    yearField.value = ''; // Clear if another course is selected
+                }
+            }
+    
+            // Add event listener for course selection
+            courseField.addEventListener('change', updateYearField);
+        });
     </script>
 </body>
 </html>

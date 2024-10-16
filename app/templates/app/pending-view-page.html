@@ -250,11 +250,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     {% comment %}  {% endcomment %}
     <script>
+        const csrfToken = "{{ csrf_token }}"; // Global Variable for Token
         function logout() {
             localStorage.removeItem('is_coordinator_logged_in');
             window.location.href = '{% url 'logout' %}';
         }
-        const csrfToken = "{{ csrf_token }}"; // Global Variable for Token
         function submitRejection(studentId) {
             const reason = document.getElementById(`rejectReason${studentId}`).value;
             if (reason.trim() === "") {

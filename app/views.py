@@ -50,6 +50,8 @@ def home(request) -> Union[HttpResponseRedirect, HttpResponsePermanentRedirect, 
 def dashboard(request) -> HttpResponse:
     return render(request, DASHBOARD)
 
+from datetime import datetime, timedelta
+
 @login_required
 @never_cache
 @csrf_exempt
@@ -59,22 +61,45 @@ def mainDashboard(request):
     if not request.user.is_staff or request.user.is_superuser:
         return render(request, 'main/404.html', status=403)
 
-    # Proceed with the existing logic if the user has the right permissions
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
     firstName = admin.first_name
     lastName = admin.last_name
 
+    # Default date filters
+    today = datetime.today().date()
+    yesterday = today - timedelta(days=1)
+    week_start = today - timedelta(days=today.weekday())
+
+    # Get filter type from the request
+    filter_type = request.GET.get('filterType', 'today')
+    start_date = request.GET.get('startDate')
+    end_date = request.GET.get('endDate')
+
+    # Apply date filters based on the selected filter type
+    if filter_type == 'today':
+        date_filter = today
+    elif filter_type == 'yesterday':
+        date_filter = yesterday
+    elif filter_type == 'week':
+        date_filter = week_start
+    elif filter_type == 'custom' and start_date and end_date:
+        start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
+        end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
+
     # Approve
-    approve = DataTableStudents.objects.filter(status='Approved', archivedStudents='NotArchive').order_by('id')
+    if filter_type in ['today', 'yesterday', 'week']:
+        approve = DataTableStudents.objects.filter(status='Approved', archivedStudents='NotArchive', created_at__gte=date_filter).order_by('id')
+        pending = PendingApplication.objects.filter(StatusApplication='PendingApplication', PendingStatusArchive='NotArchive', created_at__gte=date_filter).order_by('id')
+        reject = RejectApplication.objects.filter(RejectStatus='RejectedApplication', RejectStatusArchive='NotArchive', created_at__gte=date_filter).order_by('id')
+
+    elif filter_type == 'custom':
+        approve = DataTableStudents.objects.filter(status='Approved', archivedStudents='NotArchive', created_at__gte=date_filter).order_by('id')
+        pending = PendingApplication.objects.filter(StatusApplication='PendingApplication', PendingStatusArchive='NotArchive', created_at__gte=date_filter).order_by('id')
+        reject = RejectApplication.objects.filter(RejectStatus='RejectedApplication', RejectStatusArchive='NotArchive', created_at__gte=date_filter).order_by('id')
+
     approve_count = approve.count()
-    
-    # Pending
-    pending = PendingApplication.objects.filter(StatusApplication='PendingApplication', PendingStatusArchive='NotArchive').order_by('id')
     pending_count = pending.count()
-    
-    # Rejected
-    reject = RejectApplication.objects.filter(RejectStatus='RejectedApplication', RejectStatusArchive='NotArchive').order_by('id')
     reject_count = reject.count()
 
     if request.method == 'GET' and request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -95,6 +120,95 @@ def mainDashboard(request):
             'lastName': lastName
         }
     )
+
+
+def getAllApproveStudents(request):
+    user = request.user
+    admin = get_object_or_404(CustomUser, id=user.id)
+
+    firstName = admin.first_name
+    lastName = admin.last_name
+
+    # Fetch all approved students
+    students_list = DataTableStudents.objects.filter(status='Approved', archivedStudents='NotArchive').order_by('id')
+
+    # Search filter logic
+    search_query_approve = request.GET.get('search-approve', '')
+    if search_query_approve:
+        students_list = students_list.filter(
+            Q(StudentID__icontains=search_query_approve) |
+            Q(Firstname__icontains=search_query_approve) |
+            Q(Middlename__icontains=search_query_approve) |
+            Q(Lastname__icontains=search_query_approve)
+        )
+
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return render(request, 'app/approve-list-student.html', {'students': students})
+
+    # Pagination logic
+    page = request.GET.get('page', 1)
+    per_page = int(request.GET.get('per_page', 10))
+
+    paginator = Paginator(students_list, per_page)
+    try:
+        students = paginator.page(page)
+    except PageNotAnInteger:
+        students = paginator.page(1)
+    except EmptyPage:
+        students = paginator.page(paginator.num_pages)
+
+    context = {
+        'students': students,
+        'firstName': firstName,
+        'lastName': lastName,
+        'per_page': per_page,
+    }
+
+    return render(request, 'app/approve-list-student.html', context)
+
+def getAllPendingStudents(request):
+    user = request.user
+    admin = get_object_or_404(CustomUser, id=user.id)
+
+    firstName = admin.first_name
+    lastName = admin.last_name
+
+    # Fetch all approved students
+    students_list = PendingApplication.objects.filter(StatusApplication='PendingApplication', PendingStatusArchive='NotArchive').order_by('id')
+
+    # Search filter logic
+    search_query_approve = request.GET.get('search-approve', '')
+    if search_query_approve:
+        students_list = students_list.filter(
+            Q(StudentID__icontains=search_query_approve) |
+            Q(Firstname__icontains=search_query_approve) |
+            Q(Middlename__icontains=search_query_approve) |
+            Q(Lastname__icontains=search_query_approve)
+        )
+
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return render(request, 'app/pending-list-student.html', {'students': students})
+
+    # Pagination logic
+    page = request.GET.get('page', 1)
+    per_page = int(request.GET.get('per_page', 10))
+
+    paginator = Paginator(students_list, per_page)
+    try:
+        students = paginator.page(page)
+    except PageNotAnInteger:
+        students = paginator.page(1)
+    except EmptyPage:
+        students = paginator.page(paginator.num_pages)
+
+    context = {
+        'students': students,
+        'firstName': firstName,
+        'lastName': lastName,
+        'per_page': per_page,
+    }
+
+    return render(request, 'app/pending-list-student.html', context)
 
 def studentManagement(request):
     user = request.user

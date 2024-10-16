@@ -27,6 +27,8 @@ class DataTableStudents(models.Model):
     status = models.CharField(max_length=50)
     archivedStudents = models.CharField(max_length=30, choices=ARCHIVED_STATUS, default='NotArchive')
     reset_token = models.CharField(max_length=100, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"{self.Firstname} {self.Lastname}"
@@ -79,6 +81,8 @@ class PendingApplication(models.Model):
     PendingPassword = models.CharField(max_length=100)
     StatusApplication = models.CharField(max_length=100, default='PendingApplication')
     PendingStatusArchive = models.CharField(max_length=100, default='NotArchive')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
 class RejectApplication(models.Model):
     RejectStudentID = models.CharField(max_length=16, unique=True)
@@ -95,6 +99,8 @@ class RejectApplication(models.Model):
     RejectPassword = models.CharField(max_length=100)
     RejectStatus = models.CharField(max_length=100, default='RejectedApplication')
     RejectStatusArchive = models.CharField(max_length=100, default='NotArchive')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
 class TimeLog(models.Model):
     ACTION_CHOICES = [

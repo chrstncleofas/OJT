@@ -37,9 +37,6 @@
                 <a href="{% url 'all-content' %}" class="list-group-item list-group-item-action bg-light">
                     <i class="fa-solid fa-cube"></i> Content
                 </a>
-                <a href="{% url 'studentManagement' %}" class="list-group-item list-group-item-action bg-light">
-                    <i class="fas fa-user-graduate"></i> Manage Student
-                </a>
                 <a href="{% url 'submission' %}" class="list-group-item list-group-item-action bg-light">
                     <i class="fa fa-upload"></i> Submissions
                 </a>
@@ -109,8 +106,8 @@
                     <div class="col-lg-12 d-flex justify-content-end align-items-center mb-3">
                         <!-- Date Filter Buttons -->
                         <div class="btn-group btn-group-toggle mr-3" data-toggle="buttons">
-                            <label class="btn btn-light border rounded mr-1">
-                                <input type="radio" name="dateFilter" id="today" autocomplete="off"> Today
+                            <label class="btn btn-light border rounded mr-1 active">
+                                <input type="radio" name="dateFilter" id="today" autocomplete="off" checked> Today
                             </label>
                             <label class="btn btn-light border rounded mr-1">
                                 <input type="radio" name="dateFilter" id="yesterday" autocomplete="off"> Yesterday
@@ -129,14 +126,14 @@
                                 <label for="end-date" class="sr-only">End Date</label>
                                 <input type="date" class="form-control" id="end-date" placeholder="End Date">
                             </div>
-                            <button type="button" class="btn btn-primary">Filter</button>
+                            <button type="button" class="btn btn-primary" id="filterButton">Filter</button>
                         </div>
                     </div>
                 </div>
                 <!-- Cards -->
                 <div class="row">
                     <div class="col-lg-4">
-                        <a href="{% url 'studentManagement' %}?tab=approved-students" style="text-decoration: none;">
+                        <a href="{% url 'approve-student-list' %}" style="text-decoration: none;">
                             <div class="card text-white bg-success">
                                 <div class="card-body">
                                     <i class="fas fa-check-circle icon"></i>
@@ -149,7 +146,7 @@
                         </a>
                     </div>
                     <div class="col-lg-4">
-                        <a href="{% url 'studentManagement' %}?tab=pending-application" style="text-decoration: none;">
+                        <a href="{% url 'pending-student-list' %}" style="text-decoration: none;">
                             <div class="card text-white bg-warning">
                                 <div class="card-body">
                                     <i class="fas fa-hourglass-half icon"></i>
@@ -223,6 +220,46 @@
         window.onpopstate = function() {
             window.history.pushState(null, "", window.location.href);
         };
+        document.addEventListener('DOMContentLoaded', function () {
+            // Set "Today" as the default filter
+            document.getElementById('today').checked = true;
+            updateCounts('today');
+        
+            // Event listener for date filter buttons
+            document.querySelectorAll('input[name="dateFilter"]').forEach(function (radio) {
+                radio.addEventListener('change', function () {
+                    updateCounts(this.id);
+                });
+            });
+        
+            // Event listener for the custom date filter
+            document.getElementById('filterButton').addEventListener('click', function () {
+                const startDate = document.getElementById('start-date').value;
+                const endDate = document.getElementById('end-date').value;
+                updateCounts('custom', startDate, endDate);
+            });
+        });
+        
+        function updateCounts(filterType, startDate = null, endDate = null) {
+            let url = `/mainDashboard/?filterType=${filterType}`;
+            if (startDate && endDate) {
+                url += `&startDate=${startDate}&endDate=${endDate}`;
+            }
+        
+            fetch(url, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.querySelector('.count.approved').textContent = data.approve_count;
+                document.querySelector('.count.pending').textContent = data.pending_count;
+                document.querySelector('.count.rejected').textContent = data.reject_count;
+            })
+            .catch(error => console.error('Error fetching data:', error));
+        }        
     </script>
 </body>
 </html>
