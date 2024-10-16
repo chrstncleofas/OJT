@@ -168,6 +168,10 @@ def getAllApproveStudents(request):
         'per_page': per_page,
     }
 
+    # Check if the request is an AJAX request
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return render(request, 'app/approve-list-student.html', context)
+
     return render(request, 'app/approve-list-student.html', context)
 
 @login_required
@@ -210,6 +214,10 @@ def getAllPendingStudents(request):
         'lastName': lastName,
         'per_page': per_page,
     }
+
+    # Check if the request is an AJAX request
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return render(request, 'app/pending-list-student.html', context)
 
     return render(request, 'app/pending-list-student.html', context)
 
@@ -254,6 +262,10 @@ def getAllRejectStudents(request):
         'lastName': lastName,
         'per_page': per_page,
     }
+
+    # Check if the request is an AJAX request
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return render(request, 'app/reject-list-student.html', context)
 
     return render(request, 'app/reject-list-student.html', context)
 
