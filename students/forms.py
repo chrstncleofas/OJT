@@ -81,7 +81,7 @@ class PendingStudentRegistrationForm(forms.ModelForm):
     )
 
     PendingYear = forms.CharField(
-        widget=forms.TextInput(attrs={'class': 'form-control', 'id': 'PendingYear', 'placeholder': 'Enter year'}),
+        widget=forms.TextInput(attrs={'class': 'form-control', 'id': 'PendingYear'}),
         required=True
     )
 

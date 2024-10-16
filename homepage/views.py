@@ -128,6 +128,7 @@ def studentRegister(request):
                     PendingAddress=pending_registration_form.cleaned_data['PendingAddress'],
                     PendingNumber=phone_number,
                     PendingCourse=pending_registration_form.cleaned_data['PendingCourse'],
+                    PendingYear=pending_registration_form.cleaned_data['PendingYear'],
                 )
                 pending_registration.save()
                 
