@@ -257,6 +257,10 @@
         </div> {% endcomment %}
     </div>
     <script>
+        $(".navbar-toggler").click(function(e) {
+            e.preventDefault();
+            $("#wrapper").toggleClass("toggled");
+        });
         window.onload = function() {
             // Preventing back button navigation loop
             if (window.history.length > 1) {
