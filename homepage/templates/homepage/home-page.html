@@ -94,41 +94,70 @@
         </div>                              
         <!-- Student Login Form -->
         <div id="student-form" class="form-container mt-0" style="width: 80%; max-width: 600px;">
-            <button class="btn btn-light btn-sm mb-2" onclick="goBack()">&larr; Back</button>
-            <h3 class="text-center mt-2">Student Login</h3>
-            <form id="student-login-form" action="/students/login/" method="POST" class="w-50 mx-auto mt-3">
+            <div class="container d-flex justify-content-center align-items-center">
+                <div class="justify-content-center align-items-center text-center mt-4">
+                    <a class="navbar-brand d-flex align-items-center" href="{% url 'homepage:login-page' %}">
+                        <img src="{% static 'img/Logo.png' %}" 
+                             alt="Logo" 
+                             class="logo-img"
+                             style="width: 50px; height: 50px;">
+                        <span style="margin-left: -7px; font-weight: 600; color: #6900ff;">On the Job Training Management System</span>
+                    </a>
+                    <h3 class="mb-3 mt-0 text-secondary" style="font-weight: 600;">Student Login</h3>
+                </div>
+            </div>
+            <form id="student-login-form" action="/students/login/" method="POST" class="w-50 mx-auto">
                 {% csrf_token %}
-                <div id="student-error-message" class="alert alert-danger" style="display: none;"></div> <!-- Error message here -->
+                <div id="student-error-message" class="alert alert-danger" style="display: none;"></div> <!-- Error message here -->          
                 <div class="form-group">
-                    <label for="student-username">Username:</label>
-                    <input type="text" class="form-control" id="student-username" name="Username" required>
-                </div>
+                    <label for="student-username" class="text-secondary" style="font-weight: 500; font-size: 18px;">Username:</label>
+                    <input type="text" class="form-control" id="student-username" name="Username" placeholder="Enter your username....." required>
+                </div>   
                 <div class="form-group">
-                    <label for="student-password">Password:</label>
-                    <input type="password" class="form-control" id="student-password" name="Password" required>
-                </div>
+                    <label for="student-password" class="text-secondary" style="font-weight: 500; font-size: 18px;">Password:</label>
+                    <input type="password" class="form-control" id="student-password" name="Password" placeholder="Enter your password....." required>
+                </div>           
                 <div class="mb-2">
                     <a href="{% url 'homepage:forgot_password' %}">Forgot Password?</a>
+                </div>        
+                <div class="d-flex justify-content-between mt-2">
+                    <a type="click" onclick="goBack()" class="btn btn-primary">Back</a>
+                    <button type="submit" class="btn btn-primary">Login</button>
                 </div>
-                <button type="submit" class="btn btn-primary btn-block">Login</button>
-            </form>
+                <div class="mt-3 text-center">
+                    <a href="{% url 'homepage:student-register' %}" class="text-secondary" style="font-size: 14px; text-decoration: none; font-weight: 500;">Don’t have an account? Register now!</a>
+                </div>                   
+            </form>  
         </div>
         <!-- Coordinator Login Form -->
         <div id="coordinator-form" class="form-container mt-0" style="width: 80%; max-width: 600px;">
-            <button class="btn btn-light btn-sm mb-2" onclick="goBack()">&larr; Back</button>
-            <h3 class="text-center mt-2">Coordinator Login</h3>
-            <form id="coordinator-login-form" action="/coordinator/login/" method="POST" class="w-50 mx-auto mt-3">
+            <div class="container d-flex justify-content-center align-items-center">
+                <div class="justify-content-center align-items-center text-center mt-4">
+                    <a class="navbar-brand d-flex align-items-center" href="{% url 'homepage:login-page' %}">
+                        <img src="{% static 'img/Logo.png' %}" 
+                             alt="Logo" 
+                             class="logo-img"
+                             style="width: 50px; height: 50px;">
+                        <span style="margin-left: -7px; font-weight: 600; color: #6900ff;">On the Job Training Management System</span>
+                    </a>
+                    <h3 class="mb-3 mt-0 text-secondary" style="font-weight: 600;">Coordinator Login</h3>
+                </div>
+            </div>
+            <form id="coordinator-login-form" action="/coordinator/login/" method="POST" class="w-50 mx-auto mt-2">
                 {% csrf_token %}
                 <div id="coordinator-error-message" class="alert alert-danger" style="display: none;"></div> <!-- Error message here -->
                 <div class="form-group">
-                    <label for="coordinator-username">Username:</label>
-                    <input type="text" class="form-control" id="coordinator-username" name="username" required>
+                    <label for="coordinator-username" class="text-secondary" style="font-weight: 500; font-size: 18px;">Username:</label>
+                    <input type="text" class="form-control" id="coordinator-username" name="username" placeholder="Enter your username....." required>
                 </div>
                 <div class="form-group">
-                    <label for="coordinator-password">Password:</label>
-                    <input type="password" class="form-control" id="coordinator-password" name="password" required>
+                    <label for="coordinator-password" class="text-secondary" style="font-weight: 500; font-size: 18px;">Password:</label>
+                    <input type="password" class="form-control" id="coordinator-password" name="password" placeholder="Enter your password....." required>
                 </div>
-                <button type="submit" class="btn btn-primary btn-block">Login</button>
+                <div class="d-flex justify-content-between mt-2">
+                    <a type="click" onclick="goBack()" class="btn btn-primary">Back</a>
+                    <button type="submit" class="btn btn-primary">Login</button>
+                </div>
             </form>
         </div>
     </div>
