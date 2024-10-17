@@ -580,7 +580,7 @@ def logoutView(request):
     logout(request)
     if 'is_logged_in' in request.session:
         del request.session['is_coordinator_logged_in']
-    return redirect('homepage:home')
+    return redirect('homepage:login-page')
 
 def isAdmin(user):
     user_admin = user.is_superuser
