@@ -13,6 +13,48 @@
     <link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon">
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <style>
+        /* Logo and brand text adjustments for different screen sizes */
+        .logo-img {
+            width: 50px;
+            height: 50px;
+        }
+
+        .brand-text {
+            font-size: 18px; /* Default size */
+        }
+
+        /* Adjustments for smaller screens */
+        @media (max-width: 992px) { /* For tablets and smaller */
+            .logo-img {
+                width: 40px;
+                height: 40px;
+            }
+            .brand-text {
+                font-size: 16px;
+            }
+        }
+
+        @media (max-width: 768px) { /* For small devices (portrait tablets and large phones) */
+            .logo-img {
+                width: 35px;
+                height: 35px;
+            }
+            .brand-text {
+                font-size: 14px;
+            }
+        }
+
+        @media (max-width: 576px) { /* For extra small devices (phones) */
+            .logo-img {
+                width: 30px;
+                height: 30px;
+            }
+            .brand-text {
+                font-size: 12px;
+                text-align: center; /* Center text on the smallest screens */
+                white-space: nowrap; /* Prevents text wrapping */
+            }
+        }
         .form-container {
             display: none; /* Itago ang mga forms by default */
             margin-top: 20px;
@@ -70,9 +112,12 @@
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light navbar-scroll fixed-top">
-        <a class="navbar-brand" href="{% url 'homepage:main' %}">
-            <img src="{% static 'img/Logo.png' %}" alt="Logo" style="width:50px; height: 50px; margin-left: 15px;">
-            <p>On the Job Training Management System</p>
+        <a class="navbar-brand d-flex align-items-center" href="{% url 'homepage:main' %}">
+            <img src="{% static 'img/Logo.png' %}" 
+                 alt="Logo" 
+                 class="logo-img"
+                 style="width: 50px; height: 50px; margin-left: 15px;">
+            <span class="brand-text ml-0">On the Job Training Management System</span>
         </a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -84,7 +129,7 @@
                 </li>
             </ul>
         </div>
-    </nav>
+    </nav>  
     <div class="carousel-container mt-4">
         <div class="carousel">
             <div class="carousel-inner">
