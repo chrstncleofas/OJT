@@ -13,6 +13,25 @@
     <link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon">
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <style>
+        /* Card height adjustments */
+        .card {
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            transform: scale(1.05); /* Optional: Slightly enlarge card on hover */
+        }
+
+        /* Responsive font size for card titles and text */
+        @media (max-width: 576px) { /* For extra small devices (phones) */
+            .card-title {
+                font-size: 14px; /* Smaller title on mobile */
+            }
+            .card-text {
+                font-size: 12px; /* Smaller text on mobile */
+            }
+        }
+
         /* Logo and brand text adjustments for different screen sizes */
         .logo-img {
             width: 50px;
@@ -158,7 +177,7 @@
             <!-- Card design for announcement -->
             <div class="row">
                 {% for announcement in announcements %}
-                    <div class="col-md-4 mb-4">
+                    <div class="col-12 col-sm-6 col-md-4 mb-4">
                         <div class="card h-100">
                             {% if announcement.Image %}
                                 <img src="{{ announcement.Image.url }}" class="card-img-top mb-0" alt="{{ announcement.Title }}">
@@ -178,17 +197,17 @@
                                 </div>
                                 <div class="row">
                                     <div class="col-md-12">
-                                        <h6 style="font-size: 17px;" class="card-title">{{ announcement.Title }}</h6>
+                                        <h6 style="font-size: 16px;" class="card-title">{{ announcement.Title }}</h6>
                                     </div>
                                 </div>
-                                <p class="card-text" style="text-align: justify;">{{ announcement.Description }}</p>
+                                <p class="card-text" style="text-align: justify; font-size: 14px;">{{ announcement.Description }}</p>
                             </div>
                         </div>
                     </div>
                 {% endfor %}
             </div>
         </div>
-    </div>
+    </div>    
     <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
