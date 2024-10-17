@@ -106,15 +106,6 @@ def coordinatorLogin(request):
             return JsonResponse({'error': 'Invalid username or password.'})
     return render(request, 'homepage/home-page.html')
 
-def getAnnouncement(request):
-    enabledAnnouncement = TableAnnouncement.objects.filter(Status='enable')
-    return render(
-        request, 'homepage/announcement-page.html', 
-        {
-            'announcements': enabledAnnouncement
-        }
-    )
-
 @never_cache
 def studentRegister(request):
     if request.method == 'POST':
