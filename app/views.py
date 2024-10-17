@@ -441,7 +441,7 @@ def approveStudent(request, id):
     
     messages.success(request, f"{new_student.Firstname} {new_student.Lastname} has been approved and added to the student list.")
 
-    return redirect('studentManagement')
+    return redirect('pending-student-list')
 
 @csrf_exempt
 def rejectStudent(request, id):

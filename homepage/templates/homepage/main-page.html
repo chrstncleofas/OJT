@@ -8,7 +8,8 @@
     <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>OJT Management System - Home</title>
+    <title>On-the-Job Training | Website</title>
+    <link rel="stylesheet" href="{% static 'css/style-web.css' %}">
     <link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon">
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <style>
@@ -69,7 +70,7 @@
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light navbar-scroll fixed-top">
-        <a class="navbar-brand" href="{% url 'homepage:login-page' %}">
+        <a class="navbar-brand" href="{% url 'homepage:main' %}">
             <img src="{% static 'img/Logo.png' %}" alt="Logo" style="width:50px; height: 50px; margin-left: 15px;">
             <p>On the Job Training Management System</p>
         </a>
@@ -79,66 +80,75 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item">
-                    <a class="nav-link text-dark" href="{% url 'homepage:login-page' %}">Home</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-dark" href="">Gallery</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-dark mr-2" href="{% url 'homepage:announcement' %}">Announcement</a>
+                    <a class="nav-link text-dark mr-2" href="{% url 'homepage:login-page' %}">Go to Login</a>
                 </li>
             </ul>
         </div>
     </nav>
-    {% comment %} Main Con {% endcomment %}
-    <div class="container mt-5 d-flex justify-content-center align-items-center">
-        <div id="button-container" class="justify-content-center align-items-center text-center mt-5">
-            <h4 class="mb-0" style="font-weight: 700;">College of Communication Information Technology</h4>
-            <h5 class="mb-4 mt-2" style="font-weight: 700;">PRMSU Main Campus</h5>
-            <div class="d-flex flex-column align-items-center">
-                <button class="btn btn-primary btn-lg mb-3" style="padding: 8px; font-size: 1.5rem; width: 230px; font-weight: 600; border-radius: 19px;" onclick="showForm('coordinator')">Coordinator</button>
-                <button class="btn btn-primary btn-lg mb-3" style="padding: 8px; font-size: 1.5rem; width: 230px; font-weight: 600; border-radius: 19px;" onclick="showForm('student')">Student</button>
-                <a href="{% url 'homepage:student-register' %}" class="btn btn-danger btn-lg" style="padding: 8px; font-size: 1.5rem; width: 230px; font-weight: 600; border-radius: 19px;">Student Register</a>
+    <div class="carousel-container mt-4">
+        <div class="carousel">
+            <div class="carousel-inner">
+                <div class="carousel-item active">
+                    {% for img in images %}
+                        {% if img.image %}
+                            <img src="{{ img.image.url }}" class="mt-0" alt="Current Image">
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                <div class="carousel-item">
+                    <img src="https://via.placeholder.com/1113x350.png?text=Slide+2" alt="Slide 2">
+                </div>
+                <div class="carousel-item">
+                    <img src="https://via.placeholder.com/1113x350.png?text=Slide+3" alt="Slide 3">
+                </div>
             </div>
-        </div>                              
-        <!-- Student Login Form -->
-        <div id="student-form" class="form-container mt-0" style="width: 80%; max-width: 600px;">
-            <button class="btn btn-light btn-sm mb-2" onclick="goBack()">&larr; Back</button>
-            <h3 class="text-center mt-2">Student Login</h3>
-            <form id="student-login-form" action="/students/login/" method="POST" class="w-50 mx-auto mt-3">
-                {% csrf_token %}
-                <div id="student-error-message" class="alert alert-danger" style="display: none;"></div> <!-- Error message here -->
-                <div class="form-group">
-                    <label for="student-username">Username:</label>
-                    <input type="text" class="form-control" id="student-username" name="Username" required>
-                </div>
-                <div class="form-group">
-                    <label for="student-password">Password:</label>
-                    <input type="password" class="form-control" id="student-password" name="Password" required>
-                </div>
-                <div class="mb-2">
-                    <a href="{% url 'homepage:forgot_password' %}">Forgot Password?</a>
-                </div>
-                <button type="submit" class="btn btn-primary btn-block">Login</button>
-            </form>
+
+            <button class="carousel-control prev" onclick="moveSlide(-1)">&#10094;</button>
+            <button class="carousel-control next" onclick="moveSlide(1)">&#10095;</button>
         </div>
-        <!-- Coordinator Login Form -->
-        <div id="coordinator-form" class="form-container mt-0" style="width: 80%; max-width: 600px;">
-            <button class="btn btn-light btn-sm mb-2" onclick="goBack()">&larr; Back</button>
-            <h3 class="text-center mt-2">Coordinator Login</h3>
-            <form id="coordinator-login-form" action="/coordinator/login/" method="POST" class="w-50 mx-auto mt-3">
-                {% csrf_token %}
-                <div id="coordinator-error-message" class="alert alert-danger" style="display: none;"></div> <!-- Error message here -->
-                <div class="form-group">
-                    <label for="coordinator-username">Username:</label>
-                    <input type="text" class="form-control" id="coordinator-username" name="username" required>
-                </div>
-                <div class="form-group">
-                    <label for="coordinator-password">Password:</label>
-                    <input type="password" class="form-control" id="coordinator-password" name="password" required>
-                </div>
-                <button type="submit" class="btn btn-primary btn-block">Login</button>
-            </form>
+        <!-- Indicators positioned below the carousel -->
+        <div class="carousel-indicators">
+            <span class="dot active" onclick="currentSlide(1)"></span>
+            <span class="dot" onclick="currentSlide(2)"></span>
+            <span class="dot" onclick="currentSlide(3)"></span>
+        </div>
+    </div>
+    <div class="container mt-3 mb-4" style="max-width: 1293px;">
+        <div class="outer-container">
+            <h2 class="mb-2 text-center">Announcement</h2>
+            <p class="text-center">List of latest announcements</p>
+            <!-- Card design for announcement -->
+            <div class="row">
+                {% for announcement in announcements %}
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100">
+                            {% if announcement.Image %}
+                                <img src="{{ announcement.Image.url }}" class="card-img-top mb-0" alt="{{ announcement.Title }}">
+                            {% endif %}
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <p class="card-text mb-3" style="font-size: 10px; font-weight: bold; color: gray;">
+                                            <span style="font-weight: normal;">Start Date: </span>{{ announcement.StartDate }}
+                                        </p>
+                                    </div>
+                                    <div class="col-6 text-right">
+                                        <p class="card-text mb-3" style="font-size: 10px; font-weight: bold; color: gray;">
+                                            <span style="font-weight: normal;">End Date: </span>{{ announcement.EndDate }}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <h6 style="font-size: 17px;" class="card-title">{{ announcement.Title }}</h6>
+                                    </div>
+                                </div>
+                                <p class="card-text" style="text-align: justify;">{{ announcement.Description }}</p>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
         </div>
     </div>
     <!-- Scripts -->
@@ -151,6 +161,41 @@
             e.preventDefault();
             $("#wrapper").toggleClass("toggled");
         });
+        let currentIndex = 0;
+        const slides = document.querySelectorAll('.carousel-item');
+        const dots = document.querySelectorAll('.dot');
+
+        function showSlide(index) {
+            if (index >= slides.length) {
+                currentIndex = 0;
+            } else if (index < 0) {
+                currentIndex = slides.length - 1;
+            } else {
+                currentIndex = index;
+            }
+
+            slides.forEach((slide, i) => {
+                slide.classList.toggle('active', i === currentIndex);
+                dots[i].classList.toggle('active', i === currentIndex);
+            });
+        }
+
+        function moveSlide(direction) {
+            showSlide(currentIndex + direction);
+        }
+
+        function currentSlide(index) {
+            showSlide(index - 1);
+        }
+
+        // Initialize the carousel
+        showSlide(currentIndex);
+
+        // Auto-slide functionality
+        setInterval(() => {
+            moveSlide(1);
+        }, 3000); // Change slide every 3 seconds
+
         window.onload = function() {
             // Preventing back button navigation loop
             if (window.history.length > 1) {

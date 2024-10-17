@@ -16,6 +16,7 @@ from django.contrib.auth.hashers import make_password
 from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.cache import cache_control
 from students.models import PendingApplication, DataTableStudents
+from app.models import TableContent, TableAnnouncement
 from students.forms import PendingStudentRegistrationForm, ResetPasswordForm
 
 def redirect_authenticated_user(view_func):
@@ -28,6 +29,20 @@ def redirect_authenticated_user(view_func):
                 return redirect('mainDashboard')
         return view_func(request, *args, **kwargs)
     return _wrapped_view
+
+@never_cache
+@csrf_protect
+@cache_control(no_cache=True, must_revalidate=True, no_store=True, name='dispatch')
+def webPage(request):
+    images = TableContent.objects.all().order_by('id')
+    announcements = TableAnnouncement.objects.all().order_by('id')
+    return render(
+        request, 'homepage/main-page.html',
+        {
+            'images': images,
+            'announcements': announcements
+        }
+    )
 
 @redirect_authenticated_user
 @never_cache
