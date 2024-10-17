@@ -68,28 +68,6 @@
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light navbar-scroll fixed-top">
-        <a class="navbar-brand" href="{% url 'homepage:login-page' %}">
-            <img src="{% static 'img/Logo.png' %}" alt="Logo" style="width:50px; height: 50px; margin-left: 15px;">
-            <p>On the Job Training Management System</p>
-        </a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ml-auto">
-                <li class="nav-item">
-                    <a class="nav-link text-dark" href="{% url 'homepage:login-page' %}">Home</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-dark" href="">Gallery</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-dark mr-2" href="{% url 'homepage:announcement' %}">Announcement</a>
-                </li>
-            </ul>
-        </div>
-    </nav>
     {% comment %} Main Con {% endcomment %}
     <div class="container mt-5 d-flex justify-content-center align-items-center">
         <div id="button-container" class="justify-content-center align-items-center text-center mt-5">
