@@ -169,7 +169,7 @@
             <span class="dot" onclick="currentSlide(3)"></span>
         </div>
     </div>
-    <div class="container mt-3 mb-4" style="max-width: 1293px;">
+    <div class="container mt-3 mb-5" style="max-width: 1293px;">
         <div class="outer-container">
             <h2 class="mb-2 text-center">Announcement</h2>
             <p class="text-center">List of latest announcements</p>
@@ -206,7 +206,46 @@
                 {% endfor %}
             </div>
         </div>
-    </div>    
+    </div>
+    <!-- Footer -->
+    <footer class="bg-light py-4 mt-5" id="footerMain">
+        <div class="container">
+          <div class="row justify-content-between align-items-center">
+            <!-- Logo and description -->
+            <div class="col-md-6 d-flex align-items-center">
+              <a href="">
+                <img src="{% static 'img/Logo.png' %}"
+                     alt="ojt" class="img-fluid grayscale" width="80" height="80">
+              </a>
+              <div class="pl-3 mt-3">
+                <h5 class="mb-0">On the Job</h5>
+                <p style="font-size: 18px">Training Management System</p>
+            </div>
+            </div>
+            <!-- Social media icon -->
+            <div class="col-md-3 text-md-right text-center mt-3 mt-md-0">
+              <a href="https://www.facebook.com/profile.php?id=100057567874785" target="_blank">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-facebook"
+                     viewBox="0 0 24 24">
+                  <path d="M9 8H6v4h3v12h5V12h4l1-4h-5V6c0-1 .334-1 1-1h3V0h-4c-3 0-4 1-4 4v4z"/>
+                </svg>
+                <span class="sr-only">Facebook page</span>
+              </a>
+            </div>
+          </div>    
+          <!-- Divider -->
+          <hr class="my-4">
+          <!-- Links and Copyright -->
+          <div class="row align-items-center">
+            <div class="col-md-6 d-flex flex-wrap justify-content-center justify-content-md-start mb-3 mb-md-0">
+              <a href="" class="mr-3">Quality Policy</a>
+            </div>
+            <div class="col-md-6 text-center text-md-right">
+              <span>Beta Version - &copy; 2024</span>
+            </div>
+          </div>
+        </div>
+    </footer>
     <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
