@@ -81,7 +81,18 @@
             <div class="col-lg-8">
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title">Student Registration</h5>
+                        <div class="container d-flex justify-content-center align-items-center">
+                            <div class="justify-content-center align-items-center text-center mt-2">
+                                <a class="navbar-brand d-flex align-items-center" href="{% url 'homepage:login-page' %}">
+                                    <img src="{% static 'img/Logo.png' %}" 
+                                         alt="Logo" 
+                                         class="logo-img"
+                                         style="width: 50px; height: 50px;">
+                                    <span style="margin-left: -7px; font-weight: 600; color: #6900ff;">On the Job Training Management System</span>
+                                </a>
+                                <h3 class="mb-4 mt-0 text-secondary" style="font-weight: 600;">Student Register</h3>
+                            </div>
+                        </div>
                         {% if messages %}
                             {% for message in messages %}
                                 {% if message.tags == 'success' %}
