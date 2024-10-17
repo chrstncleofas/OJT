@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="{% static 'css/style-web.css' %}">
     <link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon">
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/css/lightbox.min.css" />
     <style>
         /* Card height adjustments */
         .card {
@@ -126,6 +127,11 @@
                 display: none;
             }
         }
+        #gallery .img-fluid {
+            height: 250px;/* Adjust the height as needed */
+            object-fit: cover;
+            width: 100%;
+        }
     </style>
 </head>
 <body>
@@ -207,6 +213,35 @@
             </div>
         </div>
     </div>
+    <div id="gallery" class="container my-5">
+        <h2 class="mb-4 text-center">Gallery</h2>
+        <div class="row">
+            <div class="col-lg-4 col-md-6 mb-4">
+                <a href="{% static 'img/Gallery-01.jpg' %}" data-lightbox="gallery" data-title="Gallery Image 1">
+                    <img src="{% static 'img/Gallery-01.jpg' %}" class="img-fluid shadow-1-strong rounded mb-4" alt="Gallery Image 1" />
+                </a>
+                <a href="{% static 'img/Gallery-02.jpg' %}" data-lightbox="gallery" data-title="Gallery Image 2">
+                    <img src="{% static 'img/Gallery-02.jpg' %}" class="img-fluid shadow-1-strong rounded mb-4" alt="Gallery Image 2" />
+                </a>
+            </div>
+            <div class="col-lg-4 col-md-6 mb-4">
+                <a href="{% static 'img/Gallery-03.jpg' %}" data-lightbox="gallery" data-title="Gallery Image 3">
+                    <img src="{% static 'img/Gallery-03.jpg' %}" class="img-fluid shadow-1-strong rounded mb-4" alt="Gallery Image 3" />
+                </a>
+                <a href="{% static 'img/Gallery-04.jpg' %}" data-lightbox="gallery" data-title="Gallery Image 4">
+                    <img src="{% static 'img/Gallery-04.jpg' %}" class="img-fluid shadow-1-strong rounded mb-4" alt="Gallery Image 4" />
+                </a>
+            </div>
+            <div class="col-lg-4 col-md-12 mb-4">
+                <a href="{% static 'img/Gallery-05.jpg' %}" data-lightbox="gallery" data-title="Gallery Image 5">
+                    <img src="{% static 'img/Gallery-05.jpg' %}" class="img-fluid shadow-1-strong rounded mb-4" alt="Gallery Image 5" />
+                </a>
+                <a href="{% static 'img/Gallery-06.jpg' %}" data-lightbox="gallery" data-title="Gallery Image 6">
+                    <img src="{% static 'img/Gallery-06.jpg' %}" class="img-fluid shadow-1-strong rounded mb-4" alt="Gallery Image 6" />
+                </a>
+            </div>
+        </div>
+    </div>
     <!-- Footer -->
     <footer class="bg-light py-4 mt-5" id="footerMain">
         <div class="container">
@@ -247,8 +282,8 @@
         </div>
     </footer>
     <!-- Scripts -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox-plus-jquery.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script>
@@ -259,7 +294,6 @@
         let currentIndex = 0;
         const slides = document.querySelectorAll('.carousel-item');
         const dots = document.querySelectorAll('.dot');
-
         function showSlide(index) {
             if (index >= slides.length) {
                 currentIndex = 0;
@@ -356,6 +390,11 @@
                 }
             }).catch(error => console.error('Error:', error));
         };
+        lightbox.option({
+            'resizeDuration': 200,
+            'wrapAround': true,
+            'albumLabel': "Image %1 of %2" // Optional: custom label for image count
+        });
     </script>
 </body>
 </html>
