@@ -128,6 +128,8 @@ def mainDashboard(request):
         }
     )
 
+from django.utils import timezone
+
 @login_required
 @never_cache
 def getAllApproveStudents(request):
@@ -151,7 +153,7 @@ def getAllApproveStudents(request):
         )
 
     # Date filtering logic
-    date_filter = request.GET.get('dateFilter', 'today')  # Default to 'today'
+    date_filter = request.GET.get('dateFilter')
     today = timezone.now().date()
 
     if date_filter == 'today':
@@ -160,29 +162,25 @@ def getAllApproveStudents(request):
         yesterday = today - timedelta(days=1)
         students_list = students_list.filter(created_at__date=yesterday)
     elif date_filter == 'week':
-        one_week_ago = today - timedelta(days=7)
-        students_list = students_list.filter(created_at__date__gte=one_week_ago)
+        start_of_week = today - timedelta(days=today.weekday())  # Start of the current week
+        students_list = students_list.filter(created_at__date__gte=start_of_week)
 
     # Handle custom date range filtering
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
 
     if start_date and end_date:
-        students_list = students_list.filter(created_at__date__gte=start_date, created_at__date__lte=end_date)
+        try:
+            # Parse start_date and end_date to ensure correct date format
+            start_date = timezone.datetime.strptime(start_date, '%Y-%m-%d').date()
+            end_date = timezone.datetime.strptime(end_date, '%Y-%m-%d').date()
+            students_list = students_list.filter(created_at__date__gte=start_date, created_at__date__lte=end_date)
+        except ValueError:
+            print("Invalid date format for custom date range")
 
     # Pagination logic
     page = request.GET.get('page', 1)
-
-    # Initialize per_page with a default value
-    per_page = 10  # Default value if not provided
-
-    # Get per_page value from request and validate
-    per_page_value = request.GET.get('per_page')
-    if per_page_value:  # Only set per_page if value is provided
-        try:
-            per_page = int(per_page_value)  # Convert to int
-        except ValueError:
-            per_page = 10  # Fall back to default if conversion fails
+    per_page = request.GET.get('per_page', 10)
 
     paginator = Paginator(students_list, per_page)
     try:
@@ -198,7 +196,6 @@ def getAllApproveStudents(request):
         'lastName': lastName,
     }
 
-    # Check if the request is an AJAX request
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         return render(request, 'app/approve-list-student.html', context)
 

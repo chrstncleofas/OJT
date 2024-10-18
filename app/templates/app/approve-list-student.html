@@ -154,11 +154,11 @@
                         <div class="form-inline">
                             <div class="form-group mr-1">
                                 <label for="start-date" class="sr-only">Start Date</label>
-                                <input type="date" class="form-control" id="start-date" placeholder="Start Date">
+                                <input type="date" class="form-control" id="start_date" placeholder="Start Date">
                             </div>
                             <div class="form-group mr-1">
                                 <label for="end-date" class="sr-only">End Date</label>
-                                <input type="date" class="form-control" id="end-date" placeholder="End Date">
+                                <input type="date" class="form-control" id="end_date" placeholder="End Date">
                             </div>
                             <button type="button" id="customFilterButton" class="btn btn-primary">Filter</button>
                         </div>
@@ -468,8 +468,8 @@
             const customFilterButton = document.getElementById('customFilterButton');
             if (customFilterButton) {
                 customFilterButton.addEventListener('click', function () {
-                    const startDate = document.getElementById('start-date').value;
-                    const endDate = document.getElementById('end-date').value;
+                    const startDate = document.getElementById('start_date').value;
+                    const endDate = document.getElementById('end_date').value;
                     const perPage = document.getElementById('perPage').value || 10; // Default to 10 if perPage is not set
 
                     console.log(`Fetching data with startDate: ${startDate}, endDate: ${endDate}, perPage: ${perPage}`); // Debug log
@@ -507,9 +507,9 @@
                 radio.addEventListener('change', function () {
                     const selectedDateFilter = this.id; // 'today', 'yesterday', or 'week'
                     const perPage = document.getElementById('perPage').value || 10; // Default to 10 if perPage is not set
-
+            
                     console.log(`Fetching data for date filter: ${selectedDateFilter}, perPage: ${perPage}`); // Debug log
-                    
+            
                     fetch(`{% url 'approve-student-list' %}?dateFilter=${selectedDateFilter}&per_page=${perPage}`, {
                         method: 'GET',
                         headers: {
@@ -527,14 +527,14 @@
                         const doc = parser.parseFromString(html, 'text/html');
                         const newTbody = doc.getElementById('studentTableBody');
                         const currentTbody = document.getElementById('studentTableBody');
-
+            
                         if (newTbody) {
                             currentTbody.innerHTML = newTbody.innerHTML;
                         }
                     })
                     .catch(error => console.error('Error:', error));
                 });
-            });
+            });            
         });
     </script>
 </body>
