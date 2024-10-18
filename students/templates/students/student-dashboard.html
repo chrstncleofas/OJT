@@ -221,62 +221,80 @@
                                 <!-- Clock -->
                                 <div class="col-md-12 d-flex justify-content-end align-items-center">
                                     <h5 id="clock" class="text-dark" style="font-weight: bold;"></h5>
-                                </div>                               
-                                <div class="row mb-1 ml-1 mr-0">
-                                    <div class="col-md-4 mb-4" style="cursor: pointer;">
-                                        <a href="{% url 'students:requirements' %}" style="text-decoration: none;" class="text-dark">
-                                            <div class="card h-100 text-center">
-                                                <div class="card-body">
-                                                    <div class="d-flex flex-column align-items-center">
-                                                        <i class="fas fa-bullhorn fa-2x mb-2"></i>
-                                                        <h5 class="card-title">Requirements</h5>
-                                                        <p class="card-text">Allow the student to check the and download the requirement documents</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </a>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-5 mb-4" style="cursor: pointer;">
+                                    <div class="card h-100 text-center">
+                                        <div class="card-body d-flex flex-column">
+                                            <!-- Centering the title at the top -->
+                                            <h5 class="card-title mt-2">Instructions</h5>
+                                            <!-- Justified paragraph text with top spacing -->
+                                            <p class="card-text text-justify mt-2">
+                                                Here you can add detailed instructions or guidelines for the students regarding how to use the features of the OJT system or any other important information.
+                                            </p>
+                                        </div>
                                     </div>
-                                    <div class="col-md-4 mb-4" style="cursor: pointer;">
-                                        <a href="{% url 'students:list-of-document' %}" style="text-decoration: none;" class="text-dark">
-                                            <div class="card h-100 text-center">
-                                                <div class="card-body">
-                                                    <div class="d-flex flex-column align-items-center">
-                                                        <i class="fas fa-file-alt fa-2x mb-2"></i>
-                                                        <h5 class="card-title">Submission of Requirements</h5>
-                                                        <p class="card-text">Allow the students to submit their requirement to be able to enroll in the OJT subject.</p>
+                                </div>                                
+                                <div class="col-md-7">
+                                    <div class="row mb-1 ml-1 mr-0">
+                                        <div class="col-md-6 mb-4" style="cursor: pointer;">
+                                            <a href="{% url 'students:requirements' %}" style="text-decoration: none;" class="text-dark">
+                                                <div class="card h-100 text-center">
+                                                    <div class="card-body">
+                                                        <div class="d-flex flex-column align-items-center">
+                                                            <i class="fas fa-bullhorn fa-2x mb-2"></i>
+                                                            <h5 class="card-title">Requirements</h5>
+                                                            <p class="card-text">Allow the student to check and download the requirement documents</p>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        </a>
-                                    </div>
-                                    <div class="col-md-4 mb-4" style="cursor: pointer;">
-                                        <a href="{% url 'students:clockin' %}" style="text-decoration: none;" class="text-dark">
-                                            <div class="card h-100 text-center">
-                                                <div class="card-body">
-                                                    <div class="d-flex flex-column align-items-center">
-                                                        <i class="fas fa-clock fa-2x mb-2"></i>
-                                                        <h5 class="card-title">Clock In</h5>
-                                                        <p class="card-text">Allow the student to time in and time out accurately with the features of the OJT System.</p>
+                                            </a>
+                                        </div>
+                                        <div class="col-md-6 mb-4" style="cursor: pointer;">
+                                            <a href="{% url 'students:list-of-document' %}" style="text-decoration: none;" class="text-dark">
+                                                <div class="card h-100 text-center">
+                                                    <div class="card-body">
+                                                        <div class="d-flex flex-column align-items-center">
+                                                            <i class="fas fa-file-alt fa-2x mb-2"></i>
+                                                            <h5 class="card-title">Submission of Requirements</h5>
+                                                            <p class="card-text">Allow the students to submit their requirements to enroll in the OJT subject.</p>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        </a>
-                                    </div>
-                                    <div class="col-md-4 mb-4" style="cursor: pointer;">
-                                        <a href="{% url 'students:progress-report' %}" style="text-decoration: none;" class="text-dark">
-                                            <div class="card h-100 text-center">
-                                                <div class="card-body">
-                                                    <div class="d-flex flex-column align-items-center">
-                                                        <i class="fas fa-clock fa-2x mb-2"></i>
-                                                        <h5 class="card-title">Progress Report</h5>
-                                                        <p class="card-text">Allow the student to input their daily activities using this progress report feature.</p>
+                                            </a>
+                                        </div>
+                                        <div class="col-md-6 mb-4" style="cursor: pointer;">
+                                            <a href="{% url 'students:clockin' %}" style="text-decoration: none;" class="text-dark">
+                                                <div class="card h-100 text-center">
+                                                    <div class="card-body">
+                                                        <div class="d-flex flex-column align-items-center">
+                                                            <i class="fas fa-clock fa-2x mb-2"></i>
+                                                            <h5 class="card-title">Clock In</h5>
+                                                            <p class="card-text">Allow the student to time in and time out accurately with the OJT System.</p>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        </a>
+                                            </a>
+                                        </div>
+                                        <div class="col-md-6 mb-4" style="cursor: pointer;">
+                                            <a href="{% url 'students:progress-report' %}" style="text-decoration: none;" class="text-dark">
+                                                <div class="card h-100 text-center">
+                                                    <div class="card-body">
+                                                        <div class="d-flex flex-column align-items-center">
+                                                            <i class="fas fa-tasks fa-2x mb-2"></i>
+                                                            <h5 class="card-title">Progress Report</h5>
+                                                            <p class="card-text">Allow the student to input their daily activities using this progress report feature.</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
+                            
                         </div>
                     </div>
                 </div>                                                 
