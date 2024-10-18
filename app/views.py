@@ -178,7 +178,13 @@ def getAllApproveStudents(request):
 
     # Pagination logic
     page = request.GET.get('page', 1)
-    per_page = int(request.GET.get('per_page', 10))
+
+    # Handle the per_page parameter safely
+    per_page_value = request.GET.get('per_page', '10')  # Default to '10' as string
+    try:
+        per_page = int(per_page_value) if per_page_value.isdigit() else 10
+    except ValueError:
+        per_page = 10  # Fallback to 10 if conversion fails
 
     paginator = Paginator(students_list, per_page)
     try:
