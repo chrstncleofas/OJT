@@ -51,7 +51,6 @@ def home(request) -> Union[HttpResponseRedirect, HttpResponsePermanentRedirect, 
 def dashboard(request) -> HttpResponse:
     return render(request, DASHBOARD)
 
-
 @login_required
 @never_cache
 @csrf_exempt
