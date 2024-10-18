@@ -149,29 +149,25 @@ def getAllApproveStudents(request):
             Q(Lastname__icontains=search_query_approve)
         )
 
-    # Date filtering logic
-    date_filter = request.GET.get('dateFilter')
+    date_filter = request.GET.get('filterType', 'today')  # Use 'filterType' parameter from URL
+    start_date = request.GET.get('startDate')  # Use 'startDate' parameter from URL
+    end_date = request.GET.get('endDate')  # Use 'endDate' parameter from URL
     today = timezone.now().date()
 
+    # Date filtering logic
     if date_filter == 'today':
         students_list = students_list.filter(created_at__date=today)
     elif date_filter == 'yesterday':
         yesterday = today - timedelta(days=1)
         students_list = students_list.filter(created_at__date=yesterday)
     elif date_filter == 'week':
-        start_of_week = today - timedelta(days=today.weekday())  # Start of the current week
+        start_of_week = today - timedelta(days=today.weekday())
         students_list = students_list.filter(created_at__date__gte=start_of_week)
-
-    # Handle custom date range filtering
-    start_date = request.GET.get('start_date')
-    end_date = request.GET.get('end_date')
-
-    if start_date and end_date:
+    elif date_filter == 'custom' and start_date and end_date:
         try:
-            # Parse start_date and end_date to ensure correct date format
             start_date = timezone.datetime.strptime(start_date, '%Y-%m-%d').date()
             end_date = timezone.datetime.strptime(end_date, '%Y-%m-%d').date()
-            students_list = students_list.filter(created_at__date__gte=start_date, created_at__date__lte=end_date)
+            students_list = students_list.filter(created_at__date__range=(start_date, end_date))
         except ValueError:
             print("Invalid date format for custom date range")
 
