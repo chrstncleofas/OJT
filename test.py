@@ -83,13 +83,12 @@ oral_score = min(max(oral_score, 0), 30)  # Restrict oral_score to range 0-30
 
 # Calculating each score component
 result1 = ((eval_score / 30) * 50 + 50) * 0.60
+print(result1)
 result2 = ((total_score / 120) * 50 + 50) * 0.30
 result3 = ((oral_score / 30) * 50 + 50) * 0.10
 
 # Final grade calculation
 final_grade = result1 + result2 + result3
-
-
 
 overall = round(final_grade)
 

@@ -536,7 +536,6 @@ def ClockInAndOut(request):
         'message': message if not requirements_submitted else None,  # Message for unapproved documents
     })
 
-
 @login_required
 @never_cache
 def studentProfile(request):
@@ -578,7 +577,7 @@ def changePassword(request):
         form = ChangePasswordForm(request.POST)
         if form.is_valid():
             current_password = form.cleaned_data['current_password']
-            new_password = form.cleaned_data['new_password']            
+            new_password = form.cleaned_data['new_password']
             if check_password(current_password, user.password):
                 user.set_password(new_password)
                 user.save()

@@ -247,3 +247,8 @@ class Notification(models.Model):
 
     def __str__(self):
         return f'Notification for {self.student.Firstname} - {self.message}'
+
+# New models for Listing requirements
+
+class ListRequirement(models.Model):
+    pass
