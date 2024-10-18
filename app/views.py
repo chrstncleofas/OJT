@@ -1189,6 +1189,7 @@ def getAllStudentsForGrading(request):
 
     if search_query:
         students = students.filter(
+            Q(StudentID__icontains=search_query) |
             Q(Firstname__icontains=search_query)
         )
 
