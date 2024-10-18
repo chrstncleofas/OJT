@@ -92,6 +92,31 @@
                                 <a class="dropdown-item" data-toggle="modal" data-target="#logout">Logout</a>
                             </div>
                         </li>
+                        <li class="nav-item dropdown mt-1">
+                            <a class="nav-link d-flex align-items-center" href="#" id="notificationDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-bell mr-2"></i>
+                                {% if unread_notifications_count > 0 %}
+                                    <span class="badge badge-danger">{{ unread_notifications_count }}</span>
+                                {% endif %}
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="notificationDropdown">
+                                <h6 class="dropdown-header">Notifications</h6>
+                                {% if notifications %}
+                                    {% for notification in notifications %}
+                                        <form action="{% url 'students:mark_notification_as_read' notification.id %}" method="POST" style="display:inline;">
+                                            {% csrf_token %}
+                                            <button type="submit" class="dropdown-item" title="{{ notification.message }}">
+                                                {{ notification.message }}
+                                            </button>
+                                        </form>
+                                        <!-- Add a separator line -->
+                                        <div class="dropdown-divider"></div> <!-- Bootstrap separator -->
+                                    {% endfor %}
+                                {% else %}
+                                    <a class="dropdown-item" href="#">No new notifications</a>
+                                {% endif %}
+                            </div>
+                        </li>  
                     </ul>
                 </div>
             </nav>
