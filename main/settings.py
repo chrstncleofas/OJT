@@ -52,6 +52,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'main.middleware.CustomMiddleware',
+    'main.middleware.CrossOriginOpenerPolicyMiddleware',
     'students.middleware.DisableCacheMiddleware',
     'homepage.middleware.DisableCacheMiddleware',
     'app.middleware.DisableCacheMiddleware',

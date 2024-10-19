@@ -1,7 +1,8 @@
-from django.shortcuts import redirect, render
 import logging
-from students.models import DataTableStudents
 from app.models import CustomUser
+from students.models import DataTableStudents
+from django.shortcuts import redirect, render
+from django.utils.deprecation import MiddlewareMixin
 
 logger = logging.getLogger(__name__)
 
@@ -57,4 +58,10 @@ class CustomMiddleware:
             logger.error(f"Page not found: {request.path}")
             return render(request, 'main/404.html', status=404)
 
+        return response
+
+class CrossOriginOpenerPolicyMiddleware(MiddlewareMixin):
+    def process_response(self, request, response):
+        response['Cross-Origin-Opener-Policy'] = 'same-origin'
+        response['Cross-Origin-Embedder-Policy'] = 'require-corp'
         return response
