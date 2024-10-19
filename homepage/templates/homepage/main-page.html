@@ -283,7 +283,17 @@
         $(".navbar-toggler").click(function(e) {
             e.preventDefault();
             $("#wrapper").toggleClass("toggled");
-        });
+        });  
+        window.onload = function() {
+            // Preventing back button navigation loop
+            if (window.history.length > 1) {
+                window.history.pushState(null, document.title, window.location.href);
+                window.addEventListener('popstate', function(event) {
+                    // Handle back button behavior appropriately
+                    window.history.pushState(null, document.title, window.location.href);
+                });
+            }
+        }
         let currentIndex = 0;
         const slides = document.querySelectorAll('.carousel-item');
         const dots = document.querySelectorAll('.dot');
@@ -301,88 +311,18 @@
                 dots[i].classList.toggle('active', i === currentIndex);
             });
         }
-
         function moveSlide(direction) {
             showSlide(currentIndex + direction);
         }
-
         function currentSlide(index) {
             showSlide(index - 1);
         }
-
         // Initialize the carousel
         showSlide(currentIndex);
-
         // Auto-slide functionality
         setInterval(() => {
             moveSlide(1);
         }, 3000); // Change slide every 3 seconds
-
-        window.onload = function() {
-            // Preventing back button navigation loop
-            if (window.history.length > 1) {
-                window.history.pushState(null, document.title, window.location.href);
-                window.addEventListener('popstate', function(event) {
-                    // Handle back button behavior appropriately
-                    window.history.pushState(null, document.title, window.location.href);
-                });
-            }
-        }
-        function showForm(type) {
-            document.getElementById('button-container').style.display = 'none';
-
-            document.getElementById('student-form').classList.remove('active');
-            document.getElementById('coordinator-form').classList.remove('active');
-            {% comment %} document.getElementById('student-register-page').classList.remove('active'); {% endcomment %}
-            if (type === 'student') {
-                document.getElementById('student-form').classList.add('active');
-            } else if (type === 'coordinator') {
-                document.getElementById('coordinator-form').classList.add('active');
-            }
-        }
-        function goBack() {
-            document.getElementById('student-form').classList.remove('active');
-            document.getElementById('coordinator-form').classList.remove('active');
-            document.getElementById('button-container').style.display = 'block';
-            // Clear error messages
-            document.getElementById('student-error-message').style.display = 'none';
-            document.getElementById('coordinator-error-message').style.display = 'none';
-        }
-        
-        // Handling form submissions with AJAX
-        document.getElementById('student-login-form').onsubmit = function(e) {
-            e.preventDefault(); // Iwasan ang default na pag-submit ng form
-
-            const formData = new FormData(this);
-            fetch(this.action, {
-                method: 'POST',
-                body: formData
-            }).then(response => response.json()).then(data => {
-                if (data.error) {
-                    document.getElementById('student-error-message').innerText = data.error;
-                    document.getElementById('student-error-message').style.display = 'block'; // Ipakita ang error message
-                } else if (data.redirect_url) {
-                    window.location.href = data.redirect_url; // I-redirect ang user
-                }
-            }).catch(error => console.error('Error:', error));
-        };
-
-        document.getElementById('coordinator-login-form').onsubmit = function(e) {
-            e.preventDefault(); // Iwasan ang default na pag-submit ng form
-
-            const formData = new FormData(this);
-            fetch(this.action, {
-                method: 'POST',
-                body: formData
-            }).then(response => response.json()).then(data => {
-                if (data.error) {
-                    document.getElementById('coordinator-error-message').innerText = data.error;
-                    document.getElementById('coordinator-error-message').style.display = 'block'; // Ipakita ang error message
-                } else if (data.redirect_url) {
-                    window.location.href = data.redirect_url; // I-redirect ang user
-                }
-            }).catch(error => console.error('Error:', error));
-        };
         lightbox.option({
             'resizeDuration': 200,
             'wrapAround': true,
