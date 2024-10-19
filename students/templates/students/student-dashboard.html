@@ -108,6 +108,30 @@
             margin-right: 10px;
             margin-top: 8px;
         }
+        .instruction-steps {
+            margin-top: 15px;
+        }
+        .scrollable-content {
+            max-height: 350px; /* Adjust this height as needed */
+        }
+        
+        .step-title {
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        
+        .step-description, .document-list, .approval-list, .time-tracking-list {
+            margin-left: 15px;
+            text-align: justify;
+        }
+        
+        .step-note {
+            background-color: #f8d7da;
+            border-left: 3px solid #f5c2c7;
+            padding: 8px;
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }        
     </style>
 </head>
 <body>
@@ -224,18 +248,54 @@
                                 </div>
                             </div>         
                             <div class="row">
-                                <div class="col-md-6 mb-4" style="cursor: pointer; margin-right: -10px;">
-                                    <div class="card h-100 text-center">
+                                <div class="col-md-6 mb-4" style="cursor: pointer;">
+                                    <div class="card h-100">
                                         <div class="card-body d-flex flex-column">
-                                            <!-- Centering the title at the top -->
-                                            <h5 class="card-title mt-2">Instructions</h5>
-                                            <!-- Justified paragraph text with top spacing -->
-                                            <p class="card-text text-justify mt-2">
-                                                Here you can add detailed instructions or guidelines for the students regarding how to use the features of the OJT system or any other important information.
-                                            </p>
+                                            <!-- Fixed Header Section -->
+                                            <div class="card-header" style="background-color: #f8f9fa; padding: 10px; border-bottom: 1px solid #dee2e6;">
+                                                <h5 class="card-title mb-0" style="text-align: center; font-weight: bold;">Instructions</h5>
+                                            </div>
+                                            <!-- Scrollable Content Section -->
+                                            <div class="scrollable-content mt-3" style="overflow-y: auto; max-height: 350px; padding: 10px;">
+                                                <div class="instruction-steps">
+                                                    <h6 class="step-title">Step 1: Click Dashboard</h6>
+                                                    <p class="step-description">Click on "DASHBOARD" and then "REQUIREMENTS".</p>
+                                
+                                                    <h6 class="step-title">Step 2: Download the Required Files</h6>
+                                                    <p class="step-description">Get every file you need for your on-the-job training (OJT). Before submitting the documents to the system, make sure they are fully completed.</p>
+                                
+                                                    <h6 class="step-title">Step 3: Submit Required Documents</h6>
+                                                    <p class="step-description">Upload the complete required requirements/documents by clicking on "UPLOAD". The required documents include:</p>
+                                                    <ul class="document-list">
+                                                        <li>Internship Application Form</li>
+                                                        <li>Parent Consent Form</li>
+                                                        <li>Medical Certificate</li>
+                                                        <li>Endorsement Letter</li>
+                                                        <li>Notice of Acceptance/MOA</li>
+                                                        <li>Internship Contract Agreement</li>
+                                                    </ul>
+                                                    <p class="step-note"><strong>NOTE:</strong> You will not be able to use the "Time In and Time Out" feature until those documents stated above are submitted and approved by the OJT Coordinator.</p>
+                                
+                                                    <h6 class="step-title">Step 4: Wait for Requirements Approval</h6>
+                                                    <p class="step-description">After submitting your requirements, wait for the OJT Coordinator's review and approval. You will receive a notification through the system once your documents have been either:</p>
+                                                    <ul class="approval-list">
+                                                        <li>Approved, allowing you to proceed with your internship, or</li>
+                                                        <li>Returned for correction in case any documents need to be resubmitted or updated.</li>
+                                                    </ul>
+                                
+                                                    <h6 class="step-title">Step 5: Start Monitoring Your Time</h6>
+                                                    <p class="step-description">You can use the "Time In and Time Out" feature to log your internship working hours as soon as the required documents have been approved. Before selecting the time in or time out button, make sure you have selected your picture. Follow these time-tracking guidelines:</p>
+                                                    <ul class="time-tracking-list">
+                                                        <li><strong>Time In (AM):</strong> Track the time you arrive at work every morning.</li>
+                                                        <li><strong>Break/Time Out (PM):</strong> Record the time when you head out for lunch.</li>
+                                                        <li><strong>Break/Time In (PM):</strong> Record the time you arrive back after lunch.</li>
+                                                        <li><strong>Time Out (PM):</strong> At the end of the day, record the time you leave.</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>                                
+                                </div>                                                                                        
                                 <div class="col-md-6">
                                     <div class="row">
                                         <div class="col-md-6 mb-4" style="cursor: pointer;">
