@@ -112,3 +112,7 @@ celerybeat-schedule.db
 staticfiles/
 
 media/
+
+# Ignore
+./runServer.sh
+./runLocal.bat
