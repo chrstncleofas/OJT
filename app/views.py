@@ -41,18 +41,6 @@ LIST_ANNOUNCEMENT = 'app/list-announcement.html'
 PROFILE = 'app/profile.html'
 CHANGE_PASSWORD = 'app/changePassword.html'
 
-@never_cache
-@login_required
-@csrf_exempt
-def home(request) -> Union[HttpResponseRedirect, HttpResponsePermanentRedirect, HttpResponse]:        
-    return render(request, HOME_URL_PATH)
-
-@never_cache
-@login_required
-@csrf_exempt
-def dashboard(request) -> HttpResponse:
-    return render(request, DASHBOARD)
-
 @login_required
 @never_cache
 @csrf_exempt

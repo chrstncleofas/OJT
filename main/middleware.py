@@ -37,14 +37,14 @@ class CustomMiddleware:
                 if 'students' in request.path:
                     return redirect('/students/dashboard/')
                 elif 'coordinator' in request.path:
-                    return redirect('/coordinator/mainDashboard')
+                    return redirect('/coordinator/dashboard')
 
             # Redirect logged-in users away from the homepage to their respective dashboards
             elif request.path == '/':
                 if is_student(request.user):
                     return redirect('/students/dashboard/')
                 elif is_coordinator(request.user):
-                    return redirect('/coordinator/mainDashboard')
+                    return redirect('/coordinator/dashboard')
 
         # Handle the response and log 404 errors if any
         response = self.get_response(request)

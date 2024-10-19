@@ -27,7 +27,7 @@ def redirect_authenticated_user(view_func):
             if hasattr(request.user, 'datatablestudents'):
                 return redirect('students:dashboard')
             elif request.user.is_staff and not request.user.is_superuser:
-                return redirect('mainDashboard')
+                return redirect('dashboard')
         return view_func(request, *args, **kwargs)
     return _wrapped_view
 
@@ -89,7 +89,7 @@ def studentLogin(request):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True, name='dispatch')
 def coordinatorLogin(request):
     if request.user.is_authenticated:
-        return redirect('mainDashboard')
+        return redirect('dashboard')
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
@@ -100,7 +100,7 @@ def coordinatorLogin(request):
                     login(request, user)
                     request.session['is_coordinator_logged_in'] = True
                     saveActivityLogs(user=user, action='LOGIN', request=request, description='Login admin/coordinator')
-                    return JsonResponse({'redirect_url': '/coordinator/mainDashboard'})
+                    return JsonResponse({'redirect_url': '/coordinator/dashboard'})
             else:
                 return JsonResponse({'error': 'You do not have the necessary permissions to access this site.'})
         else:

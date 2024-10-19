@@ -4,18 +4,15 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
-    # path('', views.home, name='home'),
-    # path('login', views.userLoginFunction, name='login'),
+    # path('studentManagement', views.studentManagement, name='studentManagement'),
     path('register/', views.register, name='register'),
     path('profile', views.profile, name='profile'),
     path('logout', views.logoutView, name='logout'),
-    path('dashboard', views.dashboard, name='dashboard'),
     path('content/', views.postContent, name='content'),
     path('student-logs/<int:id>/', views.studentInformation, name='student-logs'),
     # 
     path('changePass', views.changePass, name='changePass'),
-    path('mainDashboard', views.mainDashboard, name='mainDashboard'),
-    # path('studentManagement', views.studentManagement, name='studentManagement'),
+    path('dashboard', views.mainDashboard, name='dashboard'),
     path('approve-student-list', views.getAllApproveStudents, name='approve-student-list'),
     path('pending-student-list', views.getAllPendingStudents, name='pending-student-list'),
     path('reject-student-list', views.getAllRejectStudents, name='reject-student-list'),
