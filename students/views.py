@@ -6,8 +6,8 @@ from django.conf import settings
 from django.utils import timezone
 from django.contrib import messages
 from django.core.mail import send_mail
+from datetime import datetime, timedelta
 from django.shortcuts import render, redirect
-from datetime import datetime, timedelta, time
 from django.shortcuts import get_object_or_404
 from django.utils.crypto import get_random_string
 from django.template.loader import render_to_string
@@ -16,10 +16,10 @@ from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.cache import cache_control
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.hashers import check_password, make_password
 from app.models import TableAnnouncement, TableRequirements, TableContent
-from django.http import HttpResponse, HttpResponseRedirect, HttpResponseForbidden
 from students.models import DataTableStudents, TimeLog, Schedule, TableSubmittedReport, TableSubmittedRequirement, PendingApplication, ApprovedDocument, ReturnToRevisionDocument, LunchLog, Notification
 from students.forms import ChangePasswordForm, StudentProfileForm, ScheduleSettingForm, ProgressReportForm, SubmittedRequirement, PendingStudentRegistrationForm, TimeLogForm, ResetPasswordForm, LunchLogForm
 
@@ -53,8 +53,7 @@ def studentDashboard(request) -> HttpResponse:
 def welcomeDashboard(request) -> HttpResponse:
     # Check if the user is NOT a staff or a superuser
     if request.user.is_staff or request.user.is_superuser:
-        return render(request, 'main/404.html', status=403)
-    
+        return render(request, 'main/404.html', status=403)  
     # Proceed if the user is a student
     user = request.user
     student = get_object_or_404(DataTableStudents, user=user)
@@ -177,12 +176,10 @@ def typeTheDetailsProgressReportPdf(request):
     notifications = Notification.objects.filter(student=student, is_read=False)
     unread_notifications_count = notifications.count()
     full_name = f"{firstName} {middleName} {lastName}".strip()
-
     # Calculate total work hours for each day in the current week
     current_date = timezone.now().date()
     week_start = current_date - timedelta(days=current_date.weekday())
     week_end = week_start + timedelta(days=6)
-
     work_hours_per_day = {
         'monday': 0,
         'tuesday': 0,
@@ -190,10 +187,8 @@ def typeTheDetailsProgressReportPdf(request):
         'thursday': 0,
         'friday': 0,
     }
-
     # Retrieve time logs for the current week for the student
     time_logs = TimeLog.objects.filter(student=student, timestamp__date__range=[week_start, week_end]).order_by('timestamp')
-
     # Calculate work hours per day from the time logs
     for i in range(0, len(time_logs) - 1, 2):
         day = time_logs[i].timestamp.weekday()
@@ -209,7 +204,6 @@ def typeTheDetailsProgressReportPdf(request):
                 work_hours_per_day['thursday'] += work_duration
             elif day == 4:  # Friday
                 work_hours_per_day['friday'] += work_duration
-
     if request.method == 'POST':
         form = ProgressReportForm(request.POST)
         if form.is_valid():
@@ -232,53 +226,43 @@ def typeTheDetailsProgressReportPdf(request):
                 'department_division': (250, 290),
                 'total_hours': (506, 652)
             }
-
             # Insert the student details and other values into the PDF
             page.insert_text(coordinates['name_field'], form.cleaned_data['student_name'], fontsize=12, color=(0, 0, 0))
-
             # Draw Internship Classification
             if form.cleaned_data['internship_classification'] == 'local':
                 page.insert_text(coordinates['classification_local'], '✓', fontsize=45, color=(0, 0, 0))
             elif form.cleaned_data['internship_classification'] == 'international':
                 page.insert_text(coordinates['classification_international'], '✓', fontsize=45, color=(0, 0, 0))
-
             # Draw Local Condition
             if form.cleaned_data['local_condition'] == 'inCampus':
                 page.insert_text(coordinates['classification_in_campus'], '✓', fontsize=45, color=(0, 0, 0))
             elif form.cleaned_data['local_condition'] == 'offCampus':
                 page.insert_text(coordinates['classification_off_campus'], '✓', fontsize=45, color=(0, 0, 0))
-
             # Draw Modality
             if form.cleaned_data['internship_modality'] == 'actual':
                 page.insert_text(coordinates['modality_actual'], '✓', fontsize=45, color=(0, 0, 0))
             elif form.cleaned_data['internship_modality'] == 'virtual':
                 page.insert_text(coordinates['modality_virtual'], '✓', fontsize=45, color=(0, 0, 0))
-
             # Draw Virtual Conditions
             if form.cleaned_data['virtual_conditions'] == 'wfh':
                 page.insert_text(coordinates['virtual_wfh'], '✓', fontsize=45, color=(0, 0, 0))
             elif form.cleaned_data['virtual_conditions'] == 'under':
                 page.insert_text(coordinates['virtual_alternative'], '✓', fontsize=45, color=(0, 0, 0))
-
             # Fill other fields on the PDF
             page.insert_text(coordinates['hte_name'], form.cleaned_data['hte_name'], fontsize=12, color=(0, 0, 0))
             page.insert_text(coordinates['hte_address'], form.cleaned_data['hte_address'], fontsize=12, color=(0, 0, 0))
             page.insert_text(coordinates['department_division'], form.cleaned_data['department_division'], fontsize=12, color=(0, 0, 0))
             page.insert_text(coordinates['intern_name'], form.cleaned_data['student_name'], fontsize=12, color=(0, 0, 0))
-
             # Insert the total work hours into the PDF
             total_work_hours = sum(work_hours_per_day.values())
             page.insert_text(coordinates['total_hours'], str(total_work_hours), fontsize=12, color=(0, 0, 0))
-
             buffer = BytesIO()
             pdf_document.save(buffer)
             pdf_document.close()
             buffer.seek(0)
-
             if not buffer.getvalue():
                 messages.error(request, "PDF generation failed.")
                 return redirect('students:progress-report')
-
             action = request.POST.get('action')
             if action == 'preview_report':
                 response = HttpResponse(buffer, content_type='application/pdf')
@@ -292,10 +276,8 @@ def typeTheDetailsProgressReportPdf(request):
 
                 messages.success(request, "Report submitted successfully!")
                 return redirect('students:progress-report')
-
     else:
         form = ProgressReportForm()
-
     return render(
         request, 
         'students/progress-report.html', 
@@ -324,25 +306,21 @@ def exportTimeLogToPDF(request):
     lunch_logs = LunchLog.objects.filter(student=student).order_by('timestamp')
     buffer = BytesIO()
     pdf_document = fitz.open(os.path.join(settings.PDF_ROOT, 'INTERNSHIP-TIME-SHEET.pdf'))
-    page = pdf_document[0]
-    
+    page = pdf_document[0]  
     y_positions = {
         'Monday': 100,
         'Tuesday': 120,
         'Wednesday': 140,
         'Thursday': 160,
         'Friday': 180
-    }
-    
+    }  
     total_hours_for_week = timedelta()
     last_time_in = None
-
     for log in time_logs:
         local_time = timezone.localtime(log.timestamp)
         time_formatted = local_time.strftime('%I:%M %p')
         date = log.timestamp.strftime('%Y-%m-%d')
-        day_of_week = local_time.strftime('%A')
-        
+        day_of_week = local_time.strftime('%A')    
         if log.action == 'IN':
             last_time_in = local_time
         elif log.action == 'OUT' and last_time_in:
@@ -350,30 +328,23 @@ def exportTimeLogToPDF(request):
             total_hours_for_week += duration
             hours = duration.seconds // 3600
             minutes = (duration.seconds % 3600) // 60
-            total_duration_str = f"{hours}h {minutes}m" if minutes > 0 else f"{hours}h"
-            
+            total_duration_str = f"{hours}h {minutes}m" if minutes > 0 else f"{hours}h"        
             if day_of_week in y_positions:
-                y_position = y_positions[day_of_week]
-                
+                y_position = y_positions[day_of_week]               
                 page.insert_text((105, y_position + + 225), date, fontsize=9, color=(0, 0, 0))
                 page.insert_text((160, y_position + 220), last_time_in.strftime('%I:%M %p'), fontsize=9, color=(0, 0, 0))
                 page.insert_text((385, y_position + 220), time_formatted, fontsize=9, color=(0, 0, 0))
                 page.insert_text((477, y_position + 220), total_duration_str, fontsize=9, color=(0, 0, 0))
-                
                 lunch_in_log = lunch_logs.filter(timestamp__gt=last_time_in, timestamp__lt=local_time, action='LUNCH IN').first()
                 lunch_out_log = lunch_logs.filter(timestamp__gt=last_time_in, timestamp__lt=local_time, action='LUNCH OUT').first()
-
                 if lunch_out_log:
                     lunch_out_time = timezone.localtime(lunch_out_log.timestamp).strftime('%I:%M %p')
                     page.insert_text((250, y_position + 220), lunch_out_time, fontsize=9, color=(0, 0, 0))
-
                 if lunch_in_log:
                     lunch_in_time = timezone.localtime(lunch_in_log.timestamp).strftime('%I:%M %p')
                     page.insert_text((320, y_position + 220), lunch_in_time, fontsize=9, color=(0, 0, 0))
-
                 y_positions[day_of_week] += 20
                 last_time_in = None
-
     start_month = 4
     end_month = 6
     current_year = datetime.now().year
@@ -382,17 +353,14 @@ def exportTimeLogToPDF(request):
     fullname = f"{student.Firstname} {student.Lastname}"
     page.insert_text((140, 245), fullname, fontsize=12, color=(0, 0, 0))
     page.insert_text((170, 205), quarter, fontsize=12, color=(0, 0, 0))
-    page.insert_text((429, 205), months, fontsize=12, color=(0, 0, 0))
-    
+    page.insert_text((429, 205), months, fontsize=12, color=(0, 0, 0)) 
     total_week_hours = total_hours_for_week.seconds // 3600
     total_week_minutes = (total_hours_for_week.seconds % 3600) // 60
     total_week_str = f"{total_week_hours}h {total_week_minutes}m" if total_week_minutes > 0 else f"{total_week_hours}h"
     page.insert_text((462, y_positions['Friday'] + 395), total_week_str, fontsize=12, color=(0, 0, 0))
-
     pdf_document.save(buffer)
     pdf_document.close()
-    buffer.seek(0)
-    
+    buffer.seek(0)  
     response = HttpResponse(buffer, content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="{fullname} - TimeSheet.pdf"'
     return response
@@ -403,7 +371,6 @@ def log_lunch(request):
     user = request.user
     student = get_object_or_404(DataTableStudents, user=user)
     requirements_submitted = ApprovedDocument.objects.filter(student=student).exists()
-
     if not requirements_submitted:
         message = 'Please wait for the admin to approve your document before you can time in and time out.'
         return render(request, 'students/timeIn-timeOut.html', {
@@ -411,7 +378,6 @@ def log_lunch(request):
             'forms': LunchLogForm(),
             'requirements_submitted': requirements_submitted,
         })
-
     if request.method == 'POST':
         forms = LunchLogForm(request.POST, request.FILES)
         if forms.is_valid():
@@ -419,8 +385,7 @@ def log_lunch(request):
             lunch_log.student = student
             lunch_log.timestamp = timezone.now()
             lunch_log.save()
-            return redirect('students:clockin')  # Redirect to refresh logs
-
+            return redirect('students:clockin')
     return render(request, 'students/timeIn-timeOut.html', {'forms': LunchLogForm()})
 
 @login_required
@@ -432,7 +397,6 @@ def ClockInAndOut(request):
     requirements_submitted = ApprovedDocument.objects.filter(student=student).exists()
     notifications = Notification.objects.filter(student=student, is_read=False)
     unread_notifications_count = notifications.count()
-
     if not requirements_submitted:
         message = 'Please wait for the admin to approve your document before you can time in and time out.'
         return render(request, 'students/timeIn-timeOut.html', {
@@ -445,7 +409,6 @@ def ClockInAndOut(request):
             'notifications': notifications,
             'unread_notifications_count': unread_notifications_count,
         })
-
     if request.method == 'POST':
         form = TimeLogForm(request.POST, request.FILES)
         if form.is_valid():
@@ -453,21 +416,16 @@ def ClockInAndOut(request):
             time_log.student = student
             time_log.timestamp = timezone.now()
             time_log.save()
-
             # Redirect to refresh logs and also set last_action for the UI
             return redirect('students:clockin')
-
     # Get the last action (can be retrieved from the last time_log entry)
     last_action = TimeLog.objects.filter(student=student).order_by('-timestamp').first()
     last_action = last_action.action if last_action else None
-
     time_logs = TimeLog.objects.filter(student=student).order_by('timestamp')
     lunch_logs = LunchLog.objects.filter(student=student).order_by('timestamp')
-
     # Calculate total work time in seconds, considering both time logs and lunch breaks
     total_work_time_seconds = 0
     lunch_break_time_seconds = 0
-
     # Calculate total work hours from TimeLog entries
     for i in range(0, len(time_logs) - 1, 2):  # Iterate through time logs in pairs (Time In/Out)
         time_in = time_logs[i]
@@ -476,7 +434,6 @@ def ClockInAndOut(request):
             if time_out.timestamp > time_in.timestamp:  # Ensure time out is after time in
                 time_diff = (time_out.timestamp - time_in.timestamp).total_seconds()
                 total_work_time_seconds += time_diff
-
     # Calculate lunch break time from LunchLog entries
     for i in range(0, len(lunch_logs) - 1, 2):  # Iterate through lunch logs in pairs (Lunch In/Out)
         lunch_in = lunch_logs[i]
@@ -485,36 +442,26 @@ def ClockInAndOut(request):
             if lunch_out.timestamp > lunch_in.timestamp:  # Ensure lunch out is after lunch in
                 lunch_diff = (lunch_out.timestamp - lunch_in.timestamp).total_seconds()
                 lunch_break_time_seconds += lunch_diff
-
     # Adjust the total work time by subtracting the lunch break time
     adjusted_total_work_time_seconds = total_work_time_seconds - lunch_break_time_seconds
-
     # Convert adjusted total work time to hours and minutes
     total_work_hours, total_work_minutes = divmod(int(adjusted_total_work_time_seconds), 3600)
     total_work_minutes = (total_work_minutes // 60) % 60  # Correctly convert to minutes
-
     # Format the display string for total work time
     total_work_time_display = f"{total_work_hours} hours, {total_work_minutes} minutes"
-
     # Calculate required hours
     required_hours_seconds = student.get_required_hours() * 3600 if student.get_required_hours() is not None else 0
     remaining_hours_seconds = max(0, required_hours_seconds - adjusted_total_work_time_seconds)
-
     # Convert remaining time to hours and minutes
     remaining_hours, remaining_minutes = divmod(int(remaining_hours_seconds), 3600)
     remaining_minutes = (remaining_minutes // 60) % 60  # Correctly convert to minutes
-
-    # Format the display for remaining hours
     remaining_hours_display = f"{remaining_hours} hours, {remaining_minutes} minutes"
-
-    # Prepare paired logs for rendering
     paired_logs = []
     for i in range(0, len(time_logs), 2):
         if i + 1 < len(time_logs):
             paired_logs.append((time_logs[i], time_logs[i + 1]))
         else:
             paired_logs.append((time_logs[i], None))
-
     return render(request, 'students/timeIn-timeOut.html', {
         'required_hours_seconds': required_hours_seconds,  # Placeholder, adjust as needed
         'remaining_hours_seconds': remaining_hours_seconds,  # Placeholder, adjust as needed
@@ -551,7 +498,6 @@ def studentProfile(request):
             return redirect('students:dashboard')
     else:
         form = StudentProfileForm(instance=student)
-
     return render(request, 'students/student-profile.html', {
         'form': form,
         'firstName': student.Firstname,
@@ -671,8 +617,7 @@ def studentRegister(request):
                     PendingCourse=pending_registration_form.cleaned_data['PendingCourse'],
                     PendingYear=pending_registration_form.cleaned_data['PendingYear'],
                 )
-                pending_registration.save()
-                
+                pending_registration.save()      
                 subject = 'Registration Pending Approval'
                 message = render_to_string('students/registration_email.txt', {
                     'first_name': pending_registration.PendingFirstname,
@@ -680,15 +625,8 @@ def studentRegister(request):
                     'email': pending_registration.PendingEmail,
                     'username': pending_registration.PendingUsername,
                 })
-
-                # Padala ang email
                 recipient_list = [pending_registration.PendingEmail]
                 send_mail(subject, message, settings.EMAIL_HOST_USER, recipient_list, fail_silently=False)
-                
-                # Padala ang SMS notification
-                # sms_message = f"Hello {pending_registration.PendingFirstname}, your registration is pending approval."
-                # send_sms(phone_number, sms_message)
-
                 messages.success(request, "Your registration is pending approval by the admin.")
                 return redirect('students:register')
     else:
@@ -708,7 +646,6 @@ def requirements(request):
     student = get_object_or_404(DataTableStudents, user=user)
     notifications = Notification.objects.filter(student=student, is_read=False)
     unread_notifications_count = notifications.count()
-
     if request.method == 'POST':
         form = SubmittedRequirement(request.POST, request.FILES, student=student)
         if form.is_valid():
@@ -716,9 +653,7 @@ def requirements(request):
             submission.student = student
             submission.save()
             return HttpResponseRedirect(reverse('students:requirements'))
-
     form = SubmittedRequirement(student=student)
-
     required_docs = [
         'Application Form', 'Parent Consent', 'Notice of Acceptance / MOA',
         'Endorsement Letter', 'Internship Contract Agreement', 'Medical Certificate',
@@ -726,17 +661,12 @@ def requirements(request):
         'Internship Exit Survey', 'Student Performance Evaluation',
         'Supporting Document of Time Sheet', 'Supporting Document of Progress Report'
     ]
-
-    # Get all submitted documents that are not rejected
     submitted_docs = TableSubmittedRequirement.objects.filter(
         student=student
     ).exclude(
         id__in=ApprovedDocument.objects.filter(student=student).values_list('id', flat=True)
     ).values_list('nameOfDocs', flat=True)
-
     requirements = TableRequirements.objects.all().order_by('id')
-
-    # Filter out already approved documents from the required documents list
     approved_docs = ApprovedDocument.objects.filter(student=student).values_list('nameOfDocs', flat=True)
     remaining_docs = [doc for doc in required_docs if doc not in submitted_docs and doc not in approved_docs]
 
@@ -754,47 +684,36 @@ def requirements(request):
 @csrf_protect
 def studentLogin(request):
     if request.user.is_authenticated:
-        return redirect('students:main-page')
-    
+        return redirect('students:main-page')  
     if request.method == 'POST':
         username = request.POST.get('Username')
         password = request.POST.get('Password')
-
         # Check if the user has a pending application
         pending_app = PendingApplication.objects.filter(PendingUsername=username, StatusApplication="PendingApplication").first()
         if pending_app:
             messages.warning(request, 'Your account is not yet approved. Please wait for admin approval.')
             return render(request, 'students/login.html')
-
         # Authenticate the user
-        user = authenticate(request, username=username, password=password)
-        
+        user = authenticate(request, username=username, password=password)   
         if user:
             try:
-                # Get the student linked to the authenticated user
                 student = DataTableStudents.objects.get(user=user)
-
-                # Check the student's application status
                 if student.status == 'RejectedApplication':
                     messages.error(request, 'Your account has been rejected. Please contact the admin for further details.')
                     return render(request, 'students/login.html')
                 elif student.archivedStudents == 'Archive':
                     messages.error(request, 'Your account has been locked due to inactivity. Please contact your admin.')
                     return render(request, 'students/login.html')
-                
-                # Log in the user if they are active
                 if user.is_active:
                     login(request, user)
                     request.session['is_logged_in'] = True
                     return redirect('students:main-page')
                 else:
                     messages.error(request, 'Your account is disabled.')
-            
             except DataTableStudents.DoesNotExist:
                 messages.error(request, 'Invalid username or password.')
         else:
             messages.error(request, 'Invalid username or password.')
-
     return render(request, 'students/login.html')
 
 def studentLogout(request) -> HttpResponseRedirect:
@@ -839,7 +758,6 @@ def scheduleSettings(request):
             return redirect('students:schedule')
     else:
         form = ScheduleSettingForm()
-
     return render(request, 'students/settings.html', {
         'form': form,
         'firstName' : firstName,
