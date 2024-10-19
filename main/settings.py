@@ -24,19 +24,16 @@ SINCH_SERVICE_PLAN_ID = '0fd6ad91886e4696a54a41882e443d0a'
 SINCH_API_TOKEN = '54aed4eaea094719832e6b583029905f'
 
 INSTALLED_APPS = [
+    'app.apps.AppConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'rest_framework',
-    'corsheaders',
-    'app.apps.AppConfig',
     'superapp.apps.SuperappConfig',
     'students.apps.StudentsConfig',
     'homepage.apps.HomepageConfig',
-    'storages',
     'whitenoise.runserver_nostatic',
 ]
 
@@ -64,6 +61,8 @@ MIDDLEWARE = [
 CORS_ALLOWED_ORIGINS = [
     'http://54.174.99.72',
 ]
+
+SECURE_CROSS_ORIGIN_OPENER_POLICY = None
 
 ROOT_URLCONF = 'main.urls'
 
