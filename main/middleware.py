@@ -49,11 +49,6 @@ class CustomMiddleware:
         # Handle the response and log 404 errors if any
         response = self.get_response(request)
 
-        # Set Cross-Origin headers for security
-        response['Cross-Origin-Opener-Policy'] = 'unsafe-none'
-        response['Cross-Origin-Opener-Policy'] = 'same-origin'
-        response['Cross-Origin-Embedder-Policy'] = 'require-corp'
-
         if response.status_code == 404:
             logger.error(f"Page not found: {request.path}")
             return render(request, 'main/404.html', status=404)
@@ -62,6 +57,7 @@ class CustomMiddleware:
 
 class CrossOriginOpenerPolicyMiddleware(MiddlewareMixin):
     def process_response(self, request, response):
+        response['Cross-Origin-Opener-Policy'] = 'unsafe-none'
         response['Cross-Origin-Opener-Policy'] = 'same-origin'
         response['Cross-Origin-Embedder-Policy'] = 'require-corp'
         return response
