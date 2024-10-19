@@ -32,9 +32,15 @@ MANAGEMENT_STUDENT = 'superapp/manage-student.html'
 LIST_ANNOUNCEMENT = 'superapp/announcement.html'
 POST_ANNOUNCEMENT_PAGE = 'superapp/add-announcement.html'
 
+@never_cache
+@login_required
+@csrf_exempt
 def superHome(request) -> Union[HttpResponseRedirect, HttpResponsePermanentRedirect, HttpResponse]:        
     return render(request, HOME_URL_PATH)
 
+@never_cache
+@login_required
+@csrf_exempt
 def superAdminDashboard(request) -> HttpResponse:
     return render(request, DASHBOARD)
 
@@ -81,6 +87,9 @@ def mainDashboard(request):
         }
     )
 
+@never_cache
+@csrf_exempt
+@cache_control(no_cache=True, must_revalidate=True, no_store=True, name='dispatch')
 def superAdminLogin(request):
     if request.method == 'POST':
         username = request.POST.get('username')
@@ -97,6 +106,9 @@ def superAdminLogin(request):
             messages.error(request, 'Invalid username or password.')
     return render(request, 'superapp/base.html')
 
+@never_cache
+@csrf_exempt
+@cache_control(no_cache=True, must_revalidate=True, no_store=True, name='dispatch')
 def loggingOut(request) -> HttpResponseRedirect:
     user = request.user
     logout(request)
@@ -109,6 +121,9 @@ def loggingOut(request) -> HttpResponseRedirect:
         )
     return redirect('superapp:superHome')
 
+@never_cache
+@csrf_exempt
+@cache_control(no_cache=True, must_revalidate=True, no_store=True, name='dispatch')
 def studentManagement(request):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
@@ -168,12 +183,18 @@ def studentManagement(request):
         }
     )
 
+@never_cache
+@csrf_exempt
+@cache_control(no_cache=True, must_revalidate=True, no_store=True, name='dispatch')
 def clean_filename(filename):
     """Remove timestamp from the filename."""
     if filename:
         return re.sub(r'^\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}_', '', filename)
     return filename
 
+@never_cache
+@csrf_exempt
+@cache_control(no_cache=True, must_revalidate=True, no_store=True, name='dispatch')
 def viewStudent(request, id):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
@@ -234,6 +255,9 @@ def viewStudent(request, id):
     }
     return render(request, 'superapp/TimeLogs.html', context)
 
+@never_cache
+@csrf_exempt
+@cache_control(no_cache=True, must_revalidate=True, no_store=True, name='dispatch')
 def getAllTheUserAccount(request):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)    
@@ -265,6 +289,9 @@ def getAllTheUserAccount(request):
         'lastName': lastName
     })
 
+@never_cache
+@csrf_exempt
+@cache_control(no_cache=True, must_revalidate=True, no_store=True, name='dispatch')
 def viewPendingApplication(request, id):
     user = request.user
     try:
@@ -286,6 +313,9 @@ def viewPendingApplication(request, id):
         }
     )
 
+@never_cache
+@csrf_exempt
+@cache_control(no_cache=True, must_revalidate=True, no_store=True, name='dispatch')
 def getActivityLogs(request):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
@@ -328,6 +358,9 @@ def getActivityLogs(request):
         'total_pages': total_pages
     })
 
+@never_cache
+@csrf_exempt
+@cache_control(no_cache=True, must_revalidate=True, no_store=True, name='dispatch')
 def getAllTheListAnnouncement(request):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
@@ -357,6 +390,9 @@ def getAllTheListAnnouncement(request):
         'per_page': per_page,
     })
 
+@never_cache
+@csrf_exempt
+@cache_control(no_cache=True, must_revalidate=True, no_store=True, name='dispatch')
 def postAnnouncement(request):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
@@ -378,6 +414,9 @@ def postAnnouncement(request):
         }
     )
 
+@never_cache
+@csrf_exempt
+@cache_control(no_cache=True, must_revalidate=True, no_store=True, name='dispatch')
 def editAnnouncement(request, id):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
@@ -399,6 +438,9 @@ def editAnnouncement(request, id):
         'announcement': announcement,
     })
 
+@never_cache
+@csrf_exempt
+@cache_control(no_cache=True, must_revalidate=True, no_store=True, name='dispatch')
 def listOfContent(request):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
@@ -427,6 +469,9 @@ def listOfContent(request):
         'lastName': lastName
     })
 
+@never_cache
+@csrf_exempt
+@cache_control(no_cache=True, must_revalidate=True, no_store=True, name='dispatch')
 def postContent(request):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
@@ -448,6 +493,9 @@ def postContent(request):
         }
     )
 
+@never_cache
+@csrf_exempt
+@cache_control(no_cache=True, must_revalidate=True, no_store=True, name='dispatch')
 def editContent(request, id):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
@@ -469,6 +517,9 @@ def editContent(request, id):
         'content': content,
     })
 
+@never_cache
+@csrf_exempt
+@cache_control(no_cache=True, must_revalidate=True, no_store=True, name='dispatch')
 def deleteContent(request, id):
     user = request.user
     content = get_object_or_404(TableContent, id=id)
@@ -478,6 +529,9 @@ def deleteContent(request, id):
         return redirect('superapp:all-content')
     return render(request, 'superapp/allContentPage.html', {'content': content})
 
+@never_cache
+@csrf_exempt
+@cache_control(no_cache=True, must_revalidate=True, no_store=True, name='dispatch')
 def deleteAnnouncement(request, id):
     user = request.user
     announcement = get_object_or_404(TableAnnouncement, id=id)
@@ -494,6 +548,9 @@ def deleteAnnouncement(request, id):
         }
     )
 
+@never_cache
+@csrf_exempt
+@cache_control(no_cache=True, must_revalidate=True, no_store=True, name='dispatch')
 def deleteRequirementDocuments(request, id):
     user = request.user
     docs = get_object_or_404(TableRequirements, id=id)
@@ -503,6 +560,9 @@ def deleteRequirementDocuments(request, id):
         return redirect('superapp:set_rendering_hours')
     return render(request, 'superap/settings.html', {'docs': docs})
 
+@never_cache
+@csrf_exempt
+@cache_control(no_cache=True, must_revalidate=True, no_store=True, name='dispatch')
 def editUsers(request, id): 
     toEditDetails = admin = get_object_or_404(CustomUser, pk=id)
     user = request.user
@@ -528,6 +588,9 @@ def editUsers(request, id):
         'lastName': lastName
     })
 
+@never_cache
+@csrf_exempt
+@cache_control(no_cache=True, must_revalidate=True, no_store=True, name='dispatch')
 def editUserProfile(request):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
@@ -548,6 +611,9 @@ def editUserProfile(request):
         'lastName': lastName
     })
 
+@never_cache
+@csrf_exempt
+@cache_control(no_cache=True, must_revalidate=True, no_store=True, name='dispatch')
 def addUsers(request):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
@@ -576,6 +642,9 @@ def addUsers(request):
         }
     )
 
+@never_cache
+@csrf_exempt
+@cache_control(no_cache=True, must_revalidate=True, no_store=True, name='dispatch')
 def createUserAdmin(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
@@ -594,7 +663,10 @@ def createUserAdmin(request):
         form = CustomUserCreationForm()
     return render(request, 'superapp/userCreation.html', {'form': form})
 
+@never_cache
+@csrf_exempt
 @login_required
+@cache_control(no_cache=True, must_revalidate=True, no_store=True, name='dispatch')
 def set_rendering_hours(request):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
@@ -646,6 +718,9 @@ def set_rendering_hours(request):
         'upload_form': upload_form
     })
 
+@never_cache
+@csrf_exempt
+@cache_control(no_cache=True, must_revalidate=True, no_store=True, name='dispatch')
 def editRenderHours(request):
     user = request.user
     if request.method == 'POST':

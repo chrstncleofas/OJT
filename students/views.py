@@ -12,19 +12,20 @@ from django.shortcuts import get_object_or_404
 from django.utils.crypto import get_random_string
 from django.template.loader import render_to_string
 from django.views.decorators.cache import never_cache
-from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.cache import cache_control
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth import authenticate, login, logout
+from django.views.decorators.csrf import csrf_protect, csrf_exempt
 from django.contrib.auth.hashers import check_password, make_password
 from app.models import TableAnnouncement, TableRequirements, TableContent
 from students.models import DataTableStudents, TimeLog, Schedule, TableSubmittedReport, TableSubmittedRequirement, PendingApplication, ApprovedDocument, ReturnToRevisionDocument, LunchLog, Notification
 from students.forms import ChangePasswordForm, StudentProfileForm, ScheduleSettingForm, ProgressReportForm, SubmittedRequirement, PendingStudentRegistrationForm, TimeLogForm, ResetPasswordForm, LunchLogForm
 
 @never_cache
-@csrf_protect
+@login_required
+@csrf_exempt
 def studentHome(request) -> HttpResponse:
     images = TableContent.objects.all().order_by('id')
     return render(
@@ -75,6 +76,9 @@ def welcomeDashboard(request) -> HttpResponse:
         }
     )
 
+@never_cache
+@login_required
+@csrf_exempt
 def getAnnouncement(request):
     enabledAnnouncement = TableAnnouncement.objects.filter(Status='enable')
     return render(
@@ -84,6 +88,9 @@ def getAnnouncement(request):
         }
     )
 
+@never_cache
+@login_required
+@csrf_exempt
 def getAnnouncementNotLogin(request):
     enabledAnnouncement = TableAnnouncement.objects.filter(Status='enable')
     return render(
@@ -93,6 +100,9 @@ def getAnnouncementNotLogin(request):
         }
     )
 
+@never_cache
+@login_required
+@csrf_exempt
 def aboutPage(request):
     contents = TableContent.objects.all().order_by('id')
     return render(
@@ -102,6 +112,9 @@ def aboutPage(request):
         }
     )
 
+@never_cache
+@login_required
+@csrf_exempt
 def aboutLogin(request):
     contents = TableContent.objects.all().order_by('id')
     return render(
@@ -113,6 +126,7 @@ def aboutLogin(request):
 
 @never_cache
 @login_required
+@csrf_exempt
 def mainPageForDashboard(request) -> HttpResponse:
     user = request.user
     student = get_object_or_404(DataTableStudents, user=user)
@@ -142,6 +156,9 @@ def mainPageForDashboard(request) -> HttpResponse:
         }
     )
 
+@never_cache
+@login_required
+@csrf_exempt
 def mark_notification_as_read(request, id):
     if request.method == 'POST':
         notification = get_object_or_404(Notification, id=id)
@@ -150,6 +167,9 @@ def mark_notification_as_read(request, id):
         return redirect('students:dashboard')
     return None
 
+@never_cache
+@login_required
+@csrf_exempt
 def draw_wrapped_text(page, text, start_pos, max_width, fontsize=12, fontname="helv"):
     """
     Draws wrapped text within the specified width on a given PDF page.
@@ -165,8 +185,9 @@ def draw_wrapped_text(page, text, start_pos, max_width, fontsize=12, fontname="h
     rect = fitz.Rect(x, y, x + max_width, y + 1000)
     page.insert_textbox(rect, text, fontsize=fontsize, fontname=fontname, align=0)
 
-@login_required
 @never_cache
+@login_required
+@csrf_exempt
 def typeTheDetailsProgressReportPdf(request):
     user = request.user
     student = get_object_or_404(DataTableStudents, user=user)
@@ -294,8 +315,9 @@ def typeTheDetailsProgressReportPdf(request):
         }
     )
 
-@login_required
 @never_cache
+@login_required
+@csrf_exempt
 def exportTimeLogToPDF(request):
     user = request.user
     student = get_object_or_404(DataTableStudents, user=user)
@@ -365,8 +387,9 @@ def exportTimeLogToPDF(request):
     response['Content-Disposition'] = f'attachment; filename="{fullname} - TimeSheet.pdf"'
     return response
 
-@login_required
 @never_cache
+@login_required
+@csrf_exempt
 def log_lunch(request):
     user = request.user
     student = get_object_or_404(DataTableStudents, user=user)
@@ -388,8 +411,9 @@ def log_lunch(request):
             return redirect('students:clockin')
     return render(request, 'students/timeIn-timeOut.html', {'forms': LunchLogForm()})
 
-@login_required
 @never_cache
+@login_required
+@csrf_exempt
 def ClockInAndOut(request):
     user = request.user
     student = get_object_or_404(DataTableStudents, user=user)
@@ -483,8 +507,9 @@ def ClockInAndOut(request):
         'message': message if not requirements_submitted else None,  # Message for unapproved documents
     })
 
-@login_required
 @never_cache
+@login_required
+@csrf_exempt
 def studentProfile(request):
     user = request.user
     student = get_object_or_404(DataTableStudents, user=user)
@@ -510,8 +535,9 @@ def studentProfile(request):
         'unread_notifications_count': unread_notifications_count,
     })
 
-@login_required
 @never_cache
+@login_required
+@csrf_exempt
 def changePassword(request):
     user = request.user
     student = get_object_or_404(DataTableStudents, user=user)
@@ -547,6 +573,7 @@ def changePassword(request):
     )
 
 @never_cache
+@csrf_exempt
 def forgot_password(request):
     if request.method == 'POST':
         email = request.POST.get('email')
@@ -570,6 +597,7 @@ def forgot_password(request):
     return render(request, 'students/forgot_password.html')
 
 @never_cache
+@csrf_exempt
 def reset_password(request, token):
     user = get_object_or_404(DataTableStudents, reset_token=token).user
     if request.method == 'POST':
@@ -588,6 +616,7 @@ def reset_password(request, token):
     return render(request, 'students/reset_password.html', {'form': form, 'token': token})
 
 @never_cache
+@csrf_exempt
 def studentRegister(request):
     if request.method == 'POST':
         pending_registration_form = PendingStudentRegistrationForm(request.POST)
@@ -639,8 +668,9 @@ def studentRegister(request):
         }
     )
 
-@login_required
 @never_cache
+@login_required
+@csrf_exempt
 def requirements(request):
     user = request.user
     student = get_object_or_404(DataTableStudents, user=user)
@@ -681,6 +711,8 @@ def requirements(request):
     })
 
 @never_cache
+@login_required
+@csrf_exempt
 @csrf_protect
 def studentLogin(request):
     if request.user.is_authenticated:
@@ -716,14 +748,17 @@ def studentLogin(request):
             messages.error(request, 'Invalid username or password.')
     return render(request, 'students/login.html')
 
+@never_cache
+@csrf_exempt
 def studentLogout(request) -> HttpResponseRedirect:
     logout(request)
     if 'is_student_logged_in' in request.session:
         del request.session['is_student_logged_in']
     return redirect('homepage:login-page')
 
-@login_required
 @never_cache
+@login_required
+@csrf_exempt
 def scheduleSettings(request):
     user = request.user
     student = get_object_or_404(DataTableStudents, user=user)
@@ -766,8 +801,9 @@ def scheduleSettings(request):
         'unread_notifications_count': unread_notifications_count,
     })
 
-@login_required
 @never_cache
+@login_required
+@csrf_exempt
 def getAllSubmittedDocuments(request):
     user = request.user
     student = get_object_or_404(DataTableStudents, user=user)

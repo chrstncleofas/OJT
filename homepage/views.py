@@ -12,11 +12,12 @@ from django.utils.crypto import get_random_string
 from django.contrib.auth import authenticate, login
 from django.template.loader import render_to_string
 from django.views.decorators.cache import never_cache
+from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.hashers import make_password
 from django.views.decorators.csrf import csrf_protect
+from app.models import TableContent, TableAnnouncement
 from django.views.decorators.cache import cache_control
 from students.models import PendingApplication, DataTableStudents
-from app.models import TableContent, TableAnnouncement
 from students.forms import PendingStudentRegistrationForm, ResetPasswordForm
 
 def redirect_authenticated_user(view_func):
@@ -107,6 +108,8 @@ def coordinatorLogin(request):
     return render(request, 'homepage/home-page.html')
 
 @never_cache
+@csrf_exempt
+@cache_control(no_cache=True, must_revalidate=True, no_store=True, name='dispatch')
 def studentRegister(request):
     if request.method == 'POST':
         pending_registration_form = PendingStudentRegistrationForm(request.POST)
@@ -167,6 +170,8 @@ def studentRegister(request):
     )
 
 @never_cache
+@csrf_exempt
+@cache_control(no_cache=True, must_revalidate=True, no_store=True, name='dispatch')
 def forgot_password(request):
     if request.method == 'POST':
         email = request.POST.get('email')
@@ -189,6 +194,8 @@ def forgot_password(request):
     return render(request, 'homepage/forgot_password.html')
 
 @never_cache
+@csrf_exempt
+@cache_control(no_cache=True, must_revalidate=True, no_store=True, name='dispatch')
 def reset_password(request, token):
     user = get_object_or_404(DataTableStudents, reset_token=token).user
     if request.method == 'POST':

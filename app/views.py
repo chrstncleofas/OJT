@@ -41,9 +41,13 @@ LIST_ANNOUNCEMENT = 'app/list-announcement.html'
 PROFILE = 'app/profile.html'
 CHANGE_PASSWORD = 'app/changePassword.html'
 
+@never_cache
+@login_required
+@csrf_exempt
 def home(request) -> Union[HttpResponseRedirect, HttpResponsePermanentRedirect, HttpResponse]:        
     return render(request, HOME_URL_PATH)
 
+@never_cache
 @login_required
 @csrf_exempt
 def dashboard(request) -> HttpResponse:
@@ -114,8 +118,9 @@ def mainDashboard(request):
         }
     )
 
-@login_required
 @never_cache
+@login_required
+@csrf_exempt
 def getAllApproveStudents(request):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
@@ -171,8 +176,9 @@ def getAllApproveStudents(request):
         return render(request, 'app/approve-list-student.html', context)
     return render(request, 'app/approve-list-student.html', context)
 
-@login_required
 @never_cache
+@login_required
+@csrf_exempt
 def getAllPendingStudents(request):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
@@ -225,8 +231,9 @@ def getAllPendingStudents(request):
         return render(request, 'app/pending-list-student.html', context)
     return render(request, 'app/pending-list-student.html', context)
 
-@login_required
 @never_cache
+@login_required
+@csrf_exempt
 def getAllRejectStudents(request):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
@@ -280,6 +287,9 @@ def getAllRejectStudents(request):
 
     return render(request, 'app/reject-list-student.html', context)
 
+@never_cache
+@login_required
+@csrf_exempt
 def profile(request):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
@@ -300,6 +310,9 @@ def profile(request):
         'lastName': lastName
     })
 
+@never_cache
+@login_required
+@csrf_exempt
 def changePass(request):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
@@ -324,6 +337,9 @@ def changePass(request):
         'lastName': lastName
     })
 
+@never_cache
+@login_required
+@csrf_exempt
 def userLoginFunction(request):
     if request.method == 'POST':
         username = request.POST.get('username')
@@ -357,7 +373,9 @@ def archivedStudent(request, id):
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
 
+@never_cache
 @login_required
+@csrf_exempt
 def getAdminPasswordHash(request):
     return JsonResponse({'password': request.user.password})
 
@@ -372,6 +390,9 @@ def validateAdminPassword(request):
     else:
         return JsonResponse({'status': 'error', 'message': 'Incorrect password'})
 
+@never_cache
+@login_required
+@csrf_exempt
 def approveStudent(request, id):
     user = request.user
     pending_student = get_object_or_404(PendingApplication, id=id)
@@ -412,6 +433,8 @@ def approveStudent(request, id):
     messages.success(request, f"{new_student.Firstname} {new_student.Lastname} has been approved and added to the student list.")
     return redirect('pending-student-list')
 
+@never_cache
+@login_required
 @csrf_exempt
 def rejectStudent(request, id):
     user = request.user
@@ -458,6 +481,9 @@ def rejectStudent(request, id):
 
     return redirect('studentManagement')
 
+@never_cache
+@login_required
+@csrf_exempt
 def return_to_revision(request, id):
     user = request.user
     if request.method == 'POST':
@@ -496,6 +522,9 @@ def return_to_revision(request, id):
             return JsonResponse({'status': 'failed', 'message': str(e)}, status=400)
     return JsonResponse({'status': 'failed', 'message': 'Invalid request method.'}, status=405)
 
+@never_cache
+@login_required
+@csrf_exempt
 def approve_document(request, id):
     user = request.user
     if request.method == 'POST':
@@ -523,6 +552,9 @@ def approve_document(request, id):
             return JsonResponse({'status': 'failed', 'message': str(e)}, status=400)
     return JsonResponse({'status': 'failed', 'message': 'Invalid request method.'}, status=405)
 
+@never_cache
+@login_required
+@csrf_exempt
 def unArchivedStudent(request, id):
     user = request.user
     student = DataTableStudents.objects.get(id=id)
@@ -532,6 +564,8 @@ def unArchivedStudent(request, id):
     messages.success(request, f'{student.Firstname} {student.Lastname} has been remove to archived.')
     return redirect(reverse('studentManagement'))
 
+@never_cache
+@csrf_exempt
 def logoutView(request):
     user = request.user
     if user.is_authenticated:
@@ -546,11 +580,16 @@ def logoutView(request):
         del request.session['is_coordinator_logged_in']
     return redirect('homepage:login-page')
 
+@never_cache
+@csrf_exempt
 def isAdmin(user):
     user_admin = user.is_superuser
     user_staff = user.is_staff
     return user_admin or user_staff
 
+@never_cache
+@login_required
+@csrf_exempt
 def viewPendingApplication(request, id):
     user = request.user
     try:
@@ -572,12 +611,17 @@ def viewPendingApplication(request, id):
         }
     )
 
+@never_cache
+@csrf_exempt
 def clean_filename(filename):
     """Remove timestamp from the filename."""
     if filename:
         return re.sub(r'^\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}_', '', filename)
     return filename
 
+@never_cache
+@login_required
+@csrf_exempt
 def submittedRequirementOfStudents(request, id):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
@@ -605,6 +649,9 @@ def submittedRequirementOfStudents(request, id):
 
     return render(request, 'app/view-submitted-requirement.html', context)
 
+@never_cache
+@login_required
+@csrf_exempt
 def getTheSubmitRequirements(request):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
@@ -635,7 +682,9 @@ def getTheSubmitRequirements(request):
         'lastName': lastName
     })
 
+@never_cache
 @login_required
+@csrf_exempt
 def studentInformation(request, id):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
@@ -714,6 +763,8 @@ def studentInformation(request, id):
 
     return render(request, 'app/TimeLogs.html', context)
 
+@never_cache
+@csrf_exempt
 def register(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
@@ -737,6 +788,8 @@ def register(request):
         }
     )
 
+@never_cache
+@csrf_exempt
 def convert_time_to_seconds(time_str):
     """Convert a time string like '1 hours, 30 minutes' to total seconds."""
     time_parts = time_str.split(',')
@@ -750,7 +803,9 @@ def convert_time_to_seconds(time_str):
             total_seconds += minutes * 60
     return total_seconds
 
+@never_cache
 @login_required
+@csrf_exempt
 def set_rendering_hours(request):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
@@ -806,6 +861,9 @@ def set_rendering_hours(request):
         'upload_form': upload_form
     })
 
+@never_cache
+@login_required
+@csrf_exempt
 def editRenderHours(request):
     user = request.user
     if request.method == 'POST':
@@ -830,6 +888,9 @@ def editRenderHours(request):
         'form': form,
     })
 
+@never_cache
+@login_required
+@csrf_exempt
 def listOfAnnouncement(request):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
@@ -866,6 +927,9 @@ def listOfAnnouncement(request):
         'lastName': lastName
     })
 
+@never_cache
+@login_required
+@csrf_exempt
 def listOfContent(request):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
@@ -902,6 +966,9 @@ def listOfContent(request):
         'lastName': lastName
     })
 
+@never_cache
+@login_required
+@csrf_exempt
 def postAnnouncement(request):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
@@ -923,6 +990,9 @@ def postAnnouncement(request):
         }
     )
 
+@never_cache
+@login_required
+@csrf_exempt
 def postContent(request):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
@@ -944,6 +1014,9 @@ def postContent(request):
         }
     )
 
+@never_cache
+@login_required
+@csrf_exempt
 def editAnnouncement(request, id):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
@@ -968,6 +1041,9 @@ def editAnnouncement(request, id):
         'announcement': announcement,
     })
 
+@never_cache
+@login_required
+@csrf_exempt
 def editContent(request, id):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
@@ -992,6 +1068,8 @@ def editContent(request, id):
         'content': content,
     })
 
+@never_cache
+@csrf_exempt
 def deleteAnnouncement(request, id):
     user = request.user
     announcement = get_object_or_404(TableAnnouncement, id=id)
@@ -1001,6 +1079,8 @@ def deleteAnnouncement(request, id):
         return redirect('listOfAnnouncement')
     return render(request, LIST_ANNOUNCEMENT, {'announcement': announcement})
 
+@never_cache
+@csrf_exempt
 def deleteContent(request, id):
     user = request.user
     content = get_object_or_404(TableContent, id=id)
@@ -1010,6 +1090,8 @@ def deleteContent(request, id):
         return redirect('all-content')
     return render(request, 'app/allContentPage.html', {'content': content})
 
+@never_cache
+@csrf_exempt
 def deleteRequirementDocuments(request, id):
     user = request.user
     docs = get_object_or_404(TableRequirements, id=id)
@@ -1019,6 +1101,9 @@ def deleteRequirementDocuments(request, id):
         return redirect('set_rendering_hours')
     return render(request, 'app/settings.html', {'docs': docs})
 
+@never_cache
+@login_required
+@csrf_exempt
 def setSchedule(request, id):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
@@ -1061,6 +1146,9 @@ def setSchedule(request, id):
         'lastName': lastName,
     })
 
+@never_cache
+@login_required
+@csrf_exempt
 def editStudentDetails(request, id):
     user = request.user
     student = get_object_or_404(DataTableStudents, pk=id)
@@ -1086,6 +1174,9 @@ def editStudentDetails(request, id):
         'lastName': lastName,
     })
 
+@never_cache
+@login_required
+@csrf_exempt
 def getAllStudentsForGrading(request):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
@@ -1154,6 +1245,9 @@ def getAllStudentsForGrading(request):
     })
 
 @require_POST
+@never_cache
+@login_required
+@csrf_exempt
 def update_document_score(request, id):
     try:
         document = ApprovedDocument.objects.get(id=id)
@@ -1178,6 +1272,8 @@ def update_document_score(request, id):
         messages.error(request, str(e))
         return redirect('view-requirements', id=id)
 
+@never_cache
+@csrf_exempt
 def gradeFormula(evaluation, docs_grade, oral_interview):
     eval_score = (evaluation / 30 * 50 + 50) * 0.60
     docs_score = docs_grade
@@ -1185,6 +1281,8 @@ def gradeFormula(evaluation, docs_grade, oral_interview):
     final_grade = eval_score + docs_score + oral_score
     return round(final_grade, 1)
 
+@never_cache
+@csrf_exempt
 def gradeCalculator(request, id):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
@@ -1252,6 +1350,9 @@ def gradeCalculator(request, id):
         }
     )
 
+@never_cache
+@login_required
+@csrf_exempt
 def getAnnouncementNotLogin(request):
     enabledAnnouncement = TableAnnouncement.objects.filter(Status='enable')
     return render(
@@ -1261,6 +1362,9 @@ def getAnnouncementNotLogin(request):
         }
     )
 
+@never_cache
+@login_required
+@csrf_exempt
 def getAnnouncement(request):
     enabledAnnouncement = TableAnnouncement.objects.filter(Status='enable')
     return render(
