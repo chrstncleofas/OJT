@@ -58,7 +58,12 @@ MIDDLEWARE = [
     'superapp.middleware.DisableCacheMiddleware',
 ]
 
-CORS_ALLOW_ALL_ORIGINS = True
+# CORS_ALLOW_ALL_ORIGINS = True
+
+CORS_ALLOWED_ORIGINS = [
+    'http://54.174.99.72',
+]
+
 ROOT_URLCONF = 'main.urls'
 
 TEMPLATES = [
