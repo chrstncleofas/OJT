@@ -1,13 +1,13 @@
 import re
-import os
 import json
 from typing import Union
-from django.urls import reverse
-from django.db.models import Sum
 from django.db.models import Q
-from django.utils import timezone
+from django.urls import reverse
 from django.conf import settings
+from django.db.models import Sum
+from django.utils import timezone
 from django.contrib import messages
+from django.http import JsonResponse
 from django.core.mail import send_mail
 from app.utils import saveActivityLogs
 from datetime import datetime, timedelta
@@ -21,12 +21,10 @@ from django.contrib.auth.hashers import make_password
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
-from django.http import JsonResponse, HttpResponseForbidden
+from django.views.decorators.cache import cache_control
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
-from django.views.decorators.cache import cache_control
-from django.contrib.auth.decorators import user_passes_test
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from students.forms import EditStudentForm, ScheduleSettingForm, GradeForm
 from app.models import RenderingHoursTable, TableRequirements, TableContent
@@ -59,28 +57,23 @@ def mainDashboard(request):
     # Check if the user is staff but not a superuser
     if not request.user.is_staff or request.user.is_superuser:
         return render(request, 'main/404.html', status=403)
-
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
     firstName = admin.first_name
     lastName = admin.last_name
-
     # Default date filters
     today = datetime.today().date()
     yesterday = today - timedelta(days=1)
     week_start = today - timedelta(days=today.weekday())
-
     # Get filter type from the request
     filter_type = request.GET.get('filterType', 'yesterday')
     start_date = request.GET.get('startDate')
     end_date = request.GET.get('endDate')
-
     # Apply date filters based on the selected filter type
     if filter_type == 'today':
         approve = DataTableStudents.objects.filter(status='Approved', archivedStudents='NotArchive', created_at__date=today)
         pending = PendingApplication.objects.filter(StatusApplication='PendingApplication', PendingStatusArchive='NotArchive', created_at__date=today)
         reject = RejectApplication.objects.filter(RejectStatus='RejectedApplication', RejectStatusArchive='NotArchive', created_at__date=today)
-
     elif filter_type == 'yesterday':
         # Use range to capture the entire day of yesterday
         yesterday_start = yesterday
@@ -88,33 +81,27 @@ def mainDashboard(request):
         approve = DataTableStudents.objects.filter(status='Approved', archivedStudents='NotArchive', created_at__range=(yesterday_start, yesterday_end))
         pending = PendingApplication.objects.filter(StatusApplication='PendingApplication', PendingStatusArchive='NotArchive', created_at__range=(yesterday_start, yesterday_end))
         reject = RejectApplication.objects.filter(RejectStatus='RejectedApplication', RejectStatusArchive='NotArchive', created_at__range=(yesterday_start, yesterday_end))
-
     elif filter_type == 'week':
         approve = DataTableStudents.objects.filter(status='Approved', archivedStudents='NotArchive', created_at__date__range=(week_start, today))
         pending = PendingApplication.objects.filter(StatusApplication='PendingApplication', PendingStatusArchive='NotArchive', created_at__date__range=(week_start, today))
         reject = RejectApplication.objects.filter(RejectStatus='RejectedApplication', RejectStatusArchive='NotArchive', created_at__date__range=(week_start, today))
-
     elif filter_type == 'custom' and start_date and end_date:
         start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
         end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
         approve = DataTableStudents.objects.filter(status='Approved', archivedStudents='NotArchive', created_at__date__range=(start_date, end_date))
         pending = PendingApplication.objects.filter(StatusApplication='PendingApplication', PendingStatusArchive='NotArchive', created_at__date__range=(start_date, end_date))
         reject = RejectApplication.objects.filter(RejectStatus='RejectedApplication', RejectStatusArchive='NotArchive', created_at__date__range=(start_date, end_date))
-
     else:
         approve = pending = reject = []
-
     approve_count = approve.count()
     pending_count = pending.count()
     reject_count = reject.count()
-
     if request.method == 'GET' and request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         return JsonResponse({
             'approve_count': approve_count,
             'pending_count': pending_count,
             'reject_count': reject_count,
         })
-
     return render(
         request,
         'app/main-dashboard.html',
@@ -132,14 +119,9 @@ def mainDashboard(request):
 def getAllApproveStudents(request):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
-
     firstName = admin.first_name
     lastName = admin.last_name
-
-    # Fetch all approved students
     students_list = DataTableStudents.objects.filter(status='Approved', archivedStudents='NotArchive').order_by('id')
-
-    # Search filter logic
     search_query_approve = request.GET.get('search-approve', '')
     if search_query_approve:
         students_list = students_list.filter(
@@ -148,13 +130,10 @@ def getAllApproveStudents(request):
             Q(Middlename__icontains=search_query_approve) |
             Q(Lastname__icontains=search_query_approve)
         )
-
-    date_filter = request.GET.get('filterType', 'today')  # Use 'filterType' parameter from URL
-    start_date = request.GET.get('startDate')  # Use 'startDate' parameter from URL
-    end_date = request.GET.get('endDate')  # Use 'endDate' parameter from URL
+    date_filter = request.GET.get('filterType', 'today')
+    start_date = request.GET.get('startDate')
+    end_date = request.GET.get('endDate')
     today = timezone.now().date()
-
-    # Date filtering logic
     if date_filter == 'today':
         students_list = students_list.filter(created_at__date=today)
     elif date_filter == 'yesterday':
@@ -170,17 +149,12 @@ def getAllApproveStudents(request):
             students_list = students_list.filter(created_at__date__range=(start_date, end_date))
         except ValueError:
             print("Invalid date format for custom date range")
-
-    # Pagination logic
     page = request.GET.get('page', 1)
-
-    # Handle the per_page parameter safely
-    per_page_value = request.GET.get('per_page', '10')  # Default to '10' as string
+    per_page_value = request.GET.get('per_page', '10')
     try:
         per_page = int(per_page_value) if per_page_value.isdigit() else 10
     except ValueError:
-        per_page = 10  # Fallback to 10 if conversion fails
-
+        per_page = 10
     paginator = Paginator(students_list, per_page)
     try:
         students = paginator.page(page)
@@ -188,16 +162,13 @@ def getAllApproveStudents(request):
         students = paginator.page(1)
     except EmptyPage:
         students = paginator.page(paginator.num_pages)
-
     context = {
         'students': students,
         'firstName': firstName,
         'lastName': lastName,
     }
-
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         return render(request, 'app/approve-list-student.html', context)
-
     return render(request, 'app/approve-list-student.html', context)
 
 @login_required
@@ -205,14 +176,9 @@ def getAllApproveStudents(request):
 def getAllPendingStudents(request):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
-
     firstName = admin.first_name
     lastName = admin.last_name
-
-    # Fetch all approved students
     students_list = PendingApplication.objects.filter(StatusApplication='PendingApplication', PendingStatusArchive='NotArchive').order_by('id')
-
-    # Search filter logic
     search_query_approve = request.GET.get('search-approve', '')
     if search_query_approve:
         students_list = students_list.filter(
@@ -221,13 +187,10 @@ def getAllPendingStudents(request):
             Q(PendingMiddlename__icontains=search_query_approve) |
             Q(PendingLastname__icontains=search_query_approve)
         )
-
-    date_filter = request.GET.get('filterType', 'today')  # Use 'filterType' parameter from URL
-    start_date = request.GET.get('startDate')  # Use 'startDate' parameter from URL
-    end_date = request.GET.get('endDate')  # Use 'endDate' parameter from URL
+    date_filter = request.GET.get('filterType', 'today')
+    start_date = request.GET.get('startDate')
+    end_date = request.GET.get('endDate')
     today = timezone.now().date()
-
-    # Date filtering logic
     if date_filter == 'today':
         students_list = students_list.filter(created_at__date=today)
     elif date_filter == 'yesterday':
@@ -243,11 +206,8 @@ def getAllPendingStudents(request):
             students_list = students_list.filter(created_at__date__range=(start_date, end_date))
         except ValueError:
             print("Invalid date format for custom date range")
-
-    # Pagination logic
     page = request.GET.get('page', 1)
     per_page = int(request.GET.get('per_page', 10))
-
     paginator = Paginator(students_list, per_page)
     try:
         students = paginator.page(page)
@@ -255,18 +215,14 @@ def getAllPendingStudents(request):
         students = paginator.page(1)
     except EmptyPage:
         students = paginator.page(paginator.num_pages)
-
     context = {
         'students': students,
         'firstName': firstName,
         'lastName': lastName,
         'per_page': per_page,
     }
-
-    # Check if the request is an AJAX request
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         return render(request, 'app/pending-list-student.html', context)
-
     return render(request, 'app/pending-list-student.html', context)
 
 @login_required
@@ -274,15 +230,9 @@ def getAllPendingStudents(request):
 def getAllRejectStudents(request):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
-
     firstName = admin.first_name
     lastName = admin.last_name
-
-    # Fetch all approved students
     students_list = RejectApplication.objects.filter(RejectStatus='RejectedApplication', RejectStatusArchive='NotArchive').order_by('id')
-    archive = DataTableStudents.objects.filter(archivedStudents='Archive').order_by('id')
-
-    # Search filter logic
     search_query_approve = request.GET.get('search-approve', '')
     if search_query_approve:
         students_list = students_list.filter(
@@ -291,13 +241,10 @@ def getAllRejectStudents(request):
             Q(RejectMiddlename__icontains=search_query_approve) |
             Q(RejectLastname__icontains=search_query_approve)
         )
-
-    date_filter = request.GET.get('filterType', 'today')  # Use 'filterType' parameter from URL
-    start_date = request.GET.get('startDate')  # Use 'startDate' parameter from URL
-    end_date = request.GET.get('endDate')  # Use 'endDate' parameter from URL
+    date_filter = request.GET.get('filterType', 'today')
+    start_date = request.GET.get('startDate')
+    end_date = request.GET.get('endDate')
     today = timezone.now().date()
-
-    # Date filtering logic
     if date_filter == 'today':
         students_list = students_list.filter(created_at__date=today)
     elif date_filter == 'yesterday':
@@ -313,11 +260,8 @@ def getAllRejectStudents(request):
             students_list = students_list.filter(created_at__date__range=(start_date, end_date))
         except ValueError:
             print("Invalid date format for custom date range")
-
-    # Pagination logic
     page = request.GET.get('page', 1)
     per_page = int(request.GET.get('per_page', 10))
-
     paginator = Paginator(students_list, per_page)
     try:
         students = paginator.page(page)
@@ -325,15 +269,12 @@ def getAllRejectStudents(request):
         students = paginator.page(1)
     except EmptyPage:
         students = paginator.page(paginator.num_pages)
-
     context = {
         'students': students,
         'firstName': firstName,
         'lastName': lastName,
         'per_page': per_page,
     }
-
-    # Check if the request is an AJAX request
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         return render(request, 'app/reject-list-student.html', context)
 
@@ -392,7 +333,6 @@ def userLoginFunction(request):
             if user.is_staff and not user.is_superuser:
                 login(request, user)
                 request.session['admin_password'] = user.password
-                # Log the successful login action
                 saveActivityLogs(user=user, action='LOGIN', request=request, description='Login admin/coordinator')
                 return redirect('dashboard')
             else:
@@ -427,7 +367,6 @@ def getAdminPasswordHash(request):
 def validateAdminPassword(request):
     input_password = json.loads(request.body).get('password')
     user = request.user
-
     if user.check_password(input_password):
         return JsonResponse({'status': 'success'})
     else:
@@ -435,19 +374,15 @@ def validateAdminPassword(request):
 
 def approveStudent(request, id):
     user = request.user
-
     pending_student = get_object_or_404(PendingApplication, id=id)
-
     new_user = CustomUser.objects.create(
         username=pending_student.PendingUsername,
         email=pending_student.PendingEmail,
         password=make_password(pending_student.PendingPassword),
         first_name=pending_student.PendingFirstname,
         last_name=pending_student.PendingLastname,
-    )
-    
+    )  
     new_user.save()
-
     new_student = DataTableStudents.objects.create(
         user=new_user,
         StudentID=pending_student.PendingStudentID,
@@ -463,24 +398,18 @@ def approveStudent(request, id):
         Password=new_user.password,
         status='Approved',
         archivedStudents='NotArchive',
-    )
-    
+    )   
     new_student.save()
-
     pending_student.delete()
-
     saveActivityLogs(user=user, action='APPROVED', request=request, description=f"Approved student {new_student.Firstname} {new_student.Lastname}")
-
     subject = 'Your OJT Management System Account Has Been Approved'
     message = render_to_string('app/approval_email.txt', {
         'first_name': new_student.Firstname,
         'last_name': new_student.Lastname,
     })
     recipient_list = [new_student.Email]
-    send_mail(subject, message, settings.EMAIL_HOST_USER, recipient_list, fail_silently=False)
-    
+    send_mail(subject, message, settings.EMAIL_HOST_USER, recipient_list, fail_silently=False)  
     messages.success(request, f"{new_student.Firstname} {new_student.Lastname} has been approved and added to the student list.")
-
     return redirect('pending-student-list')
 
 @csrf_exempt
@@ -492,10 +421,8 @@ def rejectStudent(request, id):
                 pending_application = PendingApplication.objects.get(id=id)
             except PendingApplication.DoesNotExist:
                 return JsonResponse({'status': 'success', 'message': 'Pending application was already deleted.'})
-
             data = json.loads(request.body)
             reason = data.get('reason', 'No reason provided')
-
             rejected = RejectApplication.objects.create(
                 RejectStudentID=pending_application.PendingStudentID,
                 RejectFirstname=pending_application.PendingFirstname,
@@ -511,11 +438,8 @@ def rejectStudent(request, id):
                 RejectPassword=make_password(pending_application.PendingPassword),
                 RejectStatus='RejectedApplication'
             )
-
             rejected.save()
-
             saveActivityLogs(user=user, action='REJECTED', request=request, description='Rejected pending student application')
-
             subject = 'Account Rejected'
             message = render_to_string('app/rejection_email.txt', {
                 'first_name': pending_application.PendingFirstname,
@@ -550,13 +474,13 @@ def return_to_revision(request, id):
             revision_document.save()
             saveActivityLogs(user=user, action='REVISION', request=request, description='Revision of document')
             submitted_document.delete()
-            # Create Notification for Student
+
             notification_message = f'Your document "{submitted_document.nameOfDocs}" has been returned for revision. Reason: {reason}'
             Notification.objects.create(
                 student=submitted_document.student,
                 message=notification_message
             )
-            # Send email notification
+
             subject = 'Document Returned for Revision'
             message = render_to_string('app/revision_email.txt', {
                 'student_name': submitted_document.student.Firstname,
@@ -711,28 +635,24 @@ def getTheSubmitRequirements(request):
         'lastName': lastName
     })
 
-
 @login_required
 def studentInformation(request, id):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
     student = get_object_or_404(DataTableStudents, id=id)
     
-    # Admin and student names
     firstName = admin.first_name
     lastName = admin.last_name
     studentFirstname = student.Firstname
     studentLastname = student.Lastname
 
-    # Fetch logs
     time_logs = TimeLog.objects.filter(student=student).order_by('timestamp')
     lunch_logs = LunchLog.objects.filter(student=student).order_by('timestamp')
 
     total_work_seconds = 0
     daily_total = timedelta()
     max_work_hours = timedelta(hours=8)
-    
-    # Calculate total work time and prepare paired logs
+
     paired_logs = []
     
     for i in range(0, len(time_logs), 2):
@@ -742,38 +662,32 @@ def studentInformation(request, id):
             
             if time_out:
                 work_period = time_out - time_in
-                work_period = min(work_period, max_work_hours)  # Cap to max work hours
+                work_period = min(work_period, max_work_hours)
                 daily_total += work_period
-                paired_logs.append((time_logs[i], time_logs[i + 1]))  # Pair IN and OUT logs
+                paired_logs.append((time_logs[i], time_logs[i + 1]))
         else:
-            paired_logs.append((time_logs[i], None))  # Add remaining IN log if exists
+            paired_logs.append((time_logs[i], None))
 
-    # Total work seconds
     total_work_seconds = max(0, daily_total.total_seconds())
     required_hours_seconds = student.get_required_hours() * 3600 if student.get_required_hours() is not None else 0
     remaining_hours_seconds = max(0, required_hours_seconds - total_work_seconds)
 
-    # Handle form submission for any input modifications (if needed)
     if request.method == 'POST':
         total_work_time_input = request.POST.get('total_work_time')
         required_hours_time_input = request.POST.get('required_hours_time')
         remaining_hours_time_input = request.POST.get('remaining_hours_time')
         
-        # Assuming you have a method to convert time to seconds, similar to previous function
         total_work_seconds = convert_time_to_seconds(total_work_time_input)
         required_hours_seconds = convert_time_to_seconds(required_hours_time_input)
         remaining_hours_seconds = convert_time_to_seconds(remaining_hours_time_input)
 
-    # Fetch other information
     full_schedule = Schedule.objects.filter(student=student, day__in=['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']).order_by('id')
     grades = Grade.objects.filter(student=student).order_by('id')
     progress_reports = TableSubmittedReport.objects.filter(student=student).order_by('-date_submitted', 'id')
     requirements = TableSubmittedRequirement.objects.filter(student=student).order_by('-submission_date', 'id')
 
-    # Clean filenames for progress reports
     cleaned_reports = [(report, clean_filename(report.report_file.name)) for report in progress_reports]
 
-    # Prepare function to format seconds into hours and minutes
     def format_seconds(seconds):
         hours, remainder = divmod(seconds, 3600)
         minutes, _ = divmod(remainder, 60)
@@ -799,7 +713,6 @@ def studentInformation(request, id):
     }
 
     return render(request, 'app/TimeLogs.html', context)
-
 
 def register(request):
     if request.method == 'POST':
@@ -864,7 +777,6 @@ def set_rendering_hours(request):
         elif upload_form.is_valid():
             requirement = upload_form.save(commit=False)
             requirement.save()
-            # Log activity for file upload
             saveActivityLogs(user=user, action='UPLOAD', request=request, description='Uploaded new requirement')
             return redirect('set_rendering_hours')
     else:
@@ -885,7 +797,6 @@ def set_rendering_hours(request):
 
         upload_form = UploadRequirementForm()
 
-    # Get all uploaded requirements
     requirements = TableRequirements.objects.all()
     return render(request, 'app/settings.html', {
         'form': form,
@@ -1153,11 +1064,11 @@ def setSchedule(request, id):
 def editStudentDetails(request, id):
     user = request.user
     student = get_object_or_404(DataTableStudents, pk=id)
-    # 
+
     admin = get_object_or_404(CustomUser, id=user.id)
     firstName = admin.first_name
     lastName = admin.last_name
-    # 
+
     if request.method == 'POST':
         form = EditStudentForm(request.POST, instance=student)
         if form.is_valid():
@@ -1205,7 +1116,6 @@ def getAllStudentsForGrading(request):
             Q(student__Lastname__icontains=searchgrade)
         )
 
-    # Pagination logic
     page = request.GET.get('page', 1)
     per_page = request.GET.get('per_page', 5)
 
@@ -1218,12 +1128,10 @@ def getAllStudentsForGrading(request):
     except EmptyPage:
         students = paginator.page(paginator.num_pages)
 
-    # Limit pagination range to 5 pages at a time
     max_display_pages = 5
     current_page = students.number
     total_pages = paginator.num_pages
 
-    # Determine start and end of the pagination range
     start_page = max(current_page - 2, 1)
     end_page = min(start_page + max_display_pages - 1, total_pages)
 
@@ -1253,20 +1161,14 @@ def update_document_score(request, id):
         if score is None or not score.isdigit() or int(score) < 0 or int(score) > 120:
             messages.error(request, 'Invalid score format. Please enter a score between 0 and 120.')
             return redirect('view-requirements', id=document.student.id)
-
         document.score = int(score)
         document.save()
         messages.success(request, 'Score updated successfully.')
-
         total_score = ApprovedDocument.objects.filter(student=document.student).aggregate(total=Sum('score'))['total'] or 0
-
         grade, created = Grade.objects.get_or_create(student=document.student)
-
-        docs_grade = round((total_score / 120 * 50 + 50) * 0.30, 2) if total_score > 0 else 0
-        
+        docs_grade = round((total_score / 120 * 50 + 50) * 0.30, 2) if total_score > 0 else 0      
         grade.docs = docs_grade
         grade.save()
-
         return redirect('view-requirements', id=document.student.id)
 
     except ApprovedDocument.DoesNotExist:
@@ -1304,18 +1206,15 @@ def gradeCalculator(request, id):
         if form.is_valid():
             evaluation = min(max(form.cleaned_data['evaluation'], 0), 30)
             oral_interview = min(max(form.cleaned_data['oral_interview'], 0), 30)
-            
-            # Calculate and round the scores to one decimal place
+
             eval_score = round((evaluation / 30 * 50 + 50) * 0.60, 1)
             docs_score = round((total_docs_score / 120 * 50 + 50) * 0.30, 1) if total_docs_score > 0 else 0
             oral_score = round((oral_interview / 30 * 50 + 50) * 0.10, 1)
 
-            # Update the Grade object with rounded scores
             grade.evaluation = eval_score
             grade.docs = docs_score
             grade.oral_interview = oral_score
 
-            # Calculate the final grade and round it to one decimal place
             final_grade = round(eval_score + docs_score + oral_score, 1)
             grade.final_grade = final_grade
             grade.status = 'Passed' if final_grade > 74 else 'Failed'
