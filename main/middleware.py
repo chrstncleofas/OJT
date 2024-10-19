@@ -49,6 +49,7 @@ class CustomMiddleware:
         response = self.get_response(request)
 
         # Set Cross-Origin headers for security
+        response['Cross-Origin-Opener-Policy'] = 'unsafe-none'
         response['Cross-Origin-Opener-Policy'] = 'same-origin'
         response['Cross-Origin-Embedder-Policy'] = 'require-corp'
 
