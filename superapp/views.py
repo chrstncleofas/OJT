@@ -5,7 +5,6 @@ from django.db.models import Q
 from django.utils import timezone
 from django.contrib import messages
 from django.shortcuts import redirect
-from django.core.mail import send_mail
 from app.utils import saveActivityLogs
 from superapp.forms import EditUsersForm
 from app.models import RenderingHoursTable
@@ -13,11 +12,10 @@ from app.forms import SetRenderingHoursForm
 from app.forms import CustomUserCreationForm
 from django.shortcuts import render, redirect
 from django.shortcuts import get_object_or_404
+from app.models import CustomUser, StoreActivityLogs
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.cache import never_cache
-from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.cache import cache_control
-from app.models import CustomUser, StoreActivityLogs
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 from students.models import DataTableStudents, TimeLog, Schedule
@@ -241,11 +239,8 @@ def getAllTheUserAccount(request):
     admin = get_object_or_404(CustomUser, id=user.id)    
     firstName = admin.first_name
     lastName = admin.last_name
-    # 
     search_query = request.GET.get('search', '')
-    # 
     admin_users = CustomUser.objects.filter(Q(is_staff=True) or Q(is_superuser=True))
-    # 
     if search_query:
         admin_users = admin_users.filter(
             Q(first_name__icontains=search_query) |
@@ -253,24 +248,17 @@ def getAllTheUserAccount(request):
             Q(position__icontains=search_query) |
             Q(email__icontains=search_query)
         )
-
-    # Pagination logic
-    page = request.GET.get('page', 1)  # Get the current page number from the request
-    per_page = request.GET.get('per_page', 5)  # Default items per page is set to 5
-
-    paginator = Paginator(admin_users, per_page)  # Create paginator object
-
+    page = request.GET.get('page', 1)
+    per_page = request.GET.get('per_page', 5)
+    paginator = Paginator(admin_users, per_page)
     try:
-        admin_users = paginator.page(page)  # Get the current page of results
+        admin_users = paginator.page(page)
     except PageNotAnInteger:
-        admin_users = paginator.page(1)  # If page is not an integer, deliver first page
+        admin_users = paginator.page(1)
     except EmptyPage:
         admin_users = paginator.page(paginator.num_pages)  
-
-    # Check if the request is an AJAX request
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         return render(request, 'superapp/users.html', {'getAllTheUserAccount': admin_users})
-    # 
     return render(request, 'superapp/users.html', {
         'getAllTheUserAccount': admin_users,
         'firstName': firstName,
@@ -301,14 +289,10 @@ def viewPendingApplication(request, id):
 def getActivityLogs(request):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
-
     firstName = admin.first_name
     lastName = admin.last_name
-
     search_query = request.GET.get('search', '')
-
     admin_users = StoreActivityLogs.objects.all().order_by('-timestamp', 'id')
-
     if search_query:
         admin_users = admin_users.filter(
             Q(first_name__icontains=search_query) |
@@ -316,11 +300,8 @@ def getActivityLogs(request):
             Q(position__icontains=search_query) |
             Q(action__icontains=search_query)
         )
-
-    # Pagination logic
     page = request.GET.get('page', 1)
     per_page = request.GET.get('per_page', 5)
-
     paginator = Paginator(admin_users, per_page)
     try:
         admin_users = paginator.page(page)
@@ -328,24 +309,16 @@ def getActivityLogs(request):
         admin_users = paginator.page(1)
     except EmptyPage:
         admin_users = paginator.page(paginator.num_pages)
-
-    # Limit pagination range to 5 pages at a time
     max_display_pages = 5
     current_page = admin_users.number
     total_pages = paginator.num_pages
-
-    # Determine start and end of the pagination range
     start_page = max(current_page - 2, 1)
     end_page = min(start_page + max_display_pages - 1, total_pages)
-
     if end_page - start_page < max_display_pages:
         start_page = max(end_page - max_display_pages + 1, 1)
-
     pagination_range = range(start_page, end_page + 1)
-
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         return render(request, 'superapp/activitylogs.html', {'getActivityLogs': admin_users})
-
     return render(request, 'superapp/activitylogs.html', {
         'getActivityLogs': admin_users,
         'firstName': firstName,
@@ -359,33 +332,24 @@ def getAllTheListAnnouncement(request):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
     firstName = admin.first_name
-    lastName = admin.last_name
-    
-    search_query = request.GET.get('search', '')
-    
+    lastName = admin.last_name 
+    search_query = request.GET.get('search', '') 
     listOfAnnouncementInTheTable = TableAnnouncement.objects.all().order_by('id')
-    
     if search_query:
         listOfAnnouncementInTheTable = listOfAnnouncementInTheTable.filter(
             Q(Title__icontains=search_query)
-        )
-    
+        ) 
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         return render(request, 'superapp/announcement.html', {'getAllTheListAnnouncement': listOfAnnouncementInTheTable})
-    
-    # Pagination logic
     page = request.GET.get('page', 1)
     per_page = request.GET.get('per_page', 5)
-
     paginator = Paginator(listOfAnnouncementInTheTable, per_page)
-
     try:
         listOfAnnouncementInTheTable = paginator.page(page)
     except PageNotAnInteger:
         listOfAnnouncementInTheTable = paginator.page(1)
     except EmptyPage:
-        listOfAnnouncementInTheTable = paginator.page(paginator.num_pages)
-    
+        listOfAnnouncementInTheTable = paginator.page(paginator.num_pages) 
     return render(request, 'superapp/announcement.html', {
         'getAllTheListAnnouncement': listOfAnnouncementInTheTable,
         'firstName': firstName,
@@ -419,9 +383,7 @@ def editAnnouncement(request, id):
     admin = get_object_or_404(CustomUser, id=user.id)
     firstName = admin.first_name
     lastName = admin.last_name
-
     announcement = get_object_or_404(TableAnnouncement, id=id)
-
     if request.method == 'POST':
         form = AnnouncementForm(request.POST, request.FILES, instance=announcement)
         if form.is_valid():
@@ -430,7 +392,6 @@ def editAnnouncement(request, id):
             return redirect('superapp:getAllTheListAnnouncement')
     else:
         form = AnnouncementForm(instance=announcement)
-
     return render(request, 'superapp/edit-announcement.html', {
         'form': form,
         'firstName': firstName,
@@ -443,31 +404,23 @@ def listOfContent(request):
     admin = get_object_or_404(CustomUser, id=user.id)
     firstName = admin.first_name
     lastName = admin.last_name
-
     search_query = request.GET.get('search', '')
-
     content = TableContent.objects.all().order_by('id')
-
     if search_query:
         content = content.filter(
             Q(nameOfContent__icontains=search_query)
-        )
-    
+        )  
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         return render(request, 'superapp/allContentPage.html', {'listOfContent': content})
-
     page = request.GET.get('page', 1)
     per_page = request.GET.get('per_page', 5)
-
     paginator = Paginator(content, per_page)
-
     try:
         content = paginator.page(page)
     except PageNotAnInteger:
         content = paginator.page(1)
     except EmptyPage:
         content = paginator.page(paginator.num_pages)
-
     return render(request, 'superapp/allContentPage.html', {
         'listOfContent': content,
         'firstName': firstName,
@@ -500,9 +453,7 @@ def editContent(request, id):
     admin = get_object_or_404(CustomUser, id=user.id)
     firstName = admin.first_name
     lastName = admin.last_name
-
     content = get_object_or_404(TableContent, id=id)
-
     if request.method == 'POST':
         form = ContentForm(request.POST, request.FILES, instance=content)
         if form.is_valid():
@@ -511,7 +462,6 @@ def editContent(request, id):
             return redirect('superapp:all-content')
     else:
         form = ContentForm(instance=content)
-
     return render(request, 'superapp/edit-content.html', {
         'form': form,
         'firstName': firstName,
@@ -555,13 +505,10 @@ def deleteRequirementDocuments(request, id):
 
 def editUsers(request, id): 
     toEditDetails = admin = get_object_or_404(CustomUser, pk=id)
-    # 
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
-    # 
     firstName = admin.first_name
     lastName = admin.last_name
-    
     if request.method == 'POST':
         form = EditUsersDetailsForm(request.POST, instance=toEditDetails)
         if form.is_valid():
@@ -580,7 +527,6 @@ def editUsers(request, id):
         'firstName': firstName,
         'lastName': lastName
     })
-
 
 def editUserProfile(request):
     user = request.user
@@ -629,6 +575,7 @@ def addUsers(request):
             'lastName' : lastName
         }
     )
+
 def createUserAdmin(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
@@ -653,7 +600,6 @@ def set_rendering_hours(request):
     admin = get_object_or_404(CustomUser, id=user.id)
     firstName = admin.first_name
     lastName = admin.last_name
-
     if request.method == 'POST':
         form = SetRenderingHoursForm(request.POST)
         upload_form = UploadRequirementForm(request.POST, request.FILES)
@@ -669,8 +615,7 @@ def set_rendering_hours(request):
                 defaults={'required_hours': bscs_hours}
             )
             saveActivityLogs(user=user, action='SET', request=request, description='Set time render')
-            return redirect('superapp:set_rendering_hours')
-        
+            return redirect('superapp:set_rendering_hours')     
         elif upload_form.is_valid():
             requirement = upload_form.save(commit=False)
             requirement.save()
@@ -682,7 +627,6 @@ def set_rendering_hours(request):
             bsit_hours = RenderingHoursTable.objects.get(course='BS Information Technology').required_hours
         except RenderingHoursTable.DoesNotExist:
             bsit_hours = None
-
         try:
             bscs_hours = RenderingHoursTable.objects.get(course='BS Computer Science').required_hours
         except RenderingHoursTable.DoesNotExist:
@@ -692,9 +636,7 @@ def set_rendering_hours(request):
             'bsit_hours': bsit_hours,
             'bscs_hours': bscs_hours,
         })
-
-        upload_form = UploadRequirementForm()
-        
+        upload_form = UploadRequirementForm()      
     requirements = TableRequirements.objects.all()
     return render(request, 'superapp/settings.html', {
         'form': form,
