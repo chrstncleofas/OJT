@@ -196,32 +196,30 @@ def getAllStudentSubmittedRequirements(request):
 
     # Kunin ang lahat ng estudyanteng batay sa student_id
     student_ids = [student['student'] for student in submitted_students]
-    
+
     # Kunin ang search query mula sa request
     search_query_approve = request.GET.get('search-approve', '')
-    
-    # Kunin ang mga detalye ng estudyante batay sa mga student_id
+
+    # Mag-filter ng students batay sa search query
+    students = DataTableStudents.objects.filter(id__in=student_ids)
+
     if search_query_approve:
-        # Mag-filter ng students batay sa search query
-        students = DataTableStudents.objects.filter(
-            id__in=student_ids
-        ).filter(
+        students = students.filter(
             Q(StudentID__icontains=search_query_approve) |
             Q(Firstname__icontains=search_query_approve) |
             Q(Middlename__icontains=search_query_approve) |
             Q(Lastname__icontains=search_query_approve)
         )
-    else:
-        # Kung walang search query, ipakita ang lahat ng estudyanteng nag-submit
-        students = DataTableStudents.objects.filter(id__in=student_ids)
 
+    # Pagination
     page = request.GET.get('page', 1)
     per_page_value = request.GET.get('per_page', '10')
     try:
         per_page = int(per_page_value) if per_page_value.isdigit() else 10
     except ValueError:
         per_page = 10
-    paginator = Paginator(submitted_students, per_page)
+
+    paginator = Paginator(students, per_page)
     try:
         students = paginator.page(page)
     except PageNotAnInteger:
@@ -232,8 +230,10 @@ def getAllStudentSubmittedRequirements(request):
     return render(request, 'app/student-submitted-list.html', {
         'students': students,
         'firstName': firstName,
-        'lastName': lastName
+        'lastName': lastName,
+        'per_page': per_page  # Para magamit sa pagination
     })
+
 
 @login_required
 def getAllApproveStudents(request):
