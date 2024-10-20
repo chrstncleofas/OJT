@@ -249,34 +249,28 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script>
-        const mainDashboardUrl = "{% url 'dashboard' %}";
-    
+        const mainDashboardUrl = "{% url 'dashboard' %}";  
         $(".navbar-toggler").click(function(e) {
             e.preventDefault();
             $("#wrapper").toggleClass("toggled");
-        });
-        
+        });    
         document.addEventListener('DOMContentLoaded', () => {
             initDashboardFilters();
             setupCustomDateFilter();
             preventBackNavigationLoop();
             setupLogout();
         });
-    
         // Initializes the default filter and sets up event listeners for predefined filters
         function initDashboardFilters() {
             console.log("Initializing dashboard filters.");
             setDefaultFilter('today');
-    
             // Add event listeners to the predefined filter buttons (Today, Yesterday, Week)
             const filterButtons = document.querySelectorAll('input[name="dateFilter"]');
             console.log(`Found ${filterButtons.length} filter buttons.`);
-    
             filterButtons.forEach((button) => {
                 console.log(`Setting up event listener for button with ID: ${button.id}`);
                 button.addEventListener('change', handleDateFilterChange); // Listen for change events
             });
-    
             // Add click listeners to the labels for better handling of Bootstrap's styling
             const filterLabels = document.querySelectorAll('.btn-group-toggle .btn');
             filterLabels.forEach((label) => {
@@ -290,7 +284,6 @@
                 });
             });
         }
-    
         // Sets up the custom date range filter functionality
         function setupCustomDateFilter() {
             const filterButton = document.getElementById('filterButton');
@@ -298,7 +291,6 @@
                 event.preventDefault();
                 const startDate = document.getElementById('start-date').value;
                 const endDate = document.getElementById('end-date').value;
-    
                 if (startDate && endDate) {
                     console.log(`Filtering by custom date range: Start Date = ${startDate}, End Date = ${endDate}`);
                     updateCounts('custom', startDate, endDate);
@@ -306,21 +298,18 @@
                     console.warn('Both start date and end date must be selected for the custom filter.');
                 }
             });
-        }
-    
+        }   
         // Sets the default filter to the specified value and updates the counts
         function setDefaultFilter(filterType) {
             document.getElementById(filterType).checked = true;
             updateCounts(filterType);
         }
-    
         // Handles the date filter button change event
         function handleDateFilterChange(event) {
             const selectedFilter = event.target.id;
             console.log(`Date filter selected: ${selectedFilter}`);
             updateCounts(selectedFilter);
         }
-    
         // Prevents back button navigation from causing unnecessary reload loops
         function preventBackNavigationLoop() {
             if (window.history.length > 1) {
@@ -330,14 +319,12 @@
                 });
             }
         }
-    
         // Sends an AJAX request to update the counts based on the selected filter
         function updateCounts(filterType, startDate = null, endDate = null) {
             let url = `${mainDashboardUrl}?filterType=${filterType}`;
             if (startDate && endDate) {
                 url += `&startDate=${startDate}&endDate=${endDate}`;
             }
-    
             console.log(`Fetching data from URL: ${url}`);
     
             fetch(url, {
@@ -358,7 +345,6 @@
             })
             .catch(error => console.error('Error fetching data:', error));
         }
-    
         // Updates the dashboard counts displayed on the UI
         function updateDashboardCounts(data) {
             document.querySelector('.count.approved').textContent = data.approve_count;
@@ -366,14 +352,12 @@
             document.querySelector('.count.rejected').textContent = data.reject_count;
             document.querySelector('.count.requirements').textContent = data.submitted_students_count ;
         }
-    
         // Updates the card links based on the filter selected
         function updateCardLinks(filterType, startDate = null, endDate = null) {
             let filterParam = `filterType=${filterType}`;
             if (startDate && endDate) {
                 filterParam += `&startDate=${startDate}&endDate=${endDate}`;
             }
-    
             const approvedLink = document.getElementById('approved-link');
             const pendingLink = document.getElementById('pending-link');
             const rejectedLink = document.getElementById('rejected-link');
@@ -401,7 +385,6 @@
                 console.error('No student submitted found!');
             }
         }
-    
         // Sets up the logout functionality
         function setupLogout() {
             const logoutButton = document.querySelector('#logoutButton'); // Assuming you have a logout button in the DOM
@@ -410,7 +393,6 @@
                 logoutButton.addEventListener('click', logout);
             }
         }
-    
         // Clears local storage and redirects to the logout URL
         function logout() {
             localStorage.removeItem('is_coordinator_logged_in');
