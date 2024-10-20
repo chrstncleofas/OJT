@@ -17,7 +17,7 @@
 <body>
     <div class="d-flex" id="wrapper">
         <!-- Sidebar -->
-        <div class="bg-light border-right vh-100" id="sidebar-wrapper">
+        <div class="bg-light border-right vh-230" id="sidebar-wrapper">
             <a href="{% url 'dashboard' %}" style="text-decoration: none !important; color: black !important;" class="text-center">
                 <div class="sidebar-heading" style="display: flex; align-items: center; justify-content: flex-start;">
                     <img src="{% static 'img/Logo.png' %}" alt="Logo" style="width: 50px; height: 50px; margin-right: 2px;">
@@ -123,13 +123,13 @@
                     </ul>
                 </div>
             </nav>
-            <!-- Card -->
+            <!-- Dashboard Container -->
             <div class="container-fluid">
                 <div class="row mb-4">
                     <div class="col-lg-12">
                         <h3 class="mt-4 mb-2">Dashboard</h3>
                     </div>
-                    <!-- Date Filter -->
+                    <!-- Date Filter Section -->
                     <div class="col-lg-12 d-flex justify-content-end align-items-center mb-3">
                         <div class="btn-group btn-group-toggle mr-3" data-toggle="buttons">
                             <label class="btn btn-light border rounded mr-1 active">
@@ -155,11 +155,10 @@
                         </div>
                     </div>
                 </div>
-                <!-- Cards -->
-                <div class="row">
-                    <div class="col-lg-4">
+                <div class="row mb-4">
+                    <div class="col-lg-3">
                         <a id="approved-link" href="{% url 'approve-student-list' %}" style="text-decoration: none;">
-                            <div class="card text-white bg-success">
+                            <div class="card text-white" style="background-color: #2E8B57;"> <!-- Dark Green -->
                                 <div class="card-body">
                                     <i class="fas fa-check-circle icon"></i>
                                     <div>
@@ -170,9 +169,9 @@
                             </div>
                         </a>
                     </div>
-                    <div class="col-lg-4">
+                    <div class="col-lg-3">
                         <a id="pending-link" href="{% url 'pending-student-list' %}" style="text-decoration: none;">
-                            <div class="card text-white bg-warning">
+                            <div class="card text-white" style="background-color: #FFA500;"> <!-- Amber/Orange -->
                                 <div class="card-body">
                                     <i class="fas fa-hourglass-half icon"></i>
                                     <div>
@@ -183,9 +182,9 @@
                             </div>
                         </a>
                     </div>
-                    <div class="col-lg-4">
+                    <div class="col-lg-3">
                         <a id="rejected-link" href="{% url 'reject-student-list' %}" style="text-decoration: none;">
-                            <div class="card text-white bg-danger">
+                            <div class="card text-white" style="background-color: #DC143C;"> <!-- Red -->
                                 <div class="card-body">
                                     <i class="fas fa-close icon"></i>
                                     <div>
@@ -196,42 +195,48 @@
                             </div>
                         </a>
                     </div>
-                    <div class="col-lg-6">
-                        <div class="card text-white bg-info">
+                    <div class="col-lg-3">
+                        <div class="card text-white flex-fill" style="background-color: #4682B4;"> <!-- Soft Blue -->
                             <div class="card-body">
                                 <i class="fas fa-file-upload icon"></i>
                                 <div>
                                     <div class="count requirements">{{ daily_requirements_count }}</div>
-                                    <div>Submitted Requirements Today</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Course Counts -->
-                    <div class="col-lg-3">
-                        <div class="card text-white bg-primary">
-                            <div class="card-body">
-                                <i class="fas fa-user-graduate icon"></i>
-                                <div>
-                                    <div class="count">{{ total_course_it }}</div>
-                                    <div>Total BS IT Students</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3">
-                        <div class="card text-white bg-secondary">
-                            <div class="card-body">
-                                <i class="fas fa-user-graduate icon"></i>
-                                <div>
-                                    <div class="count">{{ total_course_cs }}</div>
-                                    <div>Total BS CS Students</div>
+                                    <div>Submitted Requiremnt</div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>              
+                <div class="card" style="box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
+                    <div class="card-header">
+                        <h6 class="m-0" style="font-size: 15px;">Total of Student's by Program</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="col-lg-6">
+                            <div class="card text-white flex-fill" style="background-color: #6A5ACD;"> <!-- Slate Blue -->
+                                <div class="card-body">
+                                    <i class="fas fa-user-graduate icon"></i>
+                                    <div>
+                                        <div class="count">{{ total_course_it }}</div>
+                                        <div>Total BS IT Students</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="card text-white flex-fill" style="background-color: #708090;"> <!-- Slate Grey -->
+                                <div class="card-body">
+                                    <i class="fas fa-user-graduate icon"></i>
+                                    <div>
+                                        <div class="count">{{ total_course_cs }}</div>
+                                        <div>Total BS CS Students</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     <!-- Scripts -->
