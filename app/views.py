@@ -227,12 +227,17 @@ def getAllStudentSubmittedRequirements(request):
     except EmptyPage:
         students = paginator.page(paginator.num_pages)
 
+    # Bilang ng submitted requirements
+    submitted_count = submitted_students.count()
+
     return render(request, 'app/student-submitted-list.html', {
         'students': students,
         'firstName': firstName,
         'lastName': lastName,
-        'per_page': per_page  # Para magamit sa pagination
+        'per_page': per_page,  # Para magamit sa pagination
+        'submitted_count': submitted_count,  # I-pasa ang bilang
     })
+
 
 
 @login_required
