@@ -315,6 +315,81 @@ def getAllApproveStudents(request):
         return render(request, 'app/approve-list-student.html', context)
     return render(request, 'app/approve-list-student.html', context)
 
+@login_required
+def informationTechnologyStudents(request):
+    user = request.user
+    admin = get_object_or_404(CustomUser, id=user.id)
+    firstName = admin.first_name
+    lastName = admin.last_name
+    students_list = DataTableStudents.objects.filter(Course='BS Information Technology').order_by('id')
+    search_query_approve = request.GET.get('search-approve', '')
+    if search_query_approve:
+        students_list = students_list.filter(
+            Q(StudentID__icontains=search_query_approve) |
+            Q(Firstname__icontains=search_query_approve) |
+            Q(Middlename__icontains=search_query_approve) |
+            Q(Lastname__icontains=search_query_approve)
+        )
+    page = request.GET.get('page', 1)
+    per_page_value = request.GET.get('per_page', '50')
+    try:
+        per_page = int(per_page_value) if per_page_value.isdigit() else 50
+    except ValueError:
+        per_page = 50
+    paginator = Paginator(students_list, per_page)
+    try:
+        students = paginator.page(page)
+    except PageNotAnInteger:
+        students = paginator.page(1)
+    except EmptyPage:
+        students = paginator.page(paginator.num_pages)
+    context = {
+        'students': students,
+        'firstName': firstName,
+        'lastName': lastName,
+    }
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return render(request, 'app/bs-it-list.html', context)
+    return render(request, 'app/bs-it-list.html', context)
+
+@login_required
+def computerScienceStudents(request):
+    user = request.user
+    admin = get_object_or_404(CustomUser, id=user.id)
+    firstName = admin.first_name
+    lastName = admin.last_name
+    students_list = DataTableStudents.objects.filter(Course='BS Computer Science').order_by('id')
+    search_query_approve = request.GET.get('search-approve', '')
+    if search_query_approve:
+        students_list = students_list.filter(
+            Q(StudentID__icontains=search_query_approve) |
+            Q(Firstname__icontains=search_query_approve) |
+            Q(Middlename__icontains=search_query_approve) |
+            Q(Lastname__icontains=search_query_approve)
+        )
+
+    page = request.GET.get('page', 1)
+    per_page_value = request.GET.get('per_page', '50')
+    try:
+        per_page = int(per_page_value) if per_page_value.isdigit() else 50
+    except ValueError:
+        per_page = 50
+    paginator = Paginator(students_list, per_page)
+    try:
+        students = paginator.page(page)
+    except PageNotAnInteger:
+        students = paginator.page(1)
+    except EmptyPage:
+        students = paginator.page(paginator.num_pages)
+    context = {
+        'students': students,
+        'firstName': firstName,
+        'lastName': lastName,
+    }
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return render(request, 'app/bs-cs-list.html', context)
+    return render(request, 'app/bs-cs-list.html', context)
+
 @never_cache
 @login_required
 @csrf_exempt

@@ -217,26 +217,30 @@
                     </div>
                     <div class="card-body">
                         <div class="col-lg-6">
-                            <div class="card text-white flex-fill" style="background-color: #6A5ACD;"> <!-- Slate Blue -->
-                                <div class="card-body">
-                                    <i class="fas fa-user-graduate icon"></i>
-                                    <div>
-                                        <div class="count">{{ total_course_it }}</div>
-                                        <div>Bachelor of Science in Information Technology</div>
+                            <a id="bs-it" href="{% url 'information-technology-list' %}" style="text-decoration: none;">
+                                <div class="card text-white flex-fill" style="background-color: #6A5ACD;"> <!-- Slate Blue -->
+                                    <div class="card-body">
+                                        <i class="fas fa-user-graduate icon"></i>
+                                        <div>
+                                            <div class="count">{{ total_course_it }}</div>
+                                            <div>Bachelor of Science in Information Technology</div>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                            </a>
                         </div>
                         <div class="col-lg-6">
-                            <div class="card text-white flex-fill" style="background-color: #708090;"> <!-- Slate Grey -->
-                                <div class="card-body">
-                                    <i class="fas fa-user-graduate icon"></i>
-                                    <div>
-                                        <div class="count">{{ total_course_cs }}</div>
-                                        <div>Bachelor of Science in Computer Science</div>
+                            <a id="bs-cs" href="{% url 'computer-science-list' %}" style="text-decoration: none;">
+                                <div class="card text-white flex-fill" style="background-color: #708090;"> <!-- Slate Grey -->
+                                    <div class="card-body">
+                                        <i class="fas fa-user-graduate icon"></i>
+                                        <div>
+                                            <div class="count">{{ total_course_cs }}</div>
+                                            <div>Bachelor of Science in Computer Science</div>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                            </a>
                         </div>
                     </div>
                 </div>

@@ -1,0 +1,334 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static 'css/main-dashboard.css' %}">
+    <link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon"> 
+    <title>Coordinator - OJT Management System Dashboard</title>
+    <style>
+        .upload-box {
+            border: 2px dashed #ccc;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 216px;
+            margin-bottom: 20px;
+            position: relative;
+            cursor: pointer;
+            overflow: hidden;
+            background-color: #f8f9fa;
+        }
+        .upload-box input[type="file"] {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+        .upload-box img {
+            max-width: 100%;
+            max-height: 100%;
+            display: none;
+        }
+        .upload-box::before {
+            content: 'Choose File';
+            color: #888;
+            font-size: 16px;
+            position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="d-flex" id="wrapper">
+        <!-- Sidebar -->
+        <div class="bg-light border-right vh-250" id="sidebar-wrapper">
+            <a href="{% url 'dashboard' %}" style="text-decoration: none !important; color: black !important;" class="text-center">
+                <div class="sidebar-heading" style="display: flex; align-items: center; justify-content: flex-start;">
+                    <img src="{% static 'img/Logo.png' %}" alt="Logo" style="width: 50px; height: 50px; margin-right: 2px;">
+                    <div style="display: flex; flex-direction: column; line-height: 1; margin-top: 2px;">
+                        <span style="font-size: 18px; font-weight: 500; margin-bottom: 0;" class="text-left mb-1">On the Job</span>
+                        <span style="font-size: 15px;">Management System</span>
+                    </div>
+                </div>
+            </a>
+            <div class="list-group list-group-flush">
+                <a href="{% url 'dashboard' %}" class="list-group-item list-group-item-action bg-light">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+                <a href="{% url 'listOfAnnouncement' %}" class="list-group-item list-group-item-action bg-light">
+                    <i class="fas fa-bullhorn"></i> Announcement
+                </a>
+                <a href="{% url 'all-content' %}" class="list-group-item list-group-item-action bg-light">
+                    <i class="fa-solid fa-cube"></i> Content
+                </a>
+                <a href="{% url 'submission' %}" class="list-group-item list-group-item-action bg-light">
+                    <i class="fa fa-upload"></i> Submissions
+                </a>
+                <a href="{% url 'student-list' %}" class="list-group-item list-group-item-action bg-light">
+                    <i class="fa-sharp-duotone fa-solid fa-list"></i> Student List
+                </a>
+                <a href="{% url 'grading' %}" class="list-group-item list-group-item-action bg-light">
+                    <i class="fa-solid fa-ranking-star"></i> Grading
+                </a>
+                <a href="{% url 'set_rendering_hours' %}" class="list-group-item list-group-item-action bg-light">
+                    <i class="fas fa-cogs"></i> Settings
+                </a>
+                <a data-toggle="modal" data-target="#logout" class="list-group-item list-group-item-action bg-light">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+        </div>
+        <div class="modal fade" id="logout" tabindex="-1" role="dialog" aria-labelledby="loginModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="loginModalLabel">Logout</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Are you sure do want to leave this page</p>
+                    </div>
+                    <div class="modal-footer">
+                        <form>
+                            <a href="javascript:void(0);" onclick="logout()" class="btn btn-primary">Logout</a>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav ml-auto mt-2 mt-lg-0">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-user mr-2"></i>{{ firstName }} {{ lastName }}
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                <a class="dropdown-item" href="{% url 'profile' %}">Profile</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="{% url 'changePass' %}">Change Password</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" data-toggle="modal" data-target="#logout">Logout</a>
+                            </div>
+                        </li>
+                        <li class="nav-item dropdown mt-1">
+                            <a class="nav-link d-flex align-items-center" href="#" id="notificationDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-bell mr-2"></i>
+                                {% if unread_notifications_count > 0 %}
+                                    <span class="badge badge-danger">{{ unread_notifications_count }}</span>
+                                {% endif %}
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="notificationDropdown">
+                                <h6 class="dropdown-header">Notifications</h6>
+                                {% if notifications %}
+                                    {% for notification in notifications %}
+                                        <form action="{% url 'students:mark_notification_as_read' notification.id %}" method="POST" style="display:inline;">
+                                            {% csrf_token %}
+                                            <button type="submit" class="dropdown-item" title="{{ notification.message }}">
+                                                {{ notification.message }}
+                                            </button>
+                                        </form>
+                                        <!-- Add a separator line -->
+                                        <div class="dropdown-divider"></div> <!-- Bootstrap separator -->
+                                    {% endfor %}
+                                {% else %}
+                                    <a class="dropdown-item" href="#">No new notifications</a>
+                                {% endif %}
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+            <div class="container-fluid">
+                <div class="row mb-4">
+                    <div class="col-lg-12">
+                        <h3 class="mt-4 mb-2">BS Information Technology Student</h3>
+                    </div>
+                </div>
+                <div class="approved-student-table">
+                    <div class="d-flex justify-content-between mb-3 mt-3">
+                        <!-- Left-aligned search bar -->
+                        <form class="form-inline" method="get" action="{% url 'information-technology-list' %}">
+                            <div class="input-group">
+                                <input type="search" name="search-approve" class="form-control" placeholder="Search..." aria-label="Search" aria-describedby="search-icon" id="search-input">
+                                <div class="input-group-prepend" style="cursor: pointer;" onclick="this.closest('form').submit();">
+                                    <span class="input-group-text" id="search-icon">
+                                        <i class="fas fa-search"></i>
+                                    </span>
+                                </div>
+                            </div>
+                            <input type="hidden" name="tab" value="approved-students">
+                        </form>
+                    </div>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Student ID</th>
+                                <th>Firstname</th>
+                                <th>Middlename</th>
+                                <th>Lastname</th>
+                                <th>Course</th>
+                                <th>Year</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentTableBody">
+                            {% for student in students %}
+                            <tr data-course="{{ student.Course }}">
+                                <td>{{ student.StudentID }}</td>
+                                <td style="text-transform: uppercase;">{{ student.Firstname }}</td>
+                                <td style="text-transform: uppercase;">{{ student.Middlename }}</td>
+                                <td style="text-transform: uppercase;">{{ student.Lastname }}</td>
+                                <td style="text-transform: uppercase;">{{ student.Course }}</td>
+                                <td style="text-transform: uppercase;">{{ student.Year }}</td>
+                                <td><p style="text-transform: uppercase; font-weight: bold;" class="text-success">Approved</p></td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="7" class="text-center">No approved students found.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <!-- Pagination Controls -->
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <!-- Items per Page Selector -->
+                        <div class="form-group">
+                            <label for="perPage" class="form-label mr-2">Items per page:</label>
+                            <select id="perPage" class="form-control w-auto" onchange="updatePerPage(this.value)">
+                                <option value="50" {% if per_page == 50 %}selected{% endif %}>50</option>
+                                <option value="100" {% if per_page == 100 %}selected{% endif %}>100</option>
+                            </select>
+                        </div>
+                        <!-- Pagination Links -->
+                        <ul class="pagination">
+                            <!-- Check if there's a previous page -->
+                            {% if students.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1&per_page={{ per_page }}" aria-label="First">
+                                    <span aria-hidden="true">&laquo;&laquo;</span>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ students.previous_page_number }}&per_page={{ per_page }}" aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                            {% endif %}  
+                            <!-- Loop through page numbers -->
+                            {% for num in students.paginator.page_range %}
+                                {% if num > students.number|add:'-3' and num < students.number|add:'3' %}
+                                    {% if students.number == num %}
+                                    <li class="page-item active" aria-current="page">
+                                        <span class="page-link">{{ num }}</span>
+                                    </li>
+                                    {% else %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ num }}&per_page={{ per_page }}">{{ num }}</a>
+                                    </li>
+                                    {% endif %}
+                                {% endif %}
+                            {% endfor %}                
+                            <!-- Check if there's a next page -->
+                            {% if students.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ students.next_page_number }}&per_page={{ per_page }}" aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ students.paginator.num_pages }}&per_page={{ per_page }}" aria-label="Last">
+                                    <span aria-hidden="true">&raquo;&raquo;</span>
+                                </a>
+                            </li>
+                            {% endif %}
+                        </ul>   
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    {% comment %}  {% endcomment %}
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    {% comment %}  {% endcomment %}
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    {% comment %}  {% endcomment %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+    {% comment %}  {% endcomment %}
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    {% comment %}  {% endcomment %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    {% comment %}  {% endcomment %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const csrfToken = "{{ csrf_token }}"; // Global variable for CSRF token
+    
+            // Function to handle logout
+            function logout() {
+                localStorage.removeItem('is_coordinator_logged_in');
+                window.location.href = '{% url 'logout' %}';
+            }
+    
+            // Initialize tooltips
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            }); 
+            // Search functionality
+            const searchInput = document.getElementById('search-input');
+            if (searchInput) {
+                searchInput.addEventListener('keydown', function (event) {
+                    if (event.key === 'Enter') {
+                        event.preventDefault(); // Prevent form submission
+                        const searchValue = this.value;
+                        const perPage = document.getElementById('perPage').value; // Get current items per page value
+    
+                        fetch(`{% url 'information-technology-list' %}?search-approve=${searchValue}&per_page=${perPage}`, {
+                            method: 'GET',
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                            },
+                        })
+                        .then(response => response.text())
+                        .then(html => {
+                            const parser = new DOMParser();
+                            const doc = parser.parseFromString(html, 'text/html');
+                            const newTbody = doc.getElementById('studentTableBody');
+                            const currentTbody = document.getElementById('studentTableBody');
+    
+                            if (newTbody) {
+                                currentTbody.innerHTML = newTbody.innerHTML;
+                            }
+                        })
+                        .catch(error => console.error('Error:', error));
+                    }
+                });
+            } else {
+                console.error('Element with ID "search-input" not found.');
+            }          
+        });
+    </script>
+</body>
+</html>
