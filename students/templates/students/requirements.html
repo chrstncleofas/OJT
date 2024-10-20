@@ -214,73 +214,112 @@
             <div class="container-fluid">
                 <div class="row mb-4">
                     <div class="col-lg-12">
-                        <p class="mt-3 mb-2">
-                            <a href="{% url 'students:dashboard' %}" style="cursor: pointer; text-decoration: none; color: black;">Dashboard</a> / Requirements
-                        </p>
-                        <h4 class="mt-2 mb-3">List of Requirements</h4>
-                        <table class="table table-striped table-bordered mt-2">
-                            <thead>
-                                <tr>
-                                    <th>File Name</th>
-                                    <th>Upload Date</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for requirement in requirements %}
-                                <tr>
-                                    <td>{{ requirement.nameOfFile }}</td>
-                                    <td>{{ requirement.upload_date|date:"M d, Y H:i" }}</td>
-                                    <td>
-                                        <a href="{{ requirement.document.url }}" class="btn btn-m btn-info" download>
-                                            <i class="fas fa-download"></i>
-                                        </a>
-                                    </td>
-                                </tr>
-                                {% empty %}
-                                <tr>
-                                    <td colspan="3" class="text-center">No requirements uploaded yet.</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                        <!-- Remaining Requirements to Submit -->
-                        <h6 class="mt-2 mb-2" style="font-size: 12px;">Remaining Requirements to Submit</h6>
-                        <ul>
-                            {% for doc in remaining_docs %}
-                                <li style="font-size: 10px; line-height: 2.20;">{{ doc }}</li>
-                            {% empty %}
-                                <li style="font-size: 10px; list-style: none;">All documents have been submitted.</li>
-                            {% endfor %}
-                        </ul>
-                        <h6 class="mt-2 mb-2">Documentary Requirements</h6>
-                        <p class="mb-0" style="font-size: 11px; margin-bottom: 8px; margin-right: 0px;">Choose the file you want to submit</p>
+                        <h3 class="mt-3 mb-4">List of Requirements</h3>
                         <div class="row">
-                            <div class="col-lg-12">
-                                <form method="POST" enctype="multipart/form-data" class="form-inline">
+                            <!-- Left Column: List of Requirements Table -->
+                            <div class="col-lg-8">
+                                <table class="table table-striped table-bordered mt-2">
+                                    <thead>
+                                        <tr>
+                                            <th>File Name</th>
+                                            <th>Upload Date</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for requirement in requirements %}
+                                        <tr>
+                                            <td>{{ requirement.nameOfFile }}</td>
+                                            <td>{{ requirement.upload_date|date:"M d, Y H:i" }}</td>
+                                            <td>
+                                                <a href="{{ requirement.document.url }}" class="btn btn-sm btn-info" download>
+                                                    <i class="fas fa-download"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        {% empty %}
+                                        <tr>
+                                            <td colspan="3" class="text-center">No requirements uploaded yet.</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Right Column: Submission Form -->
+                            <div class="col-lg-4">
+                                <!-- Table for Submitted Requirements -->
+                                <h6 style="font-size: 12px;" class="mt-2 mb-2">Submitted Requirements</h6>
+                                <table class="table table-bordered table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>File Name</th>
+                                            <th>Attachment</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for submitted in submittedDoc %}
+                                        <tr>
+                                            <td>{{ submitted.nameOfDocs }}</td>
+                                            <td class="text-center">
+                                                <i class="fas fa-check-circle text-success"></i>
+                                            </td>
+                                            <td>
+                                                <form method="POST" action="{% url 'students:delete_submission' submitted.id %}">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="btn btn-sm btn-danger">
+                                                        <i class="fas fa-trash-alt"></i>
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                        {% empty %}
+                                        <tr>
+                                            <td colspan="3" class="text-center">No documents submitted yet.</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                                <!-- Remaining Requirements to Submit -->
+                                <h6 class="mt-2 mb-2" style="font-size: 12px;">List of Required to Submit</h6>
+                                <ul>
+                                    {% for doc in remaining_docs %}
+                                        <li style="font-size: 10px; line-height: 2.20;">{{ doc }}</li>
+                                    {% empty %}
+                                        <li style="font-size: 10px; list-style: none;">All documents have been submitted.</li>
+                                    {% endfor %}
+                                </ul>
+                                <h6 class="mt-2 mb-2">Documentary Requirements</h6>
+                                <p class="mb-0" style="font-size: 11px; margin-bottom: 8px;">Choose the file you want to submit</p>
+                                <form method="POST" enctype="multipart/form-data" class="form-inline mt-3">
                                     {% csrf_token %}
                                     <!-- Requirement Dropdown (select tag) -->
-                                    <div class="form-group mr-3 mt-3">
+                                    <div class="form-group mb-2">
                                         {{ form.nameOfDocs }}
                                     </div>
-                                    <!-- File Input -->
-                                    <div id="uploadSection" class="form-group mr-3 row" style="display:none;">
-                                        <!-- Make sure the paragraph spans the entire width -->
-                                        <div class="col-9">
-                                            <p style="font-size: 11px; margin-bottom: 8px; margin-right: 0px;">Upload File (.word, .pdf, .png, .jpeg, .jpg format, Max. file size is 5 MB)</p>
-                                        </div>  
-                                        <!-- The input field for file upload -->
-                                        <div class="col-9">
-                                            <input type="file" name="submitted_file" class="form-control-file" style="border: 1px; z-index: -1;">
+                                    <!-- File Input Section -->
+                                    <div id="uploadSection" class="form-group row" style="display:none;">
+                                        <div class="col-12">
+                                            <p style="font-size: 11px; margin-bottom: 8px;">Upload File (.word, .pdf, .png, .jpeg, .jpg format, Max. file size is 5 MB)</p>
                                         </div>
-                                        <button type="submit" class="btn btn-sm btn-primary" style="margin-left: -180px; z-index: 1000;"><i class="fas fa-upload"></i> Upload</button>
+                                        <div class="col-12 mb-2">
+                                            <input type="file" name="submitted_file" class="form-control-file" style="border: 1px;">
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Upload Button -->
+                                    <div class="col-12 text-right">
+                                        <button type="submit" class="btn btn-sm btn-primary mt-2" id="submitDocs" style="display:none; margin-left: -15px">
+                                            <i class="fas fa-upload"></i> Upload
+                                        </button>
                                     </div>
                                 </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>    
-            </div>
+                            </div> <!-- End of Right Column -->
+                        </div> <!-- End of Row -->
+                    </div> <!-- End of col-lg-12 -->
+                </div> <!-- End of Row -->
+            </div> <!-- End of Container -->
         </div>
     </div>
     <!-- Scripts -->
@@ -289,7 +328,6 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script> 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Clear localStorage on logout and redirect to Django logout URL
         function logout() {
             localStorage.removeItem('is_student_logged_in');
             window.location.href = '{% url 'students:logout' %}';
@@ -302,17 +340,14 @@
             var requirementDropdown = document.getElementById('id_nameOfDocs');
             var uploadSection = document.getElementById('uploadSection');
             var submitDocument = document.getElementById('submitDocs');
-    
-            // Listen to change event of the dropdown
+        
             requirementDropdown.addEventListener('change', function () {
                 if (this.value) {
-                    // Show the file input and button when a requirement is selected
-                    uploadSection.style.display = 'flex';
-                    submitDocument.style.display = 'flex';
+                    uploadSection.style.display = 'flex'; // Show upload section
+                    submitDocument.style.display = 'block'; // Show submit button
                 } else {
-                    // Hide the file input and button when no requirement is selected
-                    uploadSection.style.display = 'none';
-                    submitDocument.style.display = 'none';
+                    uploadSection.style.display = 'none'; // Hide upload section
+                    submitDocument.style.display = 'none'; // Hide submit button
                 }
             });
         });

@@ -125,6 +125,106 @@
             object-fit: cover;
             width: 100%;
         }
+        /* Style for the carousel */
+        .carousel-container {
+            width: 90%; /* Make the carousel container take up 90% of the viewport width */
+            max-width: 1920px; /* Set a max width to match the image width */
+            margin: auto;
+            text-align: center;
+        }
+
+        .carousel {
+            position: relative;
+            width: 100%; /* Full width for responsiveness */
+            height: 670px; /* Fixed height for the carousel */
+            margin: auto;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .carousel-inner {
+            display: flex;
+            transition: transform 0.5s ease-in-out;
+        }
+
+        .carousel-item {
+            min-width: 100%;
+            height: 100%; /* Ensure each carousel item matches the height of the carousel */
+            transition: opacity 0.5s ease-in-out;
+            display: none; /* Hide all items by default */
+        }
+
+        .carousel-item.active {
+            display: block; /* Show the active item */
+        }
+
+        /* Image styling */
+        .carousel-item img {
+            width: 100%; /* Full width of the carousel item */
+            height: 100%; /* Full height to cover the container */
+            object-fit: cover; /* Cover ensures the image fills the area */
+        }
+
+        /* Navigation buttons */
+        .carousel-control {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            font-size: 24px;
+            border-radius: 3px;
+        }
+        .prev {
+            left: 10px;
+        }
+        .next {
+            right: 10px;
+        }
+        /* Indicators styling */
+        .carousel-container .carousel-indicators {
+            margin-top: 45px; /* Slightly move the indicators closer to the image */
+            text-align: center;
+            position: relative;
+            bottom: 10px; /* Adjust position to get indicators closer to the carousel */
+            z-index: 10; /* Ensures indicators are visible on top */
+        }
+        .carousel-container .dot {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            margin: 0 5px;
+            background-color: #bbb;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .carousel-container .dot.active {
+            background-color: #333;
+        }
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .carousel {
+                height: 600px; /* Adjust height for medium screens */
+            }
+
+            .carousel-item img {
+                height: 100%; /* Full height for medium screens */
+            }
+        }
+        @media (max-width: 480px) {
+            .carousel {
+                height: 300px; /* Further adjust height for smaller screens */
+            }
+
+            .carousel-item img {
+                height: 100%; /* Full height for smaller devices */
+            }
+        }
     </style>
 </head>
 <body>
@@ -166,6 +266,7 @@
             <span class="dot active" onclick="currentSlide(1)"></span>
             <span class="dot" onclick="currentSlide(2)"></span>
             <span class="dot" onclick="currentSlide(3)"></span>
+            <span class="dot" onclick="currentSlide(4)"></span>
         </div>
     </div>
     <div class="container mt-3 mb-5" style="max-width: 1293px;">

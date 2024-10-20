@@ -699,9 +699,12 @@ def requirements(request):
     ).exclude(
         id__in=ApprovedDocument.objects.filter(student=student).values_list('id', flat=True)
     ).values_list('nameOfDocs', flat=True)
+
+    submittedDoc = TableSubmittedRequirement.objects.all().order_by('id')
     requirements = TableRequirements.objects.all().order_by('id')
     approved_docs = ApprovedDocument.objects.filter(student=student).values_list('nameOfDocs', flat=True)
     remaining_docs = [doc for doc in required_docs if doc not in submitted_docs and doc not in approved_docs]
+
 
     return render(request, 'students/requirements.html', {
         'form': form,
@@ -711,8 +714,20 @@ def requirements(request):
         'lastName': student.Lastname,
         'notifications': notifications,
         'unread_notifications_count': unread_notifications_count,
+        'unread_notifications_count': unread_notifications_count,
+        'submittedDoc': submittedDoc
     })
 
+@never_cache
+@login_required
+@csrf_exempt
+def delete_submission(request, id):
+    submission = get_object_or_404(TableSubmittedRequirement, id=id)
+    if request.method == 'POST':
+        submission.delete()
+        return redirect('students:requirements')
+    return render(request, 'students/requirements.html')
+    
 @never_cache
 @login_required
 @csrf_exempt
