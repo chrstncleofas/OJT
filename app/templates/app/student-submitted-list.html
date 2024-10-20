@@ -216,41 +216,60 @@
                         <!-- Pagination Links -->
                         <ul class="pagination">
                             {% if students.has_previous %}
-                            <li class="page-item">
-                                <a class="page-link" href="?page=1&per_page={{ per_page }}" aria-label="First">
-                                    <span aria-hidden="true">&laquo;&laquo;</span>
-                                </a>
-                            </li>
-                            <li class="page-item">
-                                <a class="page-link" href="?page={{ students.previous_page_number }}&per_page={{ per_page }}" aria-label="Previous">
-                                    <span aria-hidden="true">&laquo;</span>
-                                </a>
-                            </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page=1&per_page={{ per_page }}" aria-label="First">
+                                        <span aria-hidden="true">&laquo;&laquo;</span>
+                                    </a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ students.previous_page_number }}&per_page={{ per_page }}" aria-label="Previous">
+                                        <span aria-hidden="true">&laquo;</span>
+                                    </a>
+                                </li>
                             {% endif %}
+
+                            <!-- Display the first page and dots if the current page is not near the beginning -->
+                            {% if students.number > 4 %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page=1&per_page={{ per_page }}">1</a>
+                                </li>
+                                <li class="page-item disabled"><span class="page-link">...</span></li>
+                            {% endif %}
+
+                            <!-- Display the range of pages around the current page -->
                             {% for num in students.paginator.page_range %}
-                                {% if num > students.number|add:'-3' and num < students.number|add:'3' %}
+                                {% if num >= students.number|add:'-2' and num <= students.number|add:'2' %}
                                     {% if students.number == num %}
-                                    <li class="page-item active" aria-current="page">
-                                        <span class="page-link">{{ num }}</span>
-                                    </li>
+                                        <li class="page-item active" aria-current="page">
+                                            <span class="page-link">{{ num }}</span>
+                                        </li>
                                     {% else %}
-                                    <li class="page-item">
-                                        <a class="page-link" href="?page={{ num }}&per_page={{ per_page }}">{{ num }}</a>
-                                    </li>
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ num }}&per_page={{ per_page }}">{{ num }}</a>
+                                        </li>
                                     {% endif %}
                                 {% endif %}
                             {% endfor %}
+
+                            <!-- Display the last page and dots if the current page is not near the end -->
+                            {% if students.number < students.paginator.num_pages|add:'-3' %}
+                                <li class="page-item disabled"><span class="page-link">...</span></li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ students.paginator.num_pages }}&per_page={{ per_page }}">{{ students.paginator.num_pages }}</a>
+                                </li>
+                            {% endif %}
+
                             {% if students.has_next %}
-                            <li class="page-item">
-                                <a class="page-link" href="?page={{ students.next_page_number }}&per_page={{ per_page }}" aria-label="Next">
-                                    <span aria-hidden="true">&raquo;</span>
-                                </a>
-                            </li>
-                            <li class="page-item">
-                                <a class="page-link" href="?page={{ students.paginator.num_pages }}&per_page={{ per_page }}" aria-label="Last">
-                                    <span aria-hidden="true">&raquo;&raquo;</span>
-                                </a>
-                            </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ students.next_page_number }}&per_page={{ per_page }}" aria-label="Next">
+                                        <span aria-hidden="true">&raquo;</span>
+                                    </a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ students.paginator.num_pages }}&per_page={{ per_page }}" aria-label="Last">
+                                        <span aria-hidden="true">&raquo;&raquo;</span>
+                                    </a>
+                                </li>
                             {% endif %}
                         </ul>
                     </div>
