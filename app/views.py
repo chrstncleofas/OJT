@@ -67,72 +67,76 @@ def mainDashboard(request):
     end_date = request.GET.get('endDate')
 
     # Initialize counts
-    approve = pending = reject = daily_requirements = []
+    counts = {
+        'approve_count': 0,
+        'pending_count': 0,
+        'reject_count': 0,
+        'student_daily_counts': {}
+    }
 
     # Apply date filters based on the selected filter type
     if filter_type == 'today':
-        approve = DataTableStudents.objects.filter(status='Approved', archivedStudents='NotArchive', created_at__date=today)
-        pending = PendingApplication.objects.filter(StatusApplication='PendingApplication', PendingStatusArchive='NotArchive', created_at__date=today)
-        reject = RejectApplication.objects.filter(RejectStatus='RejectedApplication', RejectStatusArchive='NotArchive', created_at__date=today)
-        daily_requirements = TableSubmittedRequirement.objects.filter(submission_date__date=today)
+        date_filter = today
     elif filter_type == 'yesterday':
-        yesterday_start = yesterday
-        yesterday_end = today
-        approve = DataTableStudents.objects.filter(status='Approved', archivedStudents='NotArchive', created_at__range=(yesterday_start, yesterday_end))
-        pending = PendingApplication.objects.filter(StatusApplication='PendingApplication', PendingStatusArchive='NotArchive', created_at__range=(yesterday_start, yesterday_end))
-        reject = RejectApplication.objects.filter(RejectStatus='RejectedApplication', RejectStatusArchive='NotArchive', created_at__range=(yesterday_start, yesterday_end))
-        daily_requirements = TableSubmittedRequirement.objects.filter(submission_date__range=(yesterday_start, yesterday_end))
+        date_filter = yesterday
     elif filter_type == 'week':
-        approve = DataTableStudents.objects.filter(status='Approved', archivedStudents='NotArchive', created_at__date__range=(week_start, today))
-        pending = PendingApplication.objects.filter(StatusApplication='PendingApplication', PendingStatusArchive='NotArchive', created_at__date__range=(week_start, today))
-        reject = RejectApplication.objects.filter(RejectStatus='RejectedApplication', RejectStatusArchive='NotArchive', created_at__date__range=(week_start, today))
-        daily_requirements = TableSubmittedRequirement.objects.filter(submission_date__date__range=(week_start, today))
+        date_filter = (week_start, today)
     elif filter_type == 'custom' and start_date and end_date:
         start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
         end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
-        approve = DataTableStudents.objects.filter(status='Approved', archivedStudents='NotArchive', created_at__date__range=(start_date, end_date))
-        pending = PendingApplication.objects.filter(StatusApplication='PendingApplication', PendingStatusArchive='NotArchive', created_at__date__range=(start_date, end_date))
-        reject = RejectApplication.objects.filter(RejectStatus='RejectedApplication', RejectStatusArchive='NotArchive', created_at__date__range=(start_date, end_date))
-        daily_requirements = TableSubmittedRequirement.objects.filter(submission_date__date__range=(start_date, end_date))
-    
-    # Get the counts
-    approve_count = approve.count()
-    pending_count = pending.count()
-    reject_count = reject.count()
-    
-    # Get the count of submitted requirements per student for the selected date filter
-    student_daily_counts = {}
+        date_filter = (start_date, end_date)
+    else:
+        date_filter = None  # Fallback if no valid filter is provided
+
+    # Get counts based on the date filter
+    if filter_type in ['today', 'yesterday']:
+        counts['approve_count'] = DataTableStudents.objects.filter(status='Approved', archivedStudents='NotArchive', created_at__date=date_filter).count()
+        counts['pending_count'] = PendingApplication.objects.filter(StatusApplication='PendingApplication', PendingStatusArchive='NotArchive', created_at__date=date_filter).count()
+        counts['reject_count'] = RejectApplication.objects.filter(RejectStatus='RejectedApplication', RejectStatusArchive='NotArchive', created_at__date=date_filter).count()
+    elif filter_type == 'week':
+        counts['approve_count'] = DataTableStudents.objects.filter(status='Approved', archivedStudents='NotArchive', created_at__date__range=date_filter).count()
+        counts['pending_count'] = PendingApplication.objects.filter(StatusApplication='PendingApplication', PendingStatusArchive='NotArchive', created_at__date__range=date_filter).count()
+        counts['reject_count'] = RejectApplication.objects.filter(RejectStatus='RejectedApplication', RejectStatusArchive='NotArchive', created_at__date__range=date_filter).count()
+    elif filter_type == 'custom':
+        counts['approve_count'] = DataTableStudents.objects.filter(status='Approved', archivedStudents='NotArchive', created_at__date__range=date_filter).count()
+        counts['pending_count'] = PendingApplication.objects.filter(StatusApplication='PendingApplication', PendingStatusArchive='NotArchive', created_at__date__range=date_filter).count()
+        counts['reject_count'] = RejectApplication.objects.filter(RejectStatus='RejectedApplication', RejectStatusArchive='NotArchive', created_at__date__range=date_filter).count()
+
+    # Count submitted requirements per student based on the selected date filter
     for student in DataTableStudents.objects.all():
-        student_daily_counts[student.id] = TableSubmittedRequirement.objects.filter(
-            student=student,
-            submission_date__date=today  # Filter based on the selected date range
-        ).count()
-    
-    total_course_it = DataTableStudents.objects.filter(Course='BS Information Technology').count()
-    total_course_cs = DataTableStudents.objects.filter(Course='BS Computer Science').count()
+        if date_filter:
+            if isinstance(date_filter, tuple):  # For range queries
+                requirement_count = TableSubmittedRequirement.objects.filter(
+                    student=student,
+                    submission_date__range=date_filter
+                ).count()
+            else:  # For single date queries
+                requirement_count = TableSubmittedRequirement.objects.filter(
+                    student=student,
+                    submission_date__date=date_filter
+                ).count()
+        else:
+            requirement_count = 0
+
+        counts['student_daily_counts'][student.id] = requirement_count
+
+    # Total counts for courses
+    counts['total_course_it'] = DataTableStudents.objects.filter(Course='BS Information Technology').count()
+    counts['total_course_cs'] = DataTableStudents.objects.filter(Course='BS Computer Science').count()
 
     if request.method == 'GET' and request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        return JsonResponse({
-            'approve_count': approve_count,
-            'pending_count': pending_count,
-            'reject_count': reject_count,
-            'student_daily_counts': student_daily_counts,  # Include student submission counts
-        })
-    
+        return JsonResponse(counts)
+
     return render(
         request,
         'app/main-dashboard.html',
         {
-            'approve_count': approve_count,
-            'pending_count': pending_count,
-            'reject_count': reject_count,
-            'student_daily_counts': student_daily_counts,  # Pass to the template
+            **counts,
             'firstName': firstName,
             'lastName': lastName,
-            'total_course_it': total_course_it,
-            'total_course_cs': total_course_cs,
         }
     )
+
 
 @login_required
 @csrf_exempt

@@ -200,7 +200,11 @@
                             <div class="card-body">
                                 <i class="fas fa-file-upload icon"></i>
                                 <div>
-                                    <div class="count requirements">{{ student_daily_counts }}</div>
+                                    <div class="count requirements">
+                                        {% for student_id, count in student_daily_counts.items %}
+                                            {{ student_id }}: {{ count }}
+                                        {% endfor %}
+                                    </div>
                                     <div>Submitted Requiremnt</div>
                                 </div>
                             </div>
@@ -356,13 +360,23 @@
         }
     
         // Updates the dashboard counts displayed on the UI
+        // Updates the dashboard counts displayed on the UI
         function updateDashboardCounts(data) {
-            console.log("Data received from server:", data);
-    
             document.querySelector('.count.approved').textContent = data.approve_count;
             document.querySelector('.count.pending').textContent = data.pending_count;
             document.querySelector('.count.rejected').textContent = data.reject_count;
-            document.querySelector('.count.requirements').textContent = data.student_daily_counts;
+
+            // Update submitted requirements section
+            const requirementsDiv = document.querySelector('.count.requirements');
+            requirementsDiv.innerHTML = ''; // Clear previous data
+            for (const [student_id, count] of Object.entries(data.student_daily_counts)) {
+                const requirementCount = `${student_id}: ${count}`;
+                requirementsDiv.innerHTML += requirementCount;
+            }
+
+            // Update total course counts
+            document.querySelector('.count.total_course_it').textContent = data.total_course_it;
+            document.querySelector('.count.total_course_cs').textContent = data.total_course_cs;
         }
     
         // Updates the card links based on the filter selected
