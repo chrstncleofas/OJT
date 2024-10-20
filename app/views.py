@@ -192,24 +192,45 @@ def getAllStudentSubmittedRequirements(request):
     lastName = admin.last_name
 
     # Kunin ang mga estudyanteng nag-submit ng requirements
-    submitted_students = TableSubmittedRequirement.objects.values('student').distinct()
-
-    # Kunin ang lahat ng estudyanteng batay sa student_id
-    student_ids = [student['student'] for student in submitted_students]
-
+    submitted_students = TableSubmittedRequirement.objects.all()
+    
     # Kunin ang search query mula sa request
     search_query_approve = request.GET.get('search-approve', '')
 
-    # Mag-filter ng students batay sa search query
-    students = DataTableStudents.objects.filter(id__in=student_ids)
-
+    # Pag-filter ayon sa search query
     if search_query_approve:
-        students = students.filter(
-            Q(StudentID__icontains=search_query_approve) |
-            Q(Firstname__icontains=search_query_approve) |
-            Q(Middlename__icontains=search_query_approve) |
-            Q(Lastname__icontains=search_query_approve)
+        submitted_students = submitted_students.filter(
+            Q(student__StudentID__icontains=search_query_approve) |
+            Q(student__Firstname__icontains=search_query_approve) |
+            Q(student__Middlename__icontains=search_query_approve) |
+            Q(student__Lastname__icontains=search_query_approve)
         )
+
+    # Pag-filter ayon sa petsa
+    date_filter = request.GET.get('filterType', 'today')
+    start_date = request.GET.get('startDate')
+    end_date = request.GET.get('endDate')
+    today = timezone.now().date()
+
+    if date_filter == 'today':
+        submitted_students = submitted_students.filter(submission_date__date=today)
+    elif date_filter == 'yesterday':
+        yesterday = today - timedelta(days=1)
+        submitted_students = submitted_students.filter(submission_date__date=yesterday)
+    elif date_filter == 'week':
+        start_of_week = today - timedelta(days=today.weekday())
+        submitted_students = submitted_students.filter(submission_date__date__gte=start_of_week)
+    elif date_filter == 'custom' and start_date and end_date:
+        try:
+            start_date = timezone.datetime.strptime(start_date, '%Y-%m-%d').date()
+            end_date = timezone.datetime.strptime(end_date, '%Y-%m-%d').date()
+            submitted_students = submitted_students.filter(submission_date__date__range=(start_date, end_date))
+        except ValueError:
+            print("Invalid date format for custom date range")
+
+    # Kunin ang mga detalye ng estudyante batay sa mga student_id
+    student_ids = [student['student'] for student in submitted_students.values('student').distinct()]
+    students = DataTableStudents.objects.filter(id__in=student_ids)
 
     # Pagination
     page = request.GET.get('page', 1)
@@ -227,18 +248,13 @@ def getAllStudentSubmittedRequirements(request):
     except EmptyPage:
         students = paginator.page(paginator.num_pages)
 
-    # Bilang ng submitted requirements
-    submitted_count = submitted_students.count()
-
     return render(request, 'app/student-submitted-list.html', {
         'students': students,
         'firstName': firstName,
         'lastName': lastName,
-        'per_page': per_page,  # Para magamit sa pagination
-        'submitted_count': submitted_count,  # I-pasa ang bilang
+        'per_page': per_page,
+        'submitted_count': submitted_students.count(),  # Optional: Count of submitted requirements
     })
-
-
 
 @login_required
 def getAllApproveStudents(request):
