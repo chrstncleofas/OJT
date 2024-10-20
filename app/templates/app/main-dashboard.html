@@ -201,9 +201,7 @@
                                 <i class="fas fa-file-upload icon"></i>
                                 <div>
                                     <div class="count requirements">
-                                        {% for student_id, count in student_daily_counts.items %}
-                                            {{ student_id }}: {{ count }}<br>
-                                        {% endfor %}
+                                        {{ submitted_students_count  }}
                                     </div>
                                     <div>Submitted Requiremnt</div>
                                 </div>
