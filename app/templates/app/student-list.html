@@ -161,13 +161,13 @@
             <div class="container-fluid">
                 <div class="row mb-4">
                     <div class="col-lg-12">
-                        <h3 class="mt-4 mb-2">Pending Registration</h3>
+                        <h3 class="mt-4 mb-2">Student List</h3>
                     </div>
                 </div>
                 <div class="approved-student-table">
                     <div class="d-flex justify-content-between mb-3 mt-3">
                         <!-- Left-aligned search bar -->
-                        <form class="form-inline" method="get" action="{% url 'pending-student-list' %}">
+                        <form class="form-inline" method="get" action="{% url 'approve-student-list' %}">
                             <div class="input-group">
                                 <input type="search" name="search-approve" class="form-control" placeholder="Search..." aria-label="Search" aria-describedby="search-icon" id="search-input">
                                 <div class="input-group-prepend" style="cursor: pointer;" onclick="this.closest('form').submit();">
@@ -191,75 +191,59 @@
                     <table class="table">
                         <thead>
                             <tr>
-                                <th style="width: 14%;">Student ID</th>
-                                <th style="width: 13%;">Firstname</th>
-                                <th style="width: 13%;">Middlename</th>
-                                <th style="width: 13%;">Lastname</th>
-                                <th style="width: 14%;">Program</th>
-                                <th style="width: 20%;">Actions</th>
+                                <th>Student ID</th>
+                                <th>Firstname</th>
+                                <th>Middlename</th>
+                                <th>Lastname</th>
+                                <th>Course</th>
+                                <th>Year</th>
+                                <th>Status</th>
+                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody id="studentTableBody">
-                            {% for pendingStudent in students %}
-                            <tr>
-                                <td>{{ pendingStudent.PendingStudentID }}</td>
-                                <td>{{ pendingStudent.PendingFirstname }}</td>
-                                <td>{{ pendingStudent.PendingMiddlename }}</td>
-                                <td>{{ pendingStudent.PendingLastname }}</td>
-                                <td>{{ pendingStudent.PendingCourse }}</td>
+                            {% for student in students %}
+                            <tr data-course="{{ student.Course }}">
+                                <td>{{ student.StudentID }}</td>
+                                <td style="text-transform: uppercase;">{{ student.Firstname }}</td>
+                                <td style="text-transform: uppercase;">{{ student.Middlename }}</td>
+                                <td style="text-transform: uppercase;">{{ student.Lastname }}</td>
+                                <td style="text-transform: uppercase;">{{ student.Course }}</td>
+                                <td style="text-transform: uppercase;">{{ student.Year }}</td>
                                 <td>
-                                    <!-- Approve Button -->
-                                    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#approveModal{{pendingStudent.id}}">Approve</button>
-                                    <!-- Approve Modal -->
-                                    <div class="modal" id="approveModal{{pendingStudent.id}}" tabindex="-1" aria-labelledby="myModalLabel1" aria-hidden="true">
+                                <p style="text-transform: uppercase; font-weight: bold;" class="text-success">Approved</p>
+                                </td>
+                                <td>
+                                    <a href="{% url 'editStudentDetails' student.id %}" class="btn btn-primary"><i class="fa-solid fa-pen-to-square" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit"></i></a>
+                                    <a href="{% url 'student-logs' student.id %}" class="btn btn-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="View"><i class="fas fa-eye"></i></a>
+                                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#passwordModal{{student.id}}"><i class="fa fa-archive" data-bs-toggle="tooltip" data-bs-placement="top" title="Archive"></i></button>     
+                                    <!-- Password Modal -->
+                                    <div id="passwordModal{{student.id}}" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="passwordModalLabel{{student.id}}" aria-hidden="true">
                                         <div class="modal-dialog" role="document">
                                             <div class="modal-content">
                                                 <div class="modal-header">
-                                                    <h5 class="modal-title" id="approveModalLabel">Confirm Approval</h5>
+                                                    <h5 class="modal-title" id="passwordModalLabel{{student.id}}">Enter password</h5>
                                                     <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                                                         <span aria-hidden="true">&times;</span>
                                                     </button>
                                                 </div>
                                                 <div class="modal-body">
-                                                    Do you want to proceed with this approval?
+                                                    <input type="hidden" id="studentId{{student.id}}" value="{{ student.id }}">
+                                                    <input type="password" id="adminPassword{{student.id}}" class="form-control" placeholder="Admin Password">
                                                 </div>
                                                 <div class="modal-footer">
-                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                                    <a href="{% url 'approve_student' pendingStudent.id %}" class="btn btn-primary">Approve</a>
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                    <button type="button" class="btn btn-primary" onclick="validatePassword('{{ student.id }}')">Validate Password</button>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <!-- Reject Button -->
-                                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#rejectModal{{pendingStudent.id}}">Disapprove</button>
-                                    <!-- Reject Modal -->
-                                    <div class="modal fade" id="rejectModal{{pendingStudent.id}}" tabindex="-1" role="dialog" aria-labelledby="rejectModalLabel" aria-hidden="true">
-                                        <div class="modal-dialog" role="document">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title" id="rejectModalLabel">Confirm Rejection</h5>
-                                                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                                                        <span aria-hidden="true">&times;</span>
-                                                    </button>
-                                                </div>
-                                                <div class="modal-body">
-                                                    <h6 class="mb-3">Please indicate the reason below:</h6>
-                                                    <textarea id="rejectReason{{pendingStudent.id}}" class="form-control" placeholder="Enter reason for rejection here...."></textarea>
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                                    <button type="button" class="btn btn-danger" onclick="submitRejection({{ pendingStudent.id }})">Disapprove</button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <a href="{% url 'viewPendingApplication' pendingStudent.id %}" class="btn btn-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="View"><i class="fas fa-eye"></i></a>
                                 </td>
                             </tr>
                             {% empty %}
-                                <tr>
-                                    <td colspan="7" class="text-center">No pending registration found.</td>
-                                </tr>
+                            <tr>
+                                <td colspan="7" class="text-center">No approved students found.</td>
+                            </tr>
                             {% endfor %}
                         </tbody>
                     </table>
@@ -318,7 +302,7 @@
                                 </a>
                             </li>
                             {% endif %}
-                        </ul>
+                        </ul>   
                     </div>
                 </div>
             </div>
@@ -339,102 +323,218 @@
     {% comment %}  {% endcomment %}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <script>
-        const csrfToken = "{{ csrf_token }}"; // Global Variable for Token
-        function logout() {
-            localStorage.removeItem('is_coordinator_logged_in');
-            window.location.href = '{% url 'logout' %}';
-        }
-        // Initialize Hover Tooltips
         document.addEventListener('DOMContentLoaded', function () {
+            const csrfToken = "{{ csrf_token }}"; // Global variable for CSRF token
+    
+            // Function to handle logout
+            function logout() {
+                localStorage.removeItem('is_coordinator_logged_in');
+                window.location.href = '{% url 'logout' %}';
+            }
+    
+            // Initialize tooltips
             var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
             tooltipTriggerList.map(function (tooltipTriggerEl) {
                 return new bootstrap.Tooltip(tooltipTriggerEl);
             });
-        });
-        function validatePassword(studentId) {
-            var inputPasswordElement = document.getElementById('adminPassword' + studentId);
-            if (inputPasswordElement === null) {
-                console.error('Cannot find element with ID:', 'adminPassword' + studentId);
-                return;
+    
+            // Function to validate admin password
+            function validatePassword(studentId) {
+                var inputPasswordElement = document.getElementById('adminPassword' + studentId);
+                if (!inputPasswordElement) {
+                    console.error('Cannot find element with ID:', 'adminPassword' + studentId);
+                    return;
+                }
+                var inputPassword = inputPasswordElement.value;
+                if (!inputPassword) {
+                    alert('Please enter the admin password.');
+                    return;
+                }
+    
+                fetch("/coordinator/validate_admin_password/", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken
+                    },
+                    body: JSON.stringify({ password: inputPassword })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        archiveStudent(studentId);
+                    } else {
+                        alert(data.message);
+                    }
+                })
+                .catch(error => console.error('Error:', error));
             }
-            var inputPassword = inputPasswordElement.value;
-            if (!inputPassword) {
-                alert('Please enter the admin password.');
-                return;
-            }
-
-            fetch("/coordinator/validate_admin_password/", {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': csrfToken
-                },
-                body: JSON.stringify({ password: inputPassword })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    archiveStudent(studentId);
-                } else {
+    
+            // Function to archive a student
+            function archiveStudent(studentId) {
+                const url = `/coordinator/archivedStudent/${studentId}/`;
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken
+                    },
+                    body: JSON.stringify({ studentID: studentId })
+                })
+                .then(response => response.json())
+                .then(data => {
                     alert(data.message);
-                }
-            })
-            .catch(error => console.error('Error:', error));
-        }
-        function submitRejection(studentId) {
-            const reason = document.getElementById(`rejectReason${studentId}`).value;
-            if (reason.trim() === "") {
-                alert("Please provide a reason for rejection.");
-                return;
+                    if (data.status === 'success') {
+                        location.reload();
+                    }
+                })
+                .catch(error => console.error('Error:', error));
             }
-            const url = "{% url 'reject_students' 0 %}".replace('/0/', '/' + studentId + '/');
-            fetch(url, {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': csrfToken,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ reason: reason })
-            }).then(response => {
-                if (response.ok) {
-                    window.location.reload();
-                } else {
-                    alert('Failed to reject student.');
+    
+            // Function to submit rejection of a student
+            function submitRejection(studentId) {
+                const reason = document.getElementById(`rejectReason${studentId}`).value;
+                if (reason.trim() === "") {
+                    alert("Please provide a reason for rejection.");
+                    return;
                 }
-            });
-        }
-        document.getElementById('courseFilter').addEventListener('change', function() {
-            var selectedCourse = this.value;
-            var rows = document.querySelectorAll('#studentTableBody tr');
-            rows.forEach(function(row) {
-                if (selectedCourse === 'all' || row.getAttribute('data-course') === selectedCourse) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
-            });
-        });
-        document.getElementById('search-input').addEventListener('input', function() {
-            const searchValue = this.value;
-            fetch(`{% url 'pending-student-list' %}?search=${searchValue}`, {
-                method: 'GET',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                },
-            })
-            .then(response => response.text())
-            .then(html => {
-                // Parse the response and update the table
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(html, 'text/html');
-                const newTbody = doc.getElementById('studentTableBody');
-                const currentTbody = document.getElementById('studentTableBody');
-                
-                if (newTbody) {
-                    currentTbody.innerHTML = newTbody.innerHTML;
-                }
-            })
-            .catch(error => console.error('Error:', error));
+                const url = "{% url 'reject_students' 0 %}".replace('/0/', '/' + studentId + '/');
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrfToken,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ reason: reason })
+                })
+                .then(response => {
+                    if (response.ok) {
+                        window.location.reload();
+                    } else {
+                        alert('Failed to reject student.');
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            }
+    
+            // Course filter functionality
+            const courseFilter = document.getElementById('courseFilter');
+            if (courseFilter) {
+                courseFilter.addEventListener('change', function() {
+                    var selectedCourse = this.value;
+                    var rows = document.querySelectorAll('#studentTableBody tr');
+                    rows.forEach(function(row) {
+                        row.style.display = (selectedCourse === 'all' || row.getAttribute('data-course') === selectedCourse) ? '' : 'none';
+                    });
+                });
+            } else {
+                console.error('Element with ID "courseFilter" not found.');
+            }
+    
+            // Search functionality
+            const searchInput = document.getElementById('search-input');
+            if (searchInput) {
+                searchInput.addEventListener('keydown', function (event) {
+                    if (event.key === 'Enter') {
+                        event.preventDefault(); // Prevent form submission
+                        const searchValue = this.value;
+                        const perPage = document.getElementById('perPage').value; // Get current items per page value
+    
+                        fetch(`{% url 'approve-student-list' %}?search-approve=${searchValue}&per_page=${perPage}`, {
+                            method: 'GET',
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                            },
+                        })
+                        .then(response => response.text())
+                        .then(html => {
+                            const parser = new DOMParser();
+                            const doc = parser.parseFromString(html, 'text/html');
+                            const newTbody = doc.getElementById('studentTableBody');
+                            const currentTbody = document.getElementById('studentTableBody');
+    
+                            if (newTbody) {
+                                currentTbody.innerHTML = newTbody.innerHTML;
+                            }
+                        })
+                        .catch(error => console.error('Error:', error));
+                    }
+                });
+            } else {
+                console.error('Element with ID "search-input" not found.');
+            }
+    
+            // Function to handle custom date filtering
+            const customFilterButton = document.getElementById('customFilterButton');
+            if (customFilterButton) {
+                customFilterButton.addEventListener('click', function () {
+                    const startDate = document.getElementById('start_date').value;
+                    const endDate = document.getElementById('end_date').value;
+                    const perPage = document.getElementById('perPage').value || 10; // Default to 10 if perPage is not set
+
+                    console.log(`Fetching data with startDate: ${startDate}, endDate: ${endDate}, perPage: ${perPage}`); // Debug log
+
+                    fetch(`{% url 'approve-student-list' %}?start_date=${startDate}&end_date=${endDate}&per_page=${perPage}`, {
+                        method: 'GET',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                        },
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok: ' + response.statusText);
+                        }
+                        return response.text();
+                    })
+                    .then(html => {
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(html, 'text/html');
+                        const newTbody = doc.getElementById('studentTableBody');
+                        const currentTbody = document.getElementById('studentTableBody');
+
+                        if (newTbody) {
+                            currentTbody.innerHTML = newTbody.innerHTML;
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+                });
+            } else {
+                console.error('Element with ID "customFilterButton" not found.');
+            }
+    
+            // Adding event listeners for date filters
+            document.querySelectorAll('input[name="dateFilter"]').forEach(function (radio) {
+                radio.addEventListener('change', function () {
+                    const selectedDateFilter = this.id; // 'today', 'yesterday', or 'week'
+                    const perPage = document.getElementById('perPage').value || 10; // Default to 10 if perPage is not set
+            
+                    console.log(`Fetching data for date filter: ${selectedDateFilter}, perPage: ${perPage}`); // Debug log
+            
+                    fetch(`{% url 'approve-student-list' %}?dateFilter=${selectedDateFilter}&per_page=${perPage}`, {
+                        method: 'GET',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                        },
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok: ' + response.statusText);
+                        }
+                        return response.text();
+                    })
+                    .then(html => {
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(html, 'text/html');
+                        const newTbody = doc.getElementById('studentTableBody');
+                        const currentTbody = document.getElementById('studentTableBody');
+            
+                        if (newTbody) {
+                            currentTbody.innerHTML = newTbody.innerHTML;
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+                });
+            });            
         });
     </script>
 </body>

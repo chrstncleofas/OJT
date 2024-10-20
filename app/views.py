@@ -16,6 +16,7 @@ from app.forms import SetRenderingHoursForm
 from django.shortcuts import render, redirect
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
+from django.utils.decorators import method_decorator
 from app.models import CustomUser, TableAnnouncement
 from django.contrib.auth.hashers import make_password
 from django.views.decorators.cache import never_cache
@@ -105,6 +106,47 @@ def mainDashboard(request):
             'lastName': lastName
         }
     )
+
+@login_required
+@never_cache
+@csrf_exempt
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+def getAllListStudent(request):
+    user = request.user
+    admin = get_object_or_404(CustomUser, id=user.id)
+    firstName = admin.first_name
+    lastName = admin.last_name
+    students_list = DataTableStudents.objects.filter(status='Approved', archivedStudents='NotArchive').order_by('id')
+    search_query_approve = request.GET.get('search-approve', '')
+    if search_query_approve:
+        students_list = students_list.filter(
+            Q(StudentID__icontains=search_query_approve) |
+            Q(Firstname__icontains=search_query_approve) |
+            Q(Middlename__icontains=search_query_approve) |
+            Q(Lastname__icontains=search_query_approve)
+        )
+        
+    page = request.GET.get('page', 1)
+    per_page_value = request.GET.get('per_page', '10')
+    try:
+        per_page = int(per_page_value) if per_page_value.isdigit() else 10
+    except ValueError:
+        per_page = 10
+    paginator = Paginator(students_list, per_page)
+    try:
+        students = paginator.page(page)
+    except PageNotAnInteger:
+        students = paginator.page(1)
+    except EmptyPage:
+        students = paginator.page(paginator.num_pages)
+    context = {
+        'students': students,
+        'firstName': firstName,
+        'lastName': lastName,
+    }
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return render(request, 'app/approve-list-student.html', context)
+    return render(request, 'app/student-list.html', context)
 
 @never_cache
 @login_required
@@ -599,17 +641,12 @@ def viewPendingApplication(request, id):
         }
     )
 
-@never_cache
-@csrf_exempt
 def clean_filename(filename):
     """Remove timestamp from the filename."""
     if filename:
         return re.sub(r'^\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}_', '', filename)
     return filename
 
-@never_cache
-@login_required
-@csrf_exempt
 def submittedRequirementOfStudents(request, id):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
@@ -637,9 +674,7 @@ def submittedRequirementOfStudents(request, id):
 
     return render(request, 'app/view-submitted-requirement.html', context)
 
-@never_cache
 @login_required
-@csrf_exempt
 def getTheSubmitRequirements(request):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
@@ -670,9 +705,7 @@ def getTheSubmitRequirements(request):
         'lastName': lastName
     })
 
-@never_cache
 @login_required
-@csrf_exempt
 def studentInformation(request, id):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
@@ -751,8 +784,6 @@ def studentInformation(request, id):
 
     return render(request, 'app/TimeLogs.html', context)
 
-@never_cache
-@csrf_exempt
 def register(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
@@ -776,8 +807,6 @@ def register(request):
         }
     )
 
-@never_cache
-@csrf_exempt
 def convert_time_to_seconds(time_str):
     """Convert a time string like '1 hours, 30 minutes' to total seconds."""
     time_parts = time_str.split(',')
@@ -791,9 +820,7 @@ def convert_time_to_seconds(time_str):
             total_seconds += minutes * 60
     return total_seconds
 
-@never_cache
 @login_required
-@csrf_exempt
 def set_rendering_hours(request):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
@@ -849,9 +876,7 @@ def set_rendering_hours(request):
         'upload_form': upload_form
     })
 
-@never_cache
 @login_required
-@csrf_exempt
 def editRenderHours(request):
     user = request.user
     if request.method == 'POST':
@@ -876,9 +901,7 @@ def editRenderHours(request):
         'form': form,
     })
 
-@never_cache
 @login_required
-@csrf_exempt
 def listOfAnnouncement(request):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
@@ -915,9 +938,7 @@ def listOfAnnouncement(request):
         'lastName': lastName
     })
 
-@never_cache
 @login_required
-@csrf_exempt
 def listOfContent(request):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
@@ -954,9 +975,6 @@ def listOfContent(request):
         'lastName': lastName
     })
 
-@never_cache
-@login_required
-@csrf_exempt
 def postAnnouncement(request):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
@@ -978,9 +996,6 @@ def postAnnouncement(request):
         }
     )
 
-@never_cache
-@login_required
-@csrf_exempt
 def postContent(request):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
@@ -1002,9 +1017,6 @@ def postContent(request):
         }
     )
 
-@never_cache
-@login_required
-@csrf_exempt
 def editAnnouncement(request, id):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
@@ -1029,9 +1041,6 @@ def editAnnouncement(request, id):
         'announcement': announcement,
     })
 
-@never_cache
-@login_required
-@csrf_exempt
 def editContent(request, id):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
@@ -1056,8 +1065,6 @@ def editContent(request, id):
         'content': content,
     })
 
-@never_cache
-@csrf_exempt
 def deleteAnnouncement(request, id):
     user = request.user
     announcement = get_object_or_404(TableAnnouncement, id=id)
@@ -1067,8 +1074,6 @@ def deleteAnnouncement(request, id):
         return redirect('listOfAnnouncement')
     return render(request, LIST_ANNOUNCEMENT, {'announcement': announcement})
 
-@never_cache
-@csrf_exempt
 def deleteContent(request, id):
     user = request.user
     content = get_object_or_404(TableContent, id=id)
@@ -1078,8 +1083,6 @@ def deleteContent(request, id):
         return redirect('all-content')
     return render(request, 'app/allContentPage.html', {'content': content})
 
-@never_cache
-@csrf_exempt
 def deleteRequirementDocuments(request, id):
     user = request.user
     docs = get_object_or_404(TableRequirements, id=id)
@@ -1089,9 +1092,6 @@ def deleteRequirementDocuments(request, id):
         return redirect('set_rendering_hours')
     return render(request, 'app/settings.html', {'docs': docs})
 
-@never_cache
-@login_required
-@csrf_exempt
 def setSchedule(request, id):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
@@ -1134,9 +1134,6 @@ def setSchedule(request, id):
         'lastName': lastName,
     })
 
-@never_cache
-@login_required
-@csrf_exempt
 def editStudentDetails(request, id):
     user = request.user
     student = get_object_or_404(DataTableStudents, pk=id)
@@ -1162,9 +1159,6 @@ def editStudentDetails(request, id):
         'lastName': lastName,
     })
 
-@never_cache
-@login_required
-@csrf_exempt
 def getAllStudentsForGrading(request):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
@@ -1233,9 +1227,7 @@ def getAllStudentsForGrading(request):
     })
 
 @require_POST
-@never_cache
 @login_required
-@csrf_exempt
 def update_document_score(request, id):
     try:
         document = ApprovedDocument.objects.get(id=id)
@@ -1260,8 +1252,6 @@ def update_document_score(request, id):
         messages.error(request, str(e))
         return redirect('view-requirements', id=id)
 
-@never_cache
-@csrf_exempt
 def gradeFormula(evaluation, docs_grade, oral_interview):
     eval_score = (evaluation / 30 * 50 + 50) * 0.60
     docs_score = docs_grade
@@ -1269,8 +1259,6 @@ def gradeFormula(evaluation, docs_grade, oral_interview):
     final_grade = eval_score + docs_score + oral_score
     return round(final_grade, 1)
 
-@never_cache
-@csrf_exempt
 def gradeCalculator(request, id):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
@@ -1338,9 +1326,6 @@ def gradeCalculator(request, id):
         }
     )
 
-@never_cache
-@login_required
-@csrf_exempt
 def getAnnouncementNotLogin(request):
     enabledAnnouncement = TableAnnouncement.objects.filter(Status='enable')
     return render(
@@ -1350,9 +1335,6 @@ def getAnnouncementNotLogin(request):
         }
     )
 
-@never_cache
-@login_required
-@csrf_exempt
 def getAnnouncement(request):
     enabledAnnouncement = TableAnnouncement.objects.filter(Status='enable')
     return render(
