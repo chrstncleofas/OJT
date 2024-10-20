@@ -191,52 +191,15 @@
                     <table class="table">
                         <thead>
                             <tr>
-                                <th>Student ID</th>
                                 <th>Firstname</th>
-                                <th>Middlename</th>
                                 <th>Lastname</th>
-                                <th>Course</th>
-                                <th>Year</th>
-                                <th>Status</th>
-                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody id="studentTableBody">
                             {% for student in students %}
                             <tr data-course="{{ student.Course }}">
-                                <td>{{ student.StudentID }}</td>
                                 <td style="text-transform: uppercase;">{{ student.Firstname }}</td>
-                                <td style="text-transform: uppercase;">{{ student.Middlename }}</td>
                                 <td style="text-transform: uppercase;">{{ student.Lastname }}</td>
-                                <td style="text-transform: uppercase;">{{ student.Course }}</td>
-                                <td style="text-transform: uppercase;">{{ student.Year }}</td>
-                                <td>
-                                <p style="text-transform: uppercase; font-weight: bold;" class="text-success">Approved</p>
-                                </td>
-                                <td>
-                                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#passwordModal{{student.id}}"><i class="fa fa-archive" data-bs-toggle="tooltip" data-bs-placement="top" title="Archive"></i></button>     
-                                    <!-- Password Modal -->
-                                    <div id="passwordModal{{student.id}}" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="passwordModalLabel{{student.id}}" aria-hidden="true">
-                                        <div class="modal-dialog" role="document">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title" id="passwordModalLabel{{student.id}}">Enter password</h5>
-                                                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                                                        <span aria-hidden="true">&times;</span>
-                                                    </button>
-                                                </div>
-                                                <div class="modal-body">
-                                                    <input type="hidden" id="studentId{{student.id}}" value="{{ student.id }}">
-                                                    <input type="password" id="adminPassword{{student.id}}" class="form-control" placeholder="Admin Password">
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                                    <button type="button" class="btn btn-primary" onclick="validatePassword('{{ student.id }}')">Validate Password</button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
                             </tr>
                             {% empty %}
                             <tr>
