@@ -217,29 +217,33 @@
                             {% csrf_token %}
                             <!-- Student Information Section -->
                             <div class="card mb-3">
+                                <div class="card-header">
+                                    <h6 class="m-0" style="font-size: 12px;">Please fill up all the fields (*)</h6>
+                                </div>
                                 <div class="card-body">
-                                    <div class="form-row">
-                                        <div class="form-group col-lg-3">
-                                            <label for="{{ form.student_name.id_for_label }}" class="form-label font-weight-bold">Name of Student</label>
-                                            <input type="text" id="{{ form.student_name.id_for_label }}" name="{{ form.student_name.name }}" class="form-control" placeholder="Enter student name" value="{{ full_name }}">
-                                        </div>
-                                        <div class="form-group col-lg-3">
-                                            <label for="{{ form.hte_name.id_for_label }}" class="form-label font-weight-bold">Host Training Establishment</label>
-                                            <input type="text" id="{{ form.hte_name.id_for_label }}" name="{{ form.hte_name.name }}" class="form-control" placeholder="Enter Host Training Establishment">
-                                        </div>
-                                        <div class="form-group col-lg-3">
-                                            <label for="{{ form.hte_address.id_for_label }}" class="form-label font-weight-bold">Address of (H.T.E)</label>
-                                            <input type="text" id="{{ form.hte_address.id_for_label }}" name="{{ form.hte_address.name }}" class="form-control" placeholder="Enter Host Training Establishment Address">
-                                        </div>
-                                        <div class="form-group col-lg-3">
-                                            <label for="{{ form.department_division.id_for_label }}" class="form-label font-weight-bold">Department Assigned</label>
-                                            <input type="text" id="{{ form.department_division.id_for_label }}" name="{{ form.department_division.name }}" class="form-control" placeholder="Enter department division">
-                                        </div>
+                                    <div class="form-group col-lg-3">
+                                        <label for="{{ form.student_name.id_for_label }}" class="form-label font-weight-bold">Name of Student</label>
+                                        <input type="text" id="{{ form.student_name.id_for_label }}" name="{{ form.student_name.name }}" class="form-control" placeholder="Enter student name" value="{{ full_name }}">
+                                    </div>
+                                    <div class="form-group col-lg-3">
+                                        <label for="{{ form.hte_name.id_for_label }}" class="form-label font-weight-bold">Host Training Establishment</label>
+                                        <input type="text" id="{{ form.hte_name.id_for_label }}" name="{{ form.hte_name.name }}" class="form-control" placeholder="Enter Host Training Establishment">
+                                    </div>
+                                    <div class="form-group col-lg-3">
+                                        <label for="{{ form.hte_address.id_for_label }}" class="form-label font-weight-bold">Address of (H.T.E)</label>
+                                        <input type="text" id="{{ form.hte_address.id_for_label }}" name="{{ form.hte_address.name }}" class="form-control" placeholder="Enter Host Training Establishment Address">
+                                    </div>
+                                    <div class="form-group col-lg-3">
+                                        <label for="{{ form.department_division.id_for_label }}" class="form-label font-weight-bold">Department Assigned</label>
+                                        <input type="text" id="{{ form.department_division.id_for_label }}" name="{{ form.department_division.name }}" class="form-control" placeholder="Enter department division">
                                     </div>
                                 </div>
                             </div>
                             <!-- Internship Details Section -->
                             <div class="card mb-3">
+                                <div class="card-header">
+                                    <h6 class="m-0" style="font-size: 12px;">Please select (*)</h6>
+                                </div>
                                 <div class="card-body">
                                     <div class="form-row">
                                         <div class="form-group col-md-6">
