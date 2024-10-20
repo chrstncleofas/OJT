@@ -380,7 +380,7 @@
                 console.error('Rejected link not found!');
             }
             if (submittedLink) {
-                rejectedLink.href = "{% url 'student-submitted-list' %}?" + filterParam;
+                submittedLink.href = "{% url 'student-submitted-list' %}?" + filterParam;
             }else {
                 console.error('No student submitted found!');
             }
