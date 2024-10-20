@@ -202,7 +202,7 @@
                                 <div>
                                     <div class="count requirements">
                                         {% for student_id, count in student_daily_counts.items %}
-                                            {{ student_id }}: {{ count }}
+                                            {{ student_id }}: {{ count }}<br>
                                         {% endfor %}
                                     </div>
                                     <div>Submitted Requiremnt</div>
@@ -360,7 +360,6 @@
         }
     
         // Updates the dashboard counts displayed on the UI
-        // Updates the dashboard counts displayed on the UI
         function updateDashboardCounts(data) {
             document.querySelector('.count.approved').textContent = data.approve_count;
             document.querySelector('.count.pending').textContent = data.pending_count;
@@ -369,9 +368,11 @@
             // Update submitted requirements section
             const requirementsDiv = document.querySelector('.count.requirements');
             requirementsDiv.innerHTML = ''; // Clear previous data
+
+            // Update with the number of unique students who submitted
             for (const [student_id, count] of Object.entries(data.student_daily_counts)) {
                 const requirementCount = `${student_id}: ${count}`;
-                requirementsDiv.innerHTML += requirementCount;
+                requirementsDiv.innerHTML += requirementCount + '<br>'; // Add a line break for better readability
             }
 
             // Update total course counts
