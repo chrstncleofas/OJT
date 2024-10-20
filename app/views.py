@@ -215,6 +215,20 @@ def getAllStudentSubmittedRequirements(request):
         # Kung walang search query, ipakita ang lahat ng estudyanteng nag-submit
         students = DataTableStudents.objects.filter(id__in=student_ids)
 
+    page = request.GET.get('page', 1)
+    per_page_value = request.GET.get('per_page', '10')
+    try:
+        per_page = int(per_page_value) if per_page_value.isdigit() else 10
+    except ValueError:
+        per_page = 10
+    paginator = Paginator(submitted_students, per_page)
+    try:
+        students = paginator.page(page)
+    except PageNotAnInteger:
+        students = paginator.page(1)
+    except EmptyPage:
+        students = paginator.page(paginator.num_pages)
+
     return render(request, 'app/student-submitted-list.html', {
         'students': students,
         'firstName': firstName,
