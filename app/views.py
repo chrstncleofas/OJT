@@ -253,7 +253,7 @@ def getAllStudentSubmittedRequirements(request):
         'firstName': firstName,
         'lastName': lastName,
         'per_page': per_page,
-        'submitted_count': submitted_students.count(),  # Optional: Count of submitted requirements
+        'submitted_count': submitted_students,
     })
 
 @login_required
