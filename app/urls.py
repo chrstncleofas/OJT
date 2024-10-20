@@ -14,6 +14,7 @@ urlpatterns = [
     path('changePass', views.changePass, name='changePass'),
     path('dashboard', views.mainDashboard, name='dashboard'),
     path('student-list', views.getAllListStudent, name='student-list'),
+    path('student-submitted-list', views.getAllStudentSubmittedRequirements, name='student-submitted-list'),
     path('approve-student-list', views.getAllApproveStudents, name='approve-student-list'),
     path('pending-student-list', views.getAllPendingStudents, name='pending-student-list'),
     path('reject-student-list', views.getAllRejectStudents, name='reject-student-list'),

@@ -161,13 +161,13 @@
             <div class="container-fluid">
                 <div class="row mb-4">
                     <div class="col-lg-12">
-                        <h3 class="mt-4 mb-2">Student List</h3>
+                        <h3 class="mt-4 mb-2">List of student submit requirements</h3>
                     </div>
                 </div>
                 <div class="approved-student-table">
                     <div class="d-flex justify-content-between mb-3 mt-3">
                         <!-- Left-aligned search bar -->
-                        <form class="form-inline" method="get" action="{% url 'student-list' %}">
+                        <form class="form-inline" method="get" action="{% url 'student-submitted-list' %}">
                             <div class="input-group">
                                 <input type="search" name="search-approve" class="form-control" placeholder="Search..." aria-label="Search" aria-describedby="search-icon" id="search-input">
                                 <div class="input-group-prepend" style="cursor: pointer;" onclick="this.closest('form').submit();">
@@ -242,7 +242,7 @@
                             </tr>
                             {% empty %}
                             <tr>
-                                <td colspan="7" class="text-center">No approved students found.</td>
+                                <td colspan="7" class="text-center">No submitted student requirements found.</td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -355,9 +355,9 @@
                     if (event.key === 'Enter') {
                         event.preventDefault(); // Prevent form submission
                         const searchValue = this.value;
-                        const perPage = document.getElementById('perPage').value;
+                        const perPage = document.getElementById('perPage').value; // Get current items per page value
     
-                        fetch(`{% url 'student-list' %}?search-approve=${searchValue}&per_page=${perPage}`, {
+                        fetch(`{% url 'student-submitted-list' %}?search-approve=${searchValue}&per_page=${perPage}`, {
                             method: 'GET',
                             headers: {
                                 'X-Requested-With': 'XMLHttpRequest',
@@ -379,7 +379,7 @@
                 });
             } else {
                 console.error('Element with ID "search-input" not found.');
-            }    
+            }  
         });
     </script>
 </body>

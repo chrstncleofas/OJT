@@ -196,17 +196,19 @@
                         </a>
                     </div>
                     <div class="col-lg-3">
-                        <div class="card text-white flex-fill" style="background-color: #4682B4;"> <!-- Soft Blue -->
-                            <div class="card-body">
-                                <i class="fas fa-file-upload icon"></i>
-                                <div>
-                                    <div class="count requirements">
-                                        {{ submitted_students_count  }}
+                        <a id="submitted-link" href="{% url 'student-submitted-list' %}" style="text-decoration: none;">
+                            <div class="card text-white flex-fill" style="background-color: #4682B4;"> <!-- Soft Blue -->
+                                <div class="card-body">
+                                    <i class="fas fa-file-upload icon"></i>
+                                    <div>
+                                        <div class="count requirements">
+                                            {{ submitted_students_count  }}
+                                        </div>
+                                        <div>Submitted Requiremnt</div>
                                     </div>
-                                    <div>Submitted Requiremnt</div>
                                 </div>
                             </div>
-                        </div>
+                        </a>
                     </div>
                 </div>
                 <div class="card" style="box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
@@ -375,6 +377,7 @@
             const approvedLink = document.getElementById('approved-link');
             const pendingLink = document.getElementById('pending-link');
             const rejectedLink = document.getElementById('rejected-link');
+            const submittedLink = document.getElementById('submitted-link');
     
             if (approvedLink) {
                 approvedLink.href = "{% url 'approve-student-list' %}?" + filterParam;
@@ -387,11 +390,15 @@
             } else {
                 console.error('Pending link not found!');
             }
-    
             if (rejectedLink) {
                 rejectedLink.href = "{% url 'reject-student-list' %}?" + filterParam;
-            } else {
+            }else {
                 console.error('Rejected link not found!');
+            }
+            if (submittedLink) {
+                rejectedLink.href = "{% url 'student-submitted-list' %}?" + filterParam;
+            }else {
+                console.error('No student submitted found!');
             }
         }
     

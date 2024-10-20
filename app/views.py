@@ -190,37 +190,36 @@ def getAllStudentSubmittedRequirements(request):
     admin = get_object_or_404(CustomUser, id=user.id)
     firstName = admin.first_name
     lastName = admin.last_name
-    students_list = TableSubmittedRequirement.objects.all().order_by('id')
+
+    # Kunin ang mga estudyanteng nag-submit ng requirements
+    submitted_students = TableSubmittedRequirement.objects.values('student').distinct()
+
+    # Kunin ang lahat ng estudyanteng batay sa student_id
+    student_ids = [student['student'] for student in submitted_students]
+    
+    # Kunin ang search query mula sa request
     search_query_approve = request.GET.get('search-approve', '')
+    
+    # Kunin ang mga detalye ng estudyante batay sa mga student_id
     if search_query_approve:
-        students_list = students_list.filter(
+        # Mag-filter ng students batay sa search query
+        students = DataTableStudents.objects.filter(
+            id__in=student_ids
+        ).filter(
             Q(StudentID__icontains=search_query_approve) |
             Q(Firstname__icontains=search_query_approve) |
             Q(Middlename__icontains=search_query_approve) |
             Q(Lastname__icontains=search_query_approve)
         )
-        
-    page = request.GET.get('page', 1)
-    per_page_value = request.GET.get('per_page', '10')
-    try:
-        per_page = int(per_page_value) if per_page_value.isdigit() else 10
-    except ValueError:
-        per_page = 10
-    paginator = Paginator(students_list, per_page)
-    try:
-        students = paginator.page(page)
-    except PageNotAnInteger:
-        students = paginator.page(1)
-    except EmptyPage:
-        students = paginator.page(paginator.num_pages)
-    context = {
+    else:
+        # Kung walang search query, ipakita ang lahat ng estudyanteng nag-submit
+        students = DataTableStudents.objects.filter(id__in=student_ids)
+
+    return render(request, 'app/student-submitted-list.html', {
         'students': students,
         'firstName': firstName,
-        'lastName': lastName,
-    }
-    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-        return render(request, 'app/approve-list-student.html', context)
-    return render(request, 'app/student-list.html', context)
+        'lastName': lastName
+    })
 
 @login_required
 def getAllApproveStudents(request):
