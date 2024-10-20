@@ -234,11 +234,11 @@ def getAllStudentSubmittedRequirements(request):
 
     # Pagination
     page = request.GET.get('page', 1)
-    per_page_value = request.GET.get('per_page', '10')
+    per_page_value = request.GET.get('per_page', '50')
     try:
-        per_page = int(per_page_value) if per_page_value.isdigit() else 10
+        per_page = int(per_page_value) if per_page_value.isdigit() else 50
     except ValueError:
-        per_page = 10
+        per_page = 50
 
     paginator = Paginator(students, per_page)
     try:
