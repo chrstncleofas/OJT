@@ -71,7 +71,7 @@ def mainDashboard(request):
         'approve_count': 0,
         'pending_count': 0,
         'reject_count': 0,
-        'student_daily_counts': {}  # A list to hold student IDs who submitted
+        'submitted_students_count': 0  # New count for submitted students
     }
 
     # Apply date filters based on the selected filter type
@@ -102,21 +102,30 @@ def mainDashboard(request):
         counts['pending_count'] = PendingApplication.objects.filter(StatusApplication='PendingApplication', PendingStatusArchive='NotArchive', created_at__date__range=date_filter).count()
         counts['reject_count'] = RejectApplication.objects.filter(RejectStatus='RejectedApplication', RejectStatusArchive='NotArchive', created_at__date__range=date_filter).count()
 
-    # Count unique students who submitted requirements based on the selected date filter
-    if date_filter:
-        if isinstance(date_filter, tuple):  # For range queries
-            submitted_students = TableSubmittedRequirement.objects.filter(
-                submission_date__range=date_filter
-            ).values_list('student_id', flat=True).distinct()
-        else:  # For single date queries
-            submitted_students = TableSubmittedRequirement.objects.filter(
-                submission_date__date=date_filter
-            ).values_list('student_id', flat=True).distinct()
-    else:
-        submitted_students = TableSubmittedRequirement.objects.values_list('student_id', flat=True).distinct()
+    # Count submitted requirements per student based on the selected date filter
+    submitted_students = set()  # Set to store unique student IDs
 
-    # Count unique student submissions
-    counts['student_daily_counts'] = {student_id: 1 for student_id in submitted_students}  # 1 for each unique student ID
+    for student in DataTableStudents.objects.all():
+        if date_filter:
+            if isinstance(date_filter, tuple):  # For range queries
+                requirement_count = TableSubmittedRequirement.objects.filter(
+                    student=student,
+                    submission_date__range=date_filter
+                ).count()
+            else:  # For single date queries
+                requirement_count = TableSubmittedRequirement.objects.filter(
+                    student=student,
+                    submission_date__date=date_filter
+                ).count()
+        else:
+            requirement_count = 0
+
+        # If the student has submitted at least one document, add to the set
+        if requirement_count > 0:
+            submitted_students.add(student.id)
+
+    # Count of students who submitted documents
+    counts['submitted_students_count'] = len(submitted_students)
 
     # Total counts for courses
     counts['total_course_it'] = DataTableStudents.objects.filter(Course='BS Information Technology').count()
@@ -134,7 +143,6 @@ def mainDashboard(request):
             'lastName': lastName,
         }
     )
-
 
 @login_required
 @csrf_exempt
