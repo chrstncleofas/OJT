@@ -196,6 +196,40 @@
                             </div>
                         </a>
                     </div>
+                    <div class="col-lg-6">
+                        <div class="card text-white bg-info">
+                            <div class="card-body">
+                                <i class="fas fa-file-upload icon"></i>
+                                <div>
+                                    <div class="count requirements">{{ daily_requirements_count }}</div>
+                                    <div>Submitted Requirements Today</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Course Counts -->
+                    <div class="col-lg-3">
+                        <div class="card text-white bg-primary">
+                            <div class="card-body">
+                                <i class="fas fa-user-graduate icon"></i>
+                                <div>
+                                    <div class="count">{{ total_course_it }}</div>
+                                    <div>Total BS IT Students</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3">
+                        <div class="card text-white bg-secondary">
+                            <div class="card-body">
+                                <i class="fas fa-user-graduate icon"></i>
+                                <div>
+                                    <div class="count">{{ total_course_cs }}</div>
+                                    <div>Total BS CS Students</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>              
         </div>
@@ -323,6 +357,7 @@
             document.querySelector('.count.approved').textContent = data.approve_count;
             document.querySelector('.count.pending').textContent = data.pending_count;
             document.querySelector('.count.rejected').textContent = data.reject_count;
+            document.querySelector('.count.requirements').textContent = data.daily_requirements_count;
         }
     
         // Updates the card links based on the filter selected
@@ -370,6 +405,5 @@
             window.location.href = '{% url 'logout' %}';
         }
     </script>
-    
 </body>
 </html>

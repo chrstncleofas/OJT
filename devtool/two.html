@@ -1,88 +1,97 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OJT Management System Login</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        /* Custom styles for form visibility */
-        .form-container {
-            display: none; /* Hide forms by default */
-            margin-top: 20px;
-        }
-
-        .form-container.active {
-            display: block; /* Show form when active */
-        }
-    </style>
-</head>
-<body>
-
-    <div class="container mt-5">
-        <h2 class="text-center">OJT Management System</h2>
-        <div class="text-center mt-4">
-            <button class="btn btn-primary mx-2" onclick="showForm('student')">Student</button>
-            <button class="btn btn-secondary mx-2" onclick="showForm('coordinator')">Coordinator</button>
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-lg-12">
+            <h3 class="mt-4 mb-2">Dashboard</h3>
         </div>
-
-        <!-- Student Login Form -->
-        <div id="student-form" class="form-container">
-            <h3 class="text-center mt-4">Student Login</h3>
-            <form action="/student/login" method="POST" class="w-50 mx-auto mt-3">
-                <!-- {% csrf_token %} -->
-                <div class="form-group">
-                    <label for="student-username">Username:</label>
-                    <input type="text" class="form-control" id="student-username" name="username" required>
-                </div>
-                <div class="form-group">
-                    <label for="student-password">Password:</label>
-                    <input type="password" class="form-control" id="student-password" name="password" required>
-                </div>
-                <button type="submit" class="btn btn-primary btn-block">Login</button>
-            </form>
-        </div>
-
-        <!-- Coordinator Login Form -->
-        <div id="coordinator-form" class="form-container">
-            <h3 class="text-center mt-4">Coordinator Login</h3>
-            <form action="/coordinator/login" method="POST" class="w-50 mx-auto mt-3">
-                <!-- {% csrf_token %} -->
-                <div class="form-group">
-                    <label for="coordinator-username">Username:</label>
-                    <input type="text" class="form-control" id="coordinator-username" name="username" required>
-                </div>
-                <div class="form-group">
-                    <label for="coordinator-password">Password:</label>
-                    <input type="password" class="form-control" id="coordinator-password" name="password" required>
-                </div>
-                <button type="submit" class="btn btn-secondary btn-block">Login</button>
-            </form>
+        <!-- Date Filter Section -->
+        <div class="col-lg-12 d-flex justify-content-end align-items-center mb-3">
+            <!-- Existing date filter code remains the same -->
         </div>
     </div>
 
-    <!-- Bootstrap JS, Popper.js, and jQuery -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.6/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- Cards for Approved, Pending, and Rejected Counts -->
+    <div class="row">
+        <!-- Approved Card -->
+        <div class="col-lg-4">
+            <a id="approved-link" href="{% url 'approve-student-list' %}" style="text-decoration: none;">
+                <div class="card text-white bg-success">
+                    <div class="card-body">
+                        <i class="fas fa-check-circle icon"></i>
+                        <div>
+                            <div class="count approved">{{ approve_count }}</div>
+                            <div>Approved</div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <!-- Pending Card -->
+        <div class="col-lg-4">
+            <a id="pending-link" href="{% url 'pending-student-list' %}" style="text-decoration: none;">
+                <div class="card text-white bg-warning">
+                    <div class="card-body">
+                        <i class="fas fa-hourglass-half icon"></i>
+                        <div>
+                            <div class="count pending">{{ pending_count }}</div>
+                            <div>Pending Registration</div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <!-- Rejected Card -->
+        <div class="col-lg-4">
+            <a id="rejected-link" href="{% url 'reject-student-list' %}" style="text-decoration: none;">
+                <div class="card text-white bg-danger">
+                    <div class="card-body">
+                        <i class="fas fa-close icon"></i>
+                        <div>
+                            <div class="count rejected">{{ reject_count }}</div>
+                            <div>Disapprove Registration</div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
 
-    <script>
-        // Function to show the correct form based on the button clicked
-        function showForm(type) {
-            // Hide all forms
-            document.getElementById('student-form').classList.remove('active');
-            document.getElementById('coordinator-form').classList.remove('active');
+    <!-- New Section: Requirement Submissions Count -->
+    <div class="row mt-4">
+        <div class="col-lg-6">
+            <div class="card text-white bg-info">
+                <div class="card-body">
+                    <i class="fas fa-file-upload icon"></i>
+                    <div>
+                        <div class="count requirements">{{ daily_requirements_count }}</div>
+                        <div>Submitted Requirements Today</div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-            // Show the selected form based on the type
-            if (type === 'student') {
-                document.getElementById('student-form').classList.add('active');
-            } else if (type === 'coordinator') {
-                document.getElementById('coordinator-form').classList.add('active');
-            }
-        }
-    </script>
+        <!-- Course Counts -->
+        <div class="col-lg-3">
+            <div class="card text-white bg-primary">
+                <div class="card-body">
+                    <i class="fas fa-user-graduate icon"></i>
+                    <div>
+                        <div class="count">{{ total_course_it_count }}</div>
+                        <div>Total BS IT Students</div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-</body>
-</html>
+        <div class="col-lg-3">
+            <div class="card text-white bg-secondary">
+                <div class="card-body">
+                    <i class="fas fa-user-graduate icon"></i>
+                    <div>
+                        <div class="count">{{ total_course_cs_count }}</div>
+                        <div>Total BS CS Students</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

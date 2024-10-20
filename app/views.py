@@ -67,6 +67,7 @@ def mainDashboard(request):
         approve = DataTableStudents.objects.filter(status='Approved', archivedStudents='NotArchive', created_at__date=today)
         pending = PendingApplication.objects.filter(StatusApplication='PendingApplication', PendingStatusArchive='NotArchive', created_at__date=today)
         reject = RejectApplication.objects.filter(RejectStatus='RejectedApplication', RejectStatusArchive='NotArchive', created_at__date=today)
+        daily_requirements = TableSubmittedRequirement.objects.filter(submission_date__date=today)
     elif filter_type == 'yesterday':
         # Use range to capture the entire day of yesterday
         yesterday_start = yesterday
@@ -74,26 +75,34 @@ def mainDashboard(request):
         approve = DataTableStudents.objects.filter(status='Approved', archivedStudents='NotArchive', created_at__range=(yesterday_start, yesterday_end))
         pending = PendingApplication.objects.filter(StatusApplication='PendingApplication', PendingStatusArchive='NotArchive', created_at__range=(yesterday_start, yesterday_end))
         reject = RejectApplication.objects.filter(RejectStatus='RejectedApplication', RejectStatusArchive='NotArchive', created_at__range=(yesterday_start, yesterday_end))
+        daily_requirements = TableSubmittedRequirement.objects.filter(submission_date__range=(yesterday_start, yesterday_end))
     elif filter_type == 'week':
         approve = DataTableStudents.objects.filter(status='Approved', archivedStudents='NotArchive', created_at__date__range=(week_start, today))
         pending = PendingApplication.objects.filter(StatusApplication='PendingApplication', PendingStatusArchive='NotArchive', created_at__date__range=(week_start, today))
         reject = RejectApplication.objects.filter(RejectStatus='RejectedApplication', RejectStatusArchive='NotArchive', created_at__date__range=(week_start, today))
+        daily_requirements = TableSubmittedRequirement.objects.filter(submission_date__date__range=(week_start, today))
     elif filter_type == 'custom' and start_date and end_date:
         start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
         end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
         approve = DataTableStudents.objects.filter(status='Approved', archivedStudents='NotArchive', created_at__date__range=(start_date, end_date))
         pending = PendingApplication.objects.filter(StatusApplication='PendingApplication', PendingStatusArchive='NotArchive', created_at__date__range=(start_date, end_date))
         reject = RejectApplication.objects.filter(RejectStatus='RejectedApplication', RejectStatusArchive='NotArchive', created_at__date__range=(start_date, end_date))
+        daily_requirements = TableSubmittedRequirement.objects.filter(submission_date__date__range=(start_date, end_date))
     else:
-        approve = pending = reject = []
+        approve = pending = reject = daily_requirements = []
     approve_count = approve.count()
     pending_count = pending.count()
     reject_count = reject.count()
+    daily_requirements_count = daily_requirements.count()
+
+    total_course_it = DataTableStudents.objects.filter(Course='BS Information Technology').count()
+    total_course_cs = DataTableStudents.objects.filter(Course='BS Computer Science').count()
     if request.method == 'GET' and request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         return JsonResponse({
             'approve_count': approve_count,
             'pending_count': pending_count,
             'reject_count': reject_count,
+            'daily_requirements_count': daily_requirements_count
         })
     return render(
         request,
@@ -102,8 +111,11 @@ def mainDashboard(request):
             'approve_count': approve_count,
             'pending_count': pending_count,
             'reject_count': reject_count,
+            'daily_requirements_count': daily_requirements_count,
             'firstName': firstName,
-            'lastName': lastName
+            'lastName': lastName,
+            'total_course_it': total_course_it,
+            'total_course_cs': total_course_cs
         }
     )
 
