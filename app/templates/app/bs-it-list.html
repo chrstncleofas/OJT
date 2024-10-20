@@ -282,15 +282,24 @@
     {% comment %}  {% endcomment %}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            setupLogout();
+        });
+        function setupLogout() {
+            const logoutButton = document.querySelector('#logoutButton'); // Assuming you have a logout button in the DOM
+    
+            if (logoutButton) {
+                logoutButton.addEventListener('click', logout);
+            }
+        }
+        // Clears local storage and redirects to the logout URL
+        function logout() {
+            localStorage.removeItem('is_coordinator_logged_in');
+            window.location.href = '{% url 'logout' %}';
+        }
         document.addEventListener('DOMContentLoaded', function () {
             const csrfToken = "{{ csrf_token }}"; // Global variable for CSRF token
-    
-            // Function to handle logout
-            function logout() {
-                localStorage.removeItem('is_coordinator_logged_in');
-                window.location.href = '{% url 'logout' %}';
-            }
-    
+
             // Initialize tooltips
             var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
             tooltipTriggerList.map(function (tooltipTriggerEl) {
