@@ -156,9 +156,6 @@ def mainPageForDashboard(request) -> HttpResponse:
         }
     )
 
-@never_cache
-@login_required
-@csrf_exempt
 def mark_notification_as_read(request, id):
     if request.method == 'POST':
         notification = get_object_or_404(Notification, id=id)
@@ -167,9 +164,6 @@ def mark_notification_as_read(request, id):
         return redirect('students:dashboard')
     return None
 
-@never_cache
-@login_required
-@csrf_exempt
 def draw_wrapped_text(page, text, start_pos, max_width, fontsize=12, fontname="helv"):
     """
     Draws wrapped text within the specified width on a given PDF page.
@@ -185,9 +179,6 @@ def draw_wrapped_text(page, text, start_pos, max_width, fontsize=12, fontname="h
     rect = fitz.Rect(x, y, x + max_width, y + 1000)
     page.insert_textbox(rect, text, fontsize=fontsize, fontname=fontname, align=0)
 
-@never_cache
-@login_required
-@csrf_exempt
 def typeTheDetailsProgressReportPdf(request):
     user = request.user
     student = get_object_or_404(DataTableStudents, user=user)
@@ -274,6 +265,23 @@ def typeTheDetailsProgressReportPdf(request):
             page.insert_text(coordinates['hte_address'], form.cleaned_data['hte_address'], fontsize=12, color=(0, 0, 0))
             page.insert_text(coordinates['department_division'], form.cleaned_data['department_division'], fontsize=12, color=(0, 0, 0))
             page.insert_text(coordinates['intern_name'], form.cleaned_data['student_name'], fontsize=12, color=(0, 0, 0))
+            text_fontsize = 9
+            days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday']
+            y_start = 350
+            description_max_width = 265
+            total_hours = 0
+            for day in days:
+                date = form.cleaned_data.get(f'{day}_date')
+                description = form.cleaned_data.get(f'{day}_description')
+                hours = form.cleaned_data.get(f'{day}_hours')
+                if date:
+                    page.insert_text((140, y_start + 20), date.strftime('%Y-%m-%d'), fontsize=text_fontsize, color=(0, 0, 0))
+                if description:
+                    draw_wrapped_text(page, description, (205, y_start - 5), description_max_width, fontsize=text_fontsize)           
+                if hours:
+                    page.insert_text((500, y_start + 15), str(hours), fontsize=text_fontsize, color=(0, 0, 0))
+                    total_hours += hours        
+                y_start += 60
             # Insert the total work hours into the PDF
             total_work_hours = sum(work_hours_per_day.values())
             page.insert_text(coordinates['total_hours'], str(total_work_hours), fontsize=12, color=(0, 0, 0))
@@ -315,9 +323,6 @@ def typeTheDetailsProgressReportPdf(request):
         }
     )
 
-@never_cache
-@login_required
-@csrf_exempt
 def exportTimeLogToPDF(request):
     user = request.user
     student = get_object_or_404(DataTableStudents, user=user)
@@ -411,9 +416,7 @@ def log_lunch(request):
             return redirect('students:clockin')
     return render(request, 'students/timeIn-timeOut.html', {'forms': LunchLogForm()})
 
-@never_cache
 @login_required
-@csrf_exempt
 def ClockInAndOut(request):
     user = request.user
     student = get_object_or_404(DataTableStudents, user=user)

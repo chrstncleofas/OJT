@@ -207,187 +207,200 @@
                 </div> 
             </nav>
             <!-- Card -->
-            <div class="container-fluid">
-                <div class="row mb-4">
-                    <div class="col-lg-12">
-                        <p class="mt-3 mb-2">
-                            <a href="{% url 'students:dashboard' %}" style="cursor: pointer; text-decoration: none; color: black;">Dashboard</a> / Progress Report
-                        </p>
-                        <h4 class="mt-2 mb-3">Progress Report</h4>
+            <div class="container-fluid mt-2">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0">Progress Report</h4>
+                    </div>
+                    <div class="card-body">
                         <form method="post" action="{% url 'students:progress-report' %}">
                             {% csrf_token %}
-                            <div class="form-row">
-                                <div class="form-group col-md-3">
-                                    <label for="{{ form.student_name.id_for_label }}" class="form-label" style="font-weight: 500;">Name of Student</label>
-                                    <input type="text" id="{{ form.student_name.id_for_label }}" name="{{ form.student_name.name }}" class="form-control" placeholder="Enter student name" value="{{ full_name }}">
-                                </div>
-                                <div class="form-group col-md-3">
-                                   <label for="{{ form.hte_name.id_for_label }}" class="form-label" style="font-weight: 500;">Host Training Establishment</label>
-                                    <input type="text" id="{{ form.hte_name.id_for_label }}" name="{{ form.hte_name.name }}"  class="form-control" placeholder="Enter Host Training Establishmente">
-                                </div>
-                                <div class="form-group col-md-3">
-                                    <label for="{{ form.hte_address.id_for_label }}" class="form-label" style="font-weight: 500;">Address of Host Training Establishment</label>
-                                    <input type="text" id="{{ form.hte_address.id_for_label }}" name="{{ form.hte_address.name }}" class="form-control" placeholder="Enter  Host Training Establishment Address">
-                                </div>
-                                <div class="form-group col-md-3">
-                                    <label for="{{ form.department_division.id_for_label }}" class="form-label" style="font-weight: 500;">Department Division Assigned</label>
-                                    <input type="text" id="{{ form.department_division.id_for_label }}" name="{{ form.department_division.name }}" class="form-control" placeholder="Enter department division">
-                                </div>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-group col-md-6">
-                                    <label class="form-label" style="font-weight: bold;">Internship Classification</label>
-                                    {% for value, label in form.internship_classification.field.choices %}
-                                        <div class="form-check">
-                                            <input type="radio" id="{{ value }}" name="{{ form.internship_classification.name }}" value="{{ value }}" class="form-check-input" {% if value == form.internship_classification.value %} checked {% endif %}>
-                                            <label for="{{ value }}" class="form-check-label">{{ label }}</label>
-                                        </div>
-                                    {% endfor %}
-                                </div>
-                                <div class="form-group col-md-6">
-                                    <label class="form-label" style="font-weight: bold;">Local Condition</label>
-                                    {% for value, label in form.local_condition.field.choices %}
-                                        <div class="form-check"> 
-                                            <input type="radio" id="{{ value }}" name="{{ form.local_condition.name }}" value="{{ value }}" class="form-check-input" {% if value == form.local_condition.value %} checked {% endif %}>
-                                            <label for="{{ value }}" class="form-check-label">{{ label }}</label>
-                                        </div>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-group col-md-6">
-                                    <label class="form-label" style="font-weight: bold;">Internship Modality</label>
-                                    {% for value, label in form.internship_modality.field.choices %}
-                                        <div class="form-check">
-                                            <input type="radio" id="{{ value }}" name="{{ form.internship_modality.name }}" value="{{ value }}" class="form-check-input" {% if value == form.internship_modality.value %} checked {% endif %}>
-                                            <label for="{{ value }}" class="form-check-label">{{ label }}</label>
-                                        </div>
-                                    {% endfor %}
-                                </div>
-                                <div class="form-group col-md-6">
-                                    <label class="form-label" style="font-weight: bold;">Virtual Conditions</label>
-                                    {% for value, label in form.virtual_conditions.field.choices %}
-                                        <div class="form-check">
-                                            <input type="radio" id="{{ value }}" name="{{ form.virtual_conditions.name }}" value="{{ value }}" class="form-check-input" {% if value == form.virtual_conditions.value %} checked {% endif %}>
-                                            <label for="{{ value }}" class="form-check-label">{{ label }}</label>
-                                        </div>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                            <!-- Navigation Tabs -->
-                            <ul class="nav nav-tabs" id="progressReportTabs" role="tablist">
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link active" id="monday-tab" data-bs-toggle="tab" data-bs-target="#monday" type="button" role="tab" aria-controls="monday" aria-selected="true">Monday</button>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="tuesday-tab" data-bs-toggle="tab" data-bs-target="#tuesday" type="button" role="tab" aria-controls="tuesday" aria-selected="false">Tuesday</button>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="wednesday-tab" data-bs-toggle="tab" data-bs-target="#wednesday" type="button" role="tab" aria-controls="wednesday" aria-selected="false">Wednesday</button>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="thursday-tab" data-bs-toggle="tab" data-bs-target="#thursday" type="button" role="tab" aria-controls="thursday" aria-selected="false">Thursday</button>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="friday-tab" data-bs-toggle="tab" data-bs-target="#friday" type="button" role="tab" aria-controls="friday" aria-selected="false">Friday</button>
-                                </li>
-                            </ul>
-                            <!-- Tab Content -->
-                            <div class="tab-content mt-3">
-                                <div class="tab-pane fade show active" id="monday" role="tabpanel" aria-labelledby="monday-tab">
+                            <!-- Student Information Section -->
+                            <div class="card mb-3">
+                                <div class="card-body">
                                     <div class="form-row">
-                                        <div class="form-group col-md-4">
-                                            <label for="monday_date">Date</label>
-                                            <input type="date" id="monday_date" name="monday_date" class="form-control" value="{{ current_date|date:'Y-m-d' }}">
+                                        <div class="form-group col-lg-3">
+                                            <label for="{{ form.student_name.id_for_label }}" class="form-label font-weight-bold">Name of Student</label>
+                                            <input type="text" id="{{ form.student_name.id_for_label }}" name="{{ form.student_name.name }}" class="form-control" placeholder="Enter student name" value="{{ full_name }}">
                                         </div>
-                                        <div class="form-group col-md-4">
-                                            <label for="monday_description">Description</label>
-                                            <textarea id="monday_description" name="monday_description" class="form-control" rows="3"></textarea>
+                                        <div class="form-group col-lg-3">
+                                            <label for="{{ form.hte_name.id_for_label }}" class="form-label font-weight-bold">Host Training Establishment</label>
+                                            <input type="text" id="{{ form.hte_name.id_for_label }}" name="{{ form.hte_name.name }}" class="form-control" placeholder="Enter Host Training Establishment">
                                         </div>
-                                        <div class="form-group col-md-4">
-                                            <label for="monday_hours">Number of Hours</label>
-                                            <input type="number" id="monday_hours" name="monday_hours" class="form-control" value="{{ total_work_hours }}">
+                                        <div class="form-group col-lg-3">
+                                            <label for="{{ form.hte_address.id_for_label }}" class="form-label font-weight-bold">Address of (H.T.E)</label>
+                                            <input type="text" id="{{ form.hte_address.id_for_label }}" name="{{ form.hte_address.name }}" class="form-control" placeholder="Enter Host Training Establishment Address">
                                         </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="tab-pane fade" id="tuesday" role="tabpanel" aria-labelledby="tuesday-tab">
-                                    <div class="form-row">
-                                        <div class="form-group col-md-4">
-                                            <label for="tuesday_date">Date</label>
-                                            <input type="date" id="tuesday_date" name="tuesday_date" class="form-control" value="{{ current_date|date:'Y-m-d' }}">
-                                        </div>
-                                        <div class="form-group col-md-4">
-                                            <label for="tuesday_description">Description</label>
-                                            <textarea id="tuesday_description" name="tuesday_description" class="form-control" rows="3"></textarea>
-                                        </div>
-                                        <div class="form-group col-md-4">
-                                            <label for="tuesday_hours">Number of Hours</label>
-                                            <input type="number" id="tuesday_hours" name="tuesday_hours" class="form-control">
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="tab-pane fade" id="wednesday" role="tabpanel" aria-labelledby="wednesday-tab">
-                                    <div class="form-row">
-                                        <div class="form-group col-md-4">
-                                            <label for="wednesday_date">Date</label>
-                                            <input type="date" id="wednesday_date" name="wednesday_date" class="form-control" value="{{ current_date|date:'Y-m-d' }}">
-                                        </div>
-                                        <div class="form-group col-md-4">
-                                            <label for="wednesday_description">Description</label>
-                                            <textarea id="wednesday_description" name="wednesday_description" class="form-control" rows="3"></textarea>
-                                        </div>
-                                        <div class="form-group col-md-4">
-                                            <label for="wednesday_hours">Number of Hours</label>
-                                            <input type="number" id="wednesday_hours" name="wednesday_hours" class="form-control">
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="tab-pane fade" id="thursday" role="tabpanel" aria-labelledby="thursday-tab">
-                                    <div class="form-row">
-                                        <div class="form-group col-md-4">
-                                            <label for="thursday_date">Date</label>
-                                            <input type="date" id="thursday_date" name="thursday_date" class="form-control" value="{{ current_date|date:'Y-m-d' }}">
-                                        </div>
-                                        <div class="form-group col-md-4">
-                                            <label for="thursday_description">Description</label>
-                                            <textarea id="thursday_description" name="thursday_description" class="form-control" rows="3"></textarea>
-                                        </div>
-                                        <div class="form-group col-md-4">
-                                            <label for="thursday_hours">Number of Hours</label>
-                                            <input type="number" id="thursday_hours" name="thursday_hours" class="form-control">
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="tab-pane fade" id="friday" role="tabpanel" aria-labelledby="friday-tab">
-                                    <div class="form-row">
-                                        <div class="form-group col-md-4">
-                                            <label for="friday_date">Date</label>
-                                            <input type="date" id="friday_date" name="friday_date" class="form-control" value="{{ current_date|date:'Y-m-d' }}">
-                                        </div>
-                                        <div class="form-group col-md-4">
-                                            <label for="friday_description">Description</label>
-                                            <textarea id="friday_description" name="friday_description" class="form-control" rows="3"></textarea>
-                                        </div>
-                                        <div class="form-group col-md-4">
-                                            <label for="friday_hours">Number of Hours</label>
-                                            <input type="number" id="friday_hours" name="friday_hours" class="form-control">
+                                        <div class="form-group col-lg-3">
+                                            <label for="{{ form.department_division.id_for_label }}" class="form-label font-weight-bold">Department Assigned</label>
+                                            <input type="text" id="{{ form.department_division.id_for_label }}" name="{{ form.department_division.name }}" class="form-control" placeholder="Enter department division">
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <button id="saveDraft" name="action" class="btn btn-primary mt-2">
-                                Save Draft <i class="fa fa-save" aria-hidden="true" style="margin-left: 5px;"></i>
-                            </button>
-                            <button type="submit" name="action" value="preview_report" class="btn btn-primary mt-2">
-                                Preview Report <i class="fa fa-eye" aria-hidden="true" style="margin-left: 5px;"></i>
-                            </button>
-                            <button type="submit" name="action" value="submit_report" class="btn btn-primary mt-2">
-                                Submit Report <i class="fa fa-paper-plane" aria-hidden="true" style="margin-left: 5px;"></i>
-                            </button>
+                            <!-- Internship Details Section -->
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <div class="form-row">
+                                        <div class="form-group col-md-6">
+                                            <label class="font-weight-bold">Internship Classification</label>
+                                            {% for value, label in form.internship_classification.field.choices %}
+                                                <div class="form-check">
+                                                    <input type="radio" id="{{ value }}" name="{{ form.internship_classification.name }}" value="{{ value }}" class="form-check-input" {% if value == form.internship_classification.value %} checked {% endif %}>
+                                                    <label for="{{ value }}" class="form-check-label">{{ label }}</label>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                        <div class="form-group col-md-6">
+                                            <label class="font-weight-bold">Local Condition</label>
+                                            {% for value, label in form.local_condition.field.choices %}
+                                                <div class="form-check">
+                                                    <input type="radio" id="{{ value }}" name="{{ form.local_condition.name }}" value="{{ value }}" class="form-check-input" {% if value == form.local_condition.value %} checked {% endif %}>
+                                                    <label for="{{ value }}" class="form-check-label">{{ label }}</label>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                        <div class="form-group col-md-6">
+                                            <label class="form-label" style="font-weight: bold;">Internship Modality</label>
+                                            {% for value, label in form.internship_modality.field.choices %}
+                                                <div class="form-check">
+                                                    <input type="radio" id="{{ value }}" name="{{ form.internship_modality.name }}" value="{{ value }}" class="form-check-input" {% if value == form.internship_modality.value %} checked {% endif %}>
+                                                    <label for="{{ value }}" class="form-check-label">{{ label }}</label>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                        <div class="form-group col-md-6">
+                                            <label class="form-label" style="font-weight: bold;">Virtual Conditions</label>
+                                            {% for value, label in form.virtual_conditions.field.choices %}
+                                                <div class="form-check">
+                                                    <input type="radio" id="{{ value }}" name="{{ form.virtual_conditions.name }}" value="{{ value }}" class="form-check-input" {% if value == form.virtual_conditions.value %} checked {% endif %}>
+                                                    <label for="{{ value }}" class="form-check-label">{{ label }}</label>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Weekly Progress Report Section -->
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <ul class="nav nav-tabs" id="progressReportTabs" role="tablist">
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link active" id="monday-tab" data-bs-toggle="tab" data-bs-target="#monday" type="button" role="tab" aria-controls="monday" aria-selected="true">Monday</button>
+                                        </li>
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link" id="tuesday-tab" data-bs-toggle="tab" data-bs-target="#tuesday" type="button" role="tab" aria-controls="tuesday" aria-selected="false">Tuesday</button>
+                                        </li>
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link" id="wednesday-tab" data-bs-toggle="tab" data-bs-target="#wednesday" type="button" role="tab" aria-controls="wednesday" aria-selected="false">Wednesday</button>
+                                        </li>
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link" id="thursday-tab" data-bs-toggle="tab" data-bs-target="#thursday" type="button" role="tab" aria-controls="thursday" aria-selected="false">Thursday</button>
+                                        </li>
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link" id="friday-tab" data-bs-toggle="tab" data-bs-target="#friday" type="button" role="tab" aria-controls="friday" aria-selected="false">Friday</button>
+                                        </li>
+                                    </ul>
+                                    <div class="tab-content mt-3">
+                                        <div class="tab-pane fade show active" id="monday" role="tabpanel" aria-labelledby="monday-tab">
+                                            <div class="form-row">
+                                                <div class="form-group col-md-4">
+                                                    <label for="monday_date">Date</label>
+                                                    <input type="date" id="monday_date" name="monday_date" class="form-control" value="{{ current_date|date:'Y-m-d' }}">
+                                                </div>
+                                                <div class="form-group col-md-4">
+                                                    <label for="monday_description">Description</label>
+                                                    <textarea id="monday_description" name="monday_description" class="form-control" rows="3"></textarea>
+                                                </div>
+                                                <div class="form-group col-md-4">
+                                                    <label for="monday_hours">Number of Hours</label>
+                                                    <input type="number" id="monday_hours" name="monday_hours" class="form-control" value="{{ work_hours_per_day.monday }}">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- Repeat similar tab-pane content for Tuesday -->
+                                        <div class="tab-pane fade" id="tuesday" role="tabpanel" aria-labelledby="tuesday-tab">
+                                            <div class="form-row">
+                                                <div class="form-group col-md-4">
+                                                    <label for="tuesday_date">Date</label>
+                                                    <input type="date" id="tuesday_date" name="tuesday_date" class="form-control" value="{{ current_date|date:'Y-m-d' }}">
+                                                </div>
+                                                <div class="form-group col-md-4">
+                                                    <label for="tuesday_description">Description</label>
+                                                    <textarea id="tuesday_description" name="tuesday_description" class="form-control" rows="3"></textarea>
+                                                </div>
+                                                <div class="form-group col-md-4">
+                                                    <label for="tuesday_hours">Number of Hours</label>
+                                                    <input type="number" id="tuesday_hours" name="tuesday_hours" class="form-control" value="{{ work_hours_per_day.tuesday }}">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- Repeat similar tab-pane content for Wednesday -->
+                                        <div class="tab-pane fade" id="wednesday" role="tabpanel" aria-labelledby="wednesday-tab">
+                                            <div class="form-row">
+                                                <div class="form-group col-md-4">
+                                                    <label for="wednesday_date">Date</label>
+                                                    <input type="date" id="wednesday_date" name="wednesday_date" class="form-control" value="{{ current_date|date:'Y-m-d' }}">
+                                                </div>
+                                                <div class="form-group col-md-4">
+                                                    <label for="wednesday_description">Description</label>
+                                                    <textarea id="wednesday_description" name="wednesday_description" class="form-control" rows="3"></textarea>
+                                                </div>
+                                                <div class="form-group col-md-4">
+                                                    <label for="wednesday_hours">Number of Hours</label>
+                                                    <input type="number" id="wednesday_hours" name="wednesday_hours" class="form-control" value="{{ work_hours_per_day.wednesday }}">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- Repeat similar tab-pane content for Thursday -->
+                                        <div class="tab-pane fade" id="thursday" role="tabpanel" aria-labelledby="thursday-tab">
+                                            <div class="form-row">
+                                                <div class="form-group col-md-4">
+                                                    <label for="thursday_date">Date</label>
+                                                    <input type="date" id="thursday_date" name="thursday_date" class="form-control" value="{{ current_date|date:'Y-m-d' }}">
+                                                </div>
+                                                <div class="form-group col-md-4">
+                                                    <label for="thursday_description">Description</label>
+                                                    <textarea id="thursday_description" name="thursday_description" class="form-control" rows="3"></textarea>
+                                                </div>
+                                                <div class="form-group col-md-4">
+                                                    <label for="thursday_hours">Number of Hours</label>
+                                                    <input type="number" id="thursday_hours" name="thursday_hours" class="form-control" value="{{ work_hours_per_day.thursday }}">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- Repeat similar tab-pane content for Friday -->
+                                        <div class="tab-pane fade" id="friday" role="tabpanel" aria-labelledby="friday-tab">
+                                            <div class="form-row">
+                                                <div class="form-group col-md-4">
+                                                    <label for="friday_date">Date</label>
+                                                    <input type="date" id="friday_date" name="friday_date" class="form-control" value="{{ current_date|date:'Y-m-d' }}">
+                                                </div>
+                                                <div class="form-group col-md-4">
+                                                    <label for="friday_description">Description</label>
+                                                    <textarea id="friday_description" name="friday_description" class="form-control" rows="3"></textarea>
+                                                </div>
+                                                <div class="form-group col-md-4">
+                                                    <label for="friday_hours">Number of Hours</label>
+                                                    <input type="number" id="friday_hours" name="friday_hours" class="form-control" value="{{ work_hours_per_day.friday }}">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Action Buttons Section -->
+                            <div class="card-footer text-right">
+                                <button id="saveDraft" name="action" class="btn btn-primary mt-2">
+                                    Save Draft <i class="fa fa-save" aria-hidden="true" style="margin-left: 5px;"></i>
+                                </button>
+                                <button type="submit" name="action" value="preview_report" class="btn btn-primary mt-2" formtarget="_blank">
+                                    Preview Report <i class="fa fa-eye" aria-hidden="true" style="margin-left: 5px;"></i>
+                                </button>
+                                <button type="submit" name="action" value="submit_report" class="btn btn-primary mt-2">
+                                    Submit Report <i class="fa fa-paper-plane" aria-hidden="true" style="margin-left: 5px;"></i>
+                                </button>
+                            </div>
                             <!-- Modal HTML -->
                             <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
                                 <div class="modal-dialog">
@@ -440,11 +453,12 @@
             localStorage.removeItem('is_student_logged_in');
             window.location.href = '{% url 'students:logout' %}';
         }
+    
         $(".navbar-toggler").click(function(e) {
             e.preventDefault();
             $("#wrapper").toggleClass("toggled");
         });
-
+    
         document.addEventListener('DOMContentLoaded', function() {
             {% if messages %}
                 var myModal = new bootstrap.Modal(document.getElementById('successModal'), {
@@ -453,6 +467,7 @@
                 myModal.show();
             {% endif %}
         });
+    
         // Function to get the start date of the current week (Monday)
         function getStartOfWeek() {
             const today = new Date();
@@ -461,7 +476,7 @@
             const startOfWeek = new Date(today.setDate(difference));
             return startOfWeek;
         }
-
+    
         // Function to populate date fields for the week
         function populateDateFields() {
             const startOfWeek = getStartOfWeek();
@@ -472,10 +487,18 @@
                 document.getElementById(['monday_date', 'tuesday_date', 'wednesday_date', 'thursday_date', 'friday_date'][index]).value = date.toISOString().split('T')[0];
             });
         }
-
+    
         // Save draft to local storage
         function saveDraft() {
             const draft = {
+                student_name: document.querySelector('input[name="{{ form.student_name.name }}"]').value,
+                hte_name: document.querySelector('input[name="{{ form.hte_name.name }}"]').value,
+                hte_address: document.querySelector('input[name="{{ form.hte_address.name }}"]').value,
+                department_division: document.querySelector('input[name="{{ form.department_division.name }}"]').value,
+                internship_classification: document.querySelector('input[name="{{ form.internship_classification.name }}"]:checked')?.value,
+                local_condition: document.querySelector('input[name="{{ form.local_condition.name }}"]:checked')?.value,
+                internship_modality: document.querySelector('input[name="{{ form.internship_modality.name }}"]:checked')?.value,
+                virtual_conditions: document.querySelector('input[name="{{ form.virtual_conditions.name }}"]:checked')?.value,
                 monday: {
                     date: document.getElementById('monday_date').value,
                     description: document.getElementById('monday_description').value,
@@ -502,22 +525,50 @@
                     hours: document.getElementById('friday_hours').value,
                 }
             };
+    
+            // Save to local storage
+            localStorage.setItem('progressReportDraft', JSON.stringify(draft));
+    
             // Show the draft saved modal
             var draftSavedModal = new bootstrap.Modal(document.getElementById('draftSavedModal'));
             draftSavedModal.show();
         }
-
+    
         // Load draft from local storage
         function loadDraft() {
             const savedDraft = JSON.parse(localStorage.getItem('progressReportDraft'));
             if (savedDraft) {
+                // Load text inputs
+                document.querySelector('input[name="{{ form.student_name.name }}"]').value = savedDraft.student_name || '';
+                document.querySelector('input[name="{{ form.hte_name.name }}"]').value = savedDraft.hte_name || '';
+                document.querySelector('input[name="{{ form.hte_address.name }}"]').value = savedDraft.hte_address || '';
+                document.querySelector('input[name="{{ form.department_division.name }}"]').value = savedDraft.department_division || '';
+    
+                // Load radio inputs
+                if (savedDraft.internship_classification) {
+                    document.querySelector(`input[name="{{ form.internship_classification.name }}"][value="${savedDraft.internship_classification}"]`).checked = true;
+                }
+                if (savedDraft.local_condition) {
+                    document.querySelector(`input[name="{{ form.local_condition.name }}"][value="${savedDraft.local_condition}"]`).checked = true;
+                }
+                if (savedDraft.internship_modality) {
+                    document.querySelector(`input[name="{{ form.internship_modality.name }}"][value="${savedDraft.internship_modality}"]`).checked = true;
+                }
+                if (savedDraft.virtual_conditions) {
+                    document.querySelector(`input[name="{{ form.virtual_conditions.name }}"][value="${savedDraft.virtual_conditions}"]`).checked = true;
+                }
+    
+                // Load weekly progress report
                 Object.keys(savedDraft).forEach(day => {
-                    document.getElementById(`${day}_date`).value = savedDraft[day].date;
-                    document.getElementById(`${day}_description`).value = savedDraft[day].description;
-                    document.getElementById(`${day}_hours`).value = savedDraft[day].hours;
+                    if (day !== 'student_name' && day !== 'hte_name' && day !== 'hte_address' && day !== 'department_division' && savedDraft[day].date) {
+                        document.getElementById(`${day}_date`).value = savedDraft[day].date;
+                        document.getElementById(`${day}_description`).value = savedDraft[day].description || '';
+                        document.getElementById(`${day}_hours`).value = savedDraft[day].hours || '';
+                    }
                 });
             }
         }
+    
         // Set up event listeners
         document.getElementById('saveDraft').addEventListener('click', saveDraft);
         window.onload = () => {
