@@ -367,8 +367,7 @@
                 approvedLink.href = "{% url 'approve-student-list' %}?" + filterParam;
             } else {
                 console.error('Approved link not found!');
-            }
-            
+            }     
             if (pendingLink) {
                 pendingLink.href = "{% url 'pending-student-list' %}?" + filterParam;
             } else {
