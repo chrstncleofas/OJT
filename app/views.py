@@ -1,6 +1,5 @@
 import re
 import json
-from typing import Union
 from django.db.models import Q
 from django.urls import reverse
 from django.conf import settings
@@ -228,8 +227,9 @@ def getAllStudentSubmittedRequirements(request):
         except ValueError:
             print("Invalid date format for custom date range")
 
-    # Kunin ang mga detalye ng estudyante batay sa mga student_id
-    student_ids = [student['student'] for student in submitted_students.values('student').distinct()]
+    # Get unique student IDs based on the filtered submitted requirements
+    student_ids = submitted_students.values_list('student_id', flat=True).distinct()
+    # Filter the students based on the unique IDs obtained
     students = DataTableStudents.objects.filter(id__in=student_ids)
 
     # Pagination
@@ -248,12 +248,15 @@ def getAllStudentSubmittedRequirements(request):
     except EmptyPage:
         students = paginator.page(paginator.num_pages)
 
+    # Update submitted_count to the count of submitted students
+    submitted_count = submitted_students.count()
+
     return render(request, 'app/student-submitted-list.html', {
         'students': students,
         'firstName': firstName,
         'lastName': lastName,
         'per_page': per_page,
-        'submitted_count': submitted_students,
+        'submitted_count': submitted_count,
     })
 
 @login_required
