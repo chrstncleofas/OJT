@@ -50,18 +50,25 @@ def mainDashboard(request):
     # Check if the user is staff but not a superuser
     if not request.user.is_staff or request.user.is_superuser:
         return render(request, 'main/404.html', status=403)
+    
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
     firstName = admin.first_name
     lastName = admin.last_name
+
     # Default date filters
     today = datetime.today().date()
     yesterday = today - timedelta(days=1)
     week_start = today - timedelta(days=today.weekday())
+
     # Get filter type from the request
     filter_type = request.GET.get('filterType', 'yesterday')
     start_date = request.GET.get('startDate')
     end_date = request.GET.get('endDate')
+
+    # Initialize counts
+    approve = pending = reject = daily_requirements = []
+
     # Apply date filters based on the selected filter type
     if filter_type == 'today':
         approve = DataTableStudents.objects.filter(status='Approved', archivedStudents='NotArchive', created_at__date=today)
@@ -69,9 +76,8 @@ def mainDashboard(request):
         reject = RejectApplication.objects.filter(RejectStatus='RejectedApplication', RejectStatusArchive='NotArchive', created_at__date=today)
         daily_requirements = TableSubmittedRequirement.objects.filter(submission_date__date=today)
     elif filter_type == 'yesterday':
-        # Use range to capture the entire day of yesterday
         yesterday_start = yesterday
-        yesterday_end = today  # This ensures the full range of yesterday
+        yesterday_end = today
         approve = DataTableStudents.objects.filter(status='Approved', archivedStudents='NotArchive', created_at__range=(yesterday_start, yesterday_end))
         pending = PendingApplication.objects.filter(StatusApplication='PendingApplication', PendingStatusArchive='NotArchive', created_at__range=(yesterday_start, yesterday_end))
         reject = RejectApplication.objects.filter(RejectStatus='RejectedApplication', RejectStatusArchive='NotArchive', created_at__range=(yesterday_start, yesterday_end))
@@ -88,22 +94,31 @@ def mainDashboard(request):
         pending = PendingApplication.objects.filter(StatusApplication='PendingApplication', PendingStatusArchive='NotArchive', created_at__date__range=(start_date, end_date))
         reject = RejectApplication.objects.filter(RejectStatus='RejectedApplication', RejectStatusArchive='NotArchive', created_at__date__range=(start_date, end_date))
         daily_requirements = TableSubmittedRequirement.objects.filter(submission_date__date__range=(start_date, end_date))
-    else:
-        approve = pending = reject = daily_requirements = []
+    
+    # Get the counts
     approve_count = approve.count()
     pending_count = pending.count()
     reject_count = reject.count()
-    daily_requirements_count = daily_requirements.count()
-
+    
+    # Get the count of submitted requirements per student for the selected date filter
+    student_daily_counts = {}
+    for student in DataTableStudents.objects.all():
+        student_daily_counts[student.id] = TableSubmittedRequirement.objects.filter(
+            student=student,
+            submission_date__date=today  # Filter based on the selected date range
+        ).count()
+    
     total_course_it = DataTableStudents.objects.filter(Course='BS Information Technology').count()
     total_course_cs = DataTableStudents.objects.filter(Course='BS Computer Science').count()
+
     if request.method == 'GET' and request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         return JsonResponse({
             'approve_count': approve_count,
             'pending_count': pending_count,
             'reject_count': reject_count,
-            'daily_requirements_count': daily_requirements_count
+            'student_daily_counts': student_daily_counts,  # Include student submission counts
         })
+    
     return render(
         request,
         'app/main-dashboard.html',
@@ -111,18 +126,16 @@ def mainDashboard(request):
             'approve_count': approve_count,
             'pending_count': pending_count,
             'reject_count': reject_count,
-            'daily_requirements_count': daily_requirements_count,
+            'student_daily_counts': student_daily_counts,  # Pass to the template
             'firstName': firstName,
             'lastName': lastName,
             'total_course_it': total_course_it,
-            'total_course_cs': total_course_cs
+            'total_course_cs': total_course_cs,
         }
     )
 
 @login_required
-@never_cache
 @csrf_exempt
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def getAllListStudent(request):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
@@ -160,9 +173,46 @@ def getAllListStudent(request):
         return render(request, 'app/approve-list-student.html', context)
     return render(request, 'app/student-list.html', context)
 
-@never_cache
+
 @login_required
-@csrf_exempt
+def getAllStudentSubmittedRequirements(request):
+    user = request.user
+    admin = get_object_or_404(CustomUser, id=user.id)
+    firstName = admin.first_name
+    lastName = admin.last_name
+    students_list = TableSubmittedRequirement.objects.all().order_by('id')
+    search_query_approve = request.GET.get('search-approve', '')
+    if search_query_approve:
+        students_list = students_list.filter(
+            Q(StudentID__icontains=search_query_approve) |
+            Q(Firstname__icontains=search_query_approve) |
+            Q(Middlename__icontains=search_query_approve) |
+            Q(Lastname__icontains=search_query_approve)
+        )
+        
+    page = request.GET.get('page', 1)
+    per_page_value = request.GET.get('per_page', '10')
+    try:
+        per_page = int(per_page_value) if per_page_value.isdigit() else 10
+    except ValueError:
+        per_page = 10
+    paginator = Paginator(students_list, per_page)
+    try:
+        students = paginator.page(page)
+    except PageNotAnInteger:
+        students = paginator.page(1)
+    except EmptyPage:
+        students = paginator.page(paginator.num_pages)
+    context = {
+        'students': students,
+        'firstName': firstName,
+        'lastName': lastName,
+    }
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return render(request, 'app/approve-list-student.html', context)
+    return render(request, 'app/student-list.html', context)
+
+@login_required
 def getAllApproveStudents(request):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)
