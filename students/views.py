@@ -323,8 +323,11 @@ def typeTheDetailsProgressReportPdf(request):
         }
     )
 
+@login_required
 def exportTimeLogToPDF(request):
     user = request.user
+    if not hasattr(user, 'id'):
+        return render(request, 'main/404.html', status=403)
     student = get_object_or_404(DataTableStudents, user=user)
     time_logs = TimeLog.objects.filter(
         student=student,
