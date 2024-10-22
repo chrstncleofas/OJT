@@ -335,7 +335,7 @@ def exportTimeLogToPDF(request):
     ).order_by('timestamp')
     lunch_logs = LunchLog.objects.filter(student=student).order_by('timestamp')
     buffer = BytesIO()
-    pdf_document = fitz.open(os.path.join(settings.PDF_ROOT, 'INTERNSHIP-TIME-SHEET.pdf'))
+    pdf_document = fitz.open(os.path.join(settings.PDF_ROOT, 'INTERNSHIP-TIMESHEET.pdf'))
     page = pdf_document[0]  
     y_positions = {
         'Monday': 100,
