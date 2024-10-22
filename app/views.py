@@ -28,7 +28,6 @@ from django.contrib.auth import authenticate, login, logout
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from students.forms import EditStudentForm, ScheduleSettingForm, GradeForm
 from app.models import RenderingHoursTable, TableRequirements, TableContent
-from django.http import HttpResponse, HttpResponseRedirect, HttpResponsePermanentRedirect, JsonResponse
 from app.forms import EditProfileForm, AnnouncementForm, UploadRequirementForm, ContentForm, CustomUserCreationForm
 from students.models import DataTableStudents, TimeLog, Schedule, TableSubmittedReport, TableSubmittedRequirement, PendingApplication, RejectApplication, Grade, ReturnToRevisionDocument, ApprovedDocument, LunchLog, Notification
 
