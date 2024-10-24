@@ -292,16 +292,16 @@
                             <!-- Check if there's a previous page -->
                             {% if students.has_previous %}
                             <li class="page-item">
-                                <a class="page-link" href="?page=1&per_page={{ per_page }}" aria-label="First">
+                                <a class="page-link" href="?page=1&per_page={{ per_page }}&search-approve={{ search_query_approve }}&filterType={{ date_filter }}&startDate={{ start_date }}&endDate={{ end_date }}" aria-label="First">
                                     <span aria-hidden="true">&laquo;&laquo;</span>
                                 </a>
                             </li>
                             <li class="page-item">
-                                <a class="page-link" href="?page={{ students.previous_page_number }}&per_page={{ per_page }}" aria-label="Previous">
+                                <a class="page-link" href="?page={{ students.previous_page_number }}&per_page={{ per_page }}&search-approve={{ search_query_approve }}&filterType={{ date_filter }}&startDate={{ start_date }}&endDate={{ end_date }}" aria-label="Previous">
                                     <span aria-hidden="true">&laquo;</span>
                                 </a>
                             </li>
-                            {% endif %}  
+                            {% endif %}
                             <!-- Loop through page numbers -->
                             {% for num in students.paginator.page_range %}
                                 {% if num > students.number|add:'-3' and num < students.number|add:'3' %}
@@ -311,25 +311,25 @@
                                     </li>
                                     {% else %}
                                     <li class="page-item">
-                                        <a class="page-link" href="?page={{ num }}&per_page={{ per_page }}">{{ num }}</a>
+                                        <a class="page-link" href="?page={{ num }}&per_page={{ per_page }}&search-approve={{ search_query_approve }}&filterType={{ date_filter }}&startDate={{ start_date }}&endDate={{ end_date }}">{{ num }}</a>
                                     </li>
                                     {% endif %}
                                 {% endif %}
-                            {% endfor %}                
+                            {% endfor %}
                             <!-- Check if there's a next page -->
                             {% if students.has_next %}
                             <li class="page-item">
-                                <a class="page-link" href="?page={{ students.next_page_number }}&per_page={{ per_page }}" aria-label="Next">
+                                <a class="page-link" href="?page={{ students.next_page_number }}&per_page={{ per_page }}&search-approve={{ search_query_approve }}&filterType={{ date_filter }}&startDate={{ start_date }}&endDate={{ end_date }}" aria-label="Next">
                                     <span aria-hidden="true">&raquo;</span>
                                 </a>
                             </li>
                             <li class="page-item">
-                                <a class="page-link" href="?page={{ students.paginator.num_pages }}&per_page={{ per_page }}" aria-label="Last">
+                                <a class="page-link" href="?page={{ students.paginator.num_pages }}&per_page={{ per_page }}&search-approve={{ search_query_approve }}&filterType={{ date_filter }}&startDate={{ start_date }}&endDate={{ end_date }}" aria-label="Last">
                                     <span aria-hidden="true">&raquo;&raquo;</span>
                                 </a>
                             </li>
                             {% endif %}
-                        </ul>   
+                        </ul>
                     </div>
                 </div>
             </div>

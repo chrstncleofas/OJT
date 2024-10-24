@@ -264,7 +264,11 @@ def getAllApproveStudents(request):
     admin = get_object_or_404(CustomUser, id=user.id)
     firstName = admin.first_name
     lastName = admin.last_name
+    
+    # Fetch all students
     students_list = DataTableStudents.objects.filter(status='Approved', archivedStudents='NotArchive').order_by('id')
+    
+    # Search functionality
     search_query_approve = request.GET.get('search-approve', '')
     if search_query_approve:
         students_list = students_list.filter(
@@ -273,10 +277,13 @@ def getAllApproveStudents(request):
             Q(Middlename__icontains=search_query_approve) |
             Q(Lastname__icontains=search_query_approve)
         )
+    
+    # Date filters
     date_filter = request.GET.get('filterType', 'today')
     start_date = request.GET.get('startDate')
     end_date = request.GET.get('endDate')
     today = timezone.now().date()
+    
     if date_filter == 'today':
         students_list = students_list.filter(created_at__date=today)
     elif date_filter == 'yesterday':
@@ -292,26 +299,39 @@ def getAllApproveStudents(request):
             students_list = students_list.filter(created_at__date__range=(start_date, end_date))
         except ValueError:
             print("Invalid date format for custom date range")
+
+    # Pagination
     page = request.GET.get('page', 1)
     per_page_value = request.GET.get('per_page', '10')
+    
     try:
         per_page = int(per_page_value) if per_page_value.isdigit() else 10
     except ValueError:
         per_page = 10
+        
     paginator = Paginator(students_list, per_page)
+    
     try:
         students = paginator.page(page)
     except PageNotAnInteger:
         students = paginator.page(1)
     except EmptyPage:
         students = paginator.page(paginator.num_pages)
+    
     context = {
         'students': students,
         'firstName': firstName,
         'lastName': lastName,
+        'per_page': per_page,
+        'search_query_approve': search_query_approve,
+        'date_filter': date_filter,
+        'start_date': start_date,
+        'end_date': end_date,
     }
+    
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         return render(request, 'app/approve-list-student.html', context)
+    
     return render(request, 'app/approve-list-student.html', context)
 
 @login_required
