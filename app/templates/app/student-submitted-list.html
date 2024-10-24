@@ -212,9 +212,9 @@
                                 <td><a href="{% url 'view-document' student.id %}" class="btn btn-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="View"><i class="fas fa-eye"></i></a></td>
                             </tr>
                             {% empty %}
-                            <tr>
-                                <td colspan="3" class="text-center">No submitted student requirements found.</td>
-                            </tr>
+                                <tr>
+                                    <td colspan="7" class="text-center">No submitted student requirements found.</td>
+                                </tr>
                             {% endfor %}
                         </tbody>
                     </table>
