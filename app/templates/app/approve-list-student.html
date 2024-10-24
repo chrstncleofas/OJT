@@ -349,9 +349,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     {% comment %}  {% endcomment %}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
-    <script>
+    <script>     
         document.addEventListener('DOMContentLoaded', () => {
             setupLogout();
+            updatePerPage();
         });
         function setupLogout() {
             const logoutButton = document.querySelector('#logoutButton'); // Assuming you have a logout button in the DOM
@@ -578,6 +579,16 @@
                 });
             });            
         });
+        function updatePerPage(perPageValue) {
+            // Get the current URL and query parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            
+            // Update the per_page parameter with the new value
+            urlParams.set('per_page', perPageValue);
+            
+            // Redirect to the updated URL with all query parameters preserved
+            window.location.search = urlParams.toString();
+        }   
     </script>
 </body>
 </html>
