@@ -301,6 +301,12 @@
             localStorage.removeItem('is_coordinator_logged_in');
             window.location.href = '{% url 'logout' %}';
         }
+        function updatePerPage(perPageValue) {
+            console.log('Per page changed to:', perPageValue);
+            const urlParams = new URLSearchParams(window.location.search);
+            urlParams.set('per_page', perPageValue);
+            window.location.search = urlParams.toString();
+        } 
         // Initialize Hover Tooltips
         document.addEventListener('DOMContentLoaded', function () {
             var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
