@@ -241,11 +241,11 @@
                                 <p style="text-transform: uppercase; font-weight: bold;" class="text-success">Approved</p>
                                 </td>
                                 <td>
-                                    <a href="{% url 'editStudentDetails' student.id %}" class="btn btn-primary"><i class="fa-solid fa-pen-to-square" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit"></i></a>
-                                    <a href="{% url 'student-logs' student.id %}" class="btn btn-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="View"><i class="fas fa-eye"></i></a>
-                                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#passwordModal{{student.id}}"><i class="fa fa-archive" data-bs-toggle="tooltip" data-bs-placement="top" title="Archive"></i></button>     
+                                    {% comment %} <a href="{% url 'editStudentDetails' student.id %}" class="btn btn-primary"><i class="fa-solid fa-pen-to-square" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit"></i></a> {% endcomment %}
+                                    <a href="{% url 'view-student-details' student.id %}" class="btn btn-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="View"><i class="fas fa-eye"></i></a>
+                                    {% comment %} <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#passwordModal{{student.id}}"><i class="fa fa-archive" data-bs-toggle="tooltip" data-bs-placement="top" title="Archive"></i></button>      {% endcomment %}
                                     <!-- Password Modal -->
-                                    <div id="passwordModal{{student.id}}" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="passwordModalLabel{{student.id}}" aria-hidden="true">
+                                    {% comment %} <div id="passwordModal{{student.id}}" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="passwordModalLabel{{student.id}}" aria-hidden="true">
                                         <div class="modal-dialog" role="document">
                                             <div class="modal-content">
                                                 <div class="modal-header">
@@ -264,7 +264,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
+                                    </div> {% endcomment %}
                                 </td>
                             </tr>
                             {% empty %}
