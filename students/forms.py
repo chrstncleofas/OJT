@@ -110,7 +110,12 @@ class PendingStudentRegistrationForm(forms.ModelForm):
 
     class Meta:
         model = PendingApplication
-        fields = ['PendingStudentID', 'PendingFirstname', 'PendingMiddlename', 'PendingLastname', 'PendingPrefix', 'PendingEmail', 'PendingAddress', 'PendingNumber', 'PendingCourse', 'PendingYear', 'PendingUsername', 'PendingPassword']
+        fields = [
+            'PendingStudentID', 'PendingFirstname', 'PendingMiddlename', 'PendingLastname', 
+            'PendingPrefix', 'PendingEmail', 'PendingAddress', 'PendingNumber',
+            'PendingCourse', 'PendingYear', 'PendingUsername', 'PendingPassword',
+            'NameOfSupervisor', 'HTEAddress', 'ContactNumber', 'Department'
+        ]
         widgets = {
             'PendingFirstname': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter First Name'}),
             'PendingMiddlename': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Middle Name'}),
@@ -118,6 +123,10 @@ class PendingStudentRegistrationForm(forms.ModelForm):
             'PendingAddress': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Full Address'}),
             'PendingEmail': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Enter Email'}),
             'PendingUsername': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Username'}),
+            'NameOfSupervisor': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter supervisor name'}),
+            'HTEAddress': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter hte address'}),
+            'ContactNumber': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter contact no.'}),
+            'Department': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter department'}),
         }
 
     def clean(self):
@@ -158,17 +167,29 @@ class PendingStudentRegistrationForm(forms.ModelForm):
                 self.fields['PendingYear'].initial = '3rd Year'
 
 class StudentProfileForm(forms.ModelForm):
-
     class Meta:
         model = DataTableStudents
-        fields = ['Firstname', 'Lastname', 'Email', 'Course', 'Year', 'Image']
+        fields = [
+            'StudentID', 'Firstname', 'Middlename', 'Lastname', 'Prefix', 
+            'Email', 'Number', 'Address', 'Course', 'Year',
+            'Image', 'NameOfSupervisor', 'HTEAddress', 'ContactNumber', 'Department'
+        ]
         widgets = {
+            'StudentID': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter StudentID'}),
             'Firstname': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter First Name'}),
+            'Middlename': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Middlename'}),
             'Lastname': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Last Name'}),
+            'Prefix': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter extension name'}),
             'Email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Enter Email'}),
+            'Number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter mobile number'}),
+            'Address': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Address'}),
             'Course': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Course'}),
             'Year': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Year'}),
             'Image': CustomClearableFileInput,
+            'NameOfSupervisor': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter name of supervisor'}),
+            'HTEAddress': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter host training establishment address'}),
+            'ContactNumber': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter contact no.'}),
+            'Department': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter department'}),
         }
 
 class ChangePasswordForm(forms.Form):
@@ -216,15 +237,26 @@ class LunchLogForm(forms.ModelForm):
 class EditStudentForm(forms.ModelForm):
     class Meta:
         model = DataTableStudents
-        fields = ['Firstname', 'Middlename', 'Lastname', 'Email', 'Course', 'Year', 'status']
+        fields = [
+            'StudentID','Firstname', 'Middlename', 'Lastname', 'Prefix', 
+            'Email', 'Number', 'Address', 'Course', 'Year', 'NameOfSupervisor', 
+            'HTEAddress', 'ContactNumber', 'Department'
+        ]
         widgets = {
-            'Firstname': forms.TextInput(attrs={'class': 'form-control'}),
-            'Middlename': forms.TextInput(attrs={'class': 'form-control'}),
-            'Lastname': forms.TextInput(attrs={'class': 'form-control'}),
-            'Email': forms.EmailInput(attrs={'class': 'form-control'}),
-            'Course': forms.TextInput(attrs={'class': 'form-control'}),
-            'Year': forms.NumberInput(attrs={'class': 'form-control'}),
-            'status': forms.Select(attrs={'class': 'form-control'}),
+            'StudentID': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter StudentID'}),
+            'Firstname': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter First Name'}),
+            'Middlename': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Middlename'}),
+            'Lastname': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Last Name'}),
+            'Prefix': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter extension name'}),
+            'Email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Enter Email'}),
+            'Number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter mobile number'}),
+            'Address': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Address'}),
+            'Course': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Course'}),
+            'Year': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Year'}),
+            'NameOfSupervisor': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter name of supervisor'}),
+            'HTEAddress': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter host training establishment address'}),
+            'ContactNumber': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter contact no.'}),
+            'Department': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter department'}),
         }
 
 class ScheduleSettingForm(forms.Form):

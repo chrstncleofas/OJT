@@ -22,6 +22,12 @@ class DataTableStudents(models.Model):
     Course = models.CharField(max_length=100)
     Year = models.CharField(max_length=50, blank=True, null=True)
     Image = models.ImageField(upload_to='profileImage/', blank=True, null=True)
+    # 
+    NameOfSupervisor = models.CharField(max_length=200, null=True, blank=True)
+    HTEAddress = models.CharField(max_length=200, null=True, blank=True)
+    ContactNumber = models.CharField(max_length=11, null=True, blank=True)
+    Department = models.CharField(max_length=200, null=True, blank=True)
+    # 
     Username = models.CharField(max_length=100, unique=True)
     Password = models.CharField(max_length=100)
     status = models.CharField(max_length=50)
@@ -78,6 +84,12 @@ class PendingApplication(models.Model):
     PendingYear = models.CharField(max_length=50, blank=True, null=True)
     PendingImage = models.ImageField(upload_to='profileImage/', blank=True, null=True)
     PendingUsername = models.CharField(max_length=100, unique=True)
+    # 
+    NameOfSupervisor = models.CharField(max_length=200, null=True, blank=True)
+    HTEAddress = models.CharField(max_length=200, null=True, blank=True)
+    ContactNumber = models.CharField(max_length=11, null=True, blank=True)
+    Department = models.CharField(max_length=200, null=True, blank=True)
+    # 
     PendingPassword = models.CharField(max_length=100)
     StatusApplication = models.CharField(max_length=100, default='PendingApplication')
     PendingStatusArchive = models.CharField(max_length=100, default='NotArchive')
@@ -96,6 +108,12 @@ class RejectApplication(models.Model):
     RejectCourse = models.CharField(max_length=100)
     RejectYear = models.CharField(max_length=50)
     RejectUsername = models.CharField(max_length=100, unique=True)
+    # 
+    NameOfSupervisor = models.CharField(max_length=200, null=True, blank=True)
+    HTEAddress = models.CharField(max_length=200, null=True, blank=True)
+    ContactNumber = models.CharField(max_length=11, null=True, blank=True)
+    Department = models.CharField(max_length=200, null=True, blank=True)
+    # 
     RejectPassword = models.CharField(max_length=100)
     RejectStatus = models.CharField(max_length=100, default='RejectedApplication')
     RejectStatusArchive = models.CharField(max_length=100, default='NotArchive')
@@ -106,6 +124,8 @@ class TimeLog(models.Model):
     ACTION_CHOICES = [
         ('IN', 'Time In'),
         ('OUT', 'Time Out'),
+        ('LUNCH IN', 'Lunch In'),
+        ('LUNCH OUT', 'Lunch Out'),
     ]
     
     student = models.ForeignKey(DataTableStudents, on_delete=models.CASCADE)
@@ -117,7 +137,6 @@ class TimeLog(models.Model):
     def __str__(self):
         return f"{self.student} - {self.action} at {self.timestamp}"
     
-
 class LunchLog(models.Model):
     ACTION_CHOICES = [
         ('LUNCH IN', 'Lunch In'),

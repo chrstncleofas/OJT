@@ -338,17 +338,6 @@
                                     {{ form.image }}
                                     <img id="preview" src="#" alt="Preview Image">
                                 </div>
-                                {% if time_logs %}
-                                    {% if time_logs.0.action == 'IN' %}
-                                        <p style="margin-bottom: 2px;">Current login time was</p>
-                                        <p class="time-info" style="margin-bottom: 2px; font-weight: bold;">{{ time_logs.0.timestamp|date:"g:i:s A" }}</p>
-                                        <p>on <span style="font-weight: bold;">{{ time_logs.0.timestamp|date:"l, n/j" }}</span></p>
-                                    {% else %}
-                                        <p style="margin-bottom: 2px;">Current logging out at</p>
-                                        <p style="margin-bottom: 2px; font-weight: bold;" class="time-info">{{ current_time|date:"g:i:s A" }}</p>
-                                        <p>on <span style="font-weight: bold;">{{ current_time|date:"l, n/j" }}</span></p>
-                                    {% endif %}
-                                {% endif %}
                                 {{ form.action }}
                                 <input type="hidden" id="lastAction" value="{{ last_action }}">
                                 {% if not requirements_submitted %}

@@ -11,33 +11,26 @@
     <link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon"> 
     <title>Coordinator - OJT Management System Dashboard</title>
     <style>
-        .upload-box {
+        .preview-box {
             border: 2px dashed #ccc;
             border-radius: 6px;
             display: flex;
             align-items: center;
             justify-content: center;
-            height: 216px;
+            height: 260px;
+            width: 255px;
             margin-bottom: 20px;
             position: relative;
             cursor: pointer;
             overflow: hidden;
             background-color: #f8f9fa;
         }
-        .upload-box input[type="file"] {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            opacity: 0;
-            cursor: pointer;
-        }
-        .upload-box img {
+        .preview-box img {
             max-width: 100%;
             max-height: 100%;
-            display: none;
         }
-        .upload-box::before {
-            content: 'Choose File';
+        .preview-box::before {
+            content: 'Browse Image';
             color: #888;
             font-size: 16px;
             position: absolute;
@@ -46,6 +39,9 @@
             justify-content: center;
             width: 100%;
             height: 100%;
+        }
+        .preview-box.with-image::before {
+            display: none;
         }
     </style>
 </head>
@@ -165,13 +161,13 @@
                     </div>
                 </div>
                 <hr class="hr">
-                <div class="d-flex justify-content-between mb-2 mt-2">
+                <div class="d-flex justify-content-between mb-3 mt-2">
                     <p class="mt-1 text-center" style="font-size: 13px; font-weight: bold; text-align: center; justify-content: center;">Application Status: <span style="font-weight: 600;">{{ students.StatusApplication }}</span></p> 
                     <div>
                         <!-- Approve Button -->
-                        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#approveModal{{students.id}}">Approve</button>
+                        {% comment %} <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#approveModal{{students.id}}">Approve</button> {% endcomment %}
                         <!-- Approve Modal -->
-                        <div class="modal" id="approveModal{{students.id}}" tabindex="-1" aria-labelledby="myModalLabel1" aria-hidden="true">
+                        {% comment %} <div class="modal" id="approveModal{{students.id}}" tabindex="-1" aria-labelledby="myModalLabel1" aria-hidden="true">
                             <div class="modal-dialog" role="document">
                                 <div class="modal-content">
                                     <div class="modal-header">
@@ -189,11 +185,11 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </div> {% endcomment %}
                         <!-- Reject Button -->
-                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#rejectModal{{students.id}}">Disapprove</button>
+                        {% comment %} <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#rejectModal{{students.id}}">Disapprove</button> {% endcomment %}
                         <!-- Reject Modal -->
-                        <div class="modal fade" id="rejectModal{{students.id}}" tabindex="-1" role="dialog" aria-labelledby="rejectModalLabel" aria-hidden="true">
+                        {% comment %} <div class="modal fade" id="rejectModal{{students.id}}" tabindex="-1" role="dialog" aria-labelledby="rejectModalLabel" aria-hidden="true">
                             <div class="modal-dialog" role="document">
                                 <div class="modal-content">
                                     <div class="modal-header">
@@ -212,46 +208,81 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </div> {% endcomment %}
                         <!-- Back Button -->
-                        <a href="{% url 'pending-student-list' %}" class="btn btn-primary">Back</a>
+                        <a href="{% url 'pending-student-list' %}" class="btn btn-primary mr-3">Back</a>
                     </div>
                 </div>
                 <form method="post">
                     <div class="row">
-                        <div class="col-md-4">
-                            <label for="StudentID">Student ID</label>
-                            <input type="text" class="form-control" id="StudentID" name="StudentID" value"{{ students.PendingStudentID }}" placeholder="{{ students.PendingStudentID }}">
+                        <div class="col-md-3 mt-3" id="browser-image" style="border: 1px; margin-right: -35px;">
+                            <div id="image-preview" class="preview-box with-image">
+                                {% if student.Image %}
+                                    <img src="{{ student.Image.url }}" alt="Profile Image" style="max-width: 100%;" id="current-image">
+                                {% endif %}
+                            </div>
                         </div>
-                        <div class="col-md-4">
-                            <label for="Firstname">First Name</label>
-                            <input type="text" class="form-control" id="Firstname" name="StudentID" value"{{ students.PendingFirstname }}" placeholder="{{ students.PendingFirstname }}">
-                        </div>
-                        <div class="col-md-4">
-                            <label for="Middlename">Middle Name</label>
-                            <input type="text" class="form-control" id="Middlename" name="StudentID" value"{{ students.PendingMiddlename }}" placeholder="{{ students.PendingMiddlename }}">
-                        </div>
-                        <div class="col-md-4 mt-2">
-                            <label for="Lastname">Last Name</label>
-                            <input type="text" class="form-control" id="Lastname" name="StudentID" value"{{ students.PendingLastname }}" placeholder="{{ students.PendingLastname }}">       
-                        </div>
-                        <div class="col-md-4 mt-2">
-                            <label for="Prefix">Prefix</label>
-                            <input type="text" class="form-control" id="Prefix" name="Prefix" value"{{ students.PendingPrefix }}" placeholder="{{ students.PendingPrefix }}">
-                        </div>
-                        <div class="col-md-4 mt-2">
-                            <label for="Email">Email</label>
-                            <input type="email" class="form-control" id="Email" name="Email" value"{{ students.PendingEmail }}" placeholder="{{ students.PendingEmail }}">
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-4 mt-2">
-                            <label for="Course">Course & Year</label>
-                            <input type="text" class="form-control" id="Course Year" name="Course Year" value"{{ students.PendingCourse }} & {{ students.PendingYear }}" placeholder="{{ students.PendingCourse }} & {{ students.PendingYear }} Year">
-                        </div>  
-                        <div class="col-md-4 mt-2">
-                            <label for="Username">Username</label>
-                            <input type="text" class="form-control" id="Username" name="Username" value"{{ students.PendingUsername }} & {{ students.PendingUsername }}" placeholder="{{ students.PendingUsername }}">
+                        <div class="col-md-9">
+                            <div class="form-row mb-3">
+                                <div class="col-md-3">
+                                    <label for="PendingStudentID">Student ID</label>
+                                    <input type="text" class="form-control" id="PendingStudentID" name="PendingStudentID" value"{{ students.PendingStudentID }}" placeholder="{{ students.PendingStudentID }}">
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="PendingFirstname">First Name</label>
+                                    <input type="text" class="form-control" id="PendingFirstname" name="PendingFirstname" value"{{ students.PendingFirstname }}" placeholder="{{ students.PendingFirstname }}">
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="PendingMiddlename">Middle Name</label>
+                                    <input type="text" class="form-control" id="PendingMiddlename" name="PendingMiddlename" value"{{ students.PendingMiddlename }}" placeholder="{{ students.PendingMiddlename }}">
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="PendingLastname">Last Name</label>
+                                    <input type="text" class="form-control" id="PendingLastname" name="PendingLastname" value"{{ students.PendingLastname }}" placeholder="{{ students.PendingLastname }}">       
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="col-md-3">
+                                    <label for="PendingPrefix">Extension name</label>
+                                    <input type="text" class="form-control" id="PendingPrefix" name="PendingPrefix" value"{{ students.PendingPrefix }}" placeholder="{{ students.PendingPrefix }}">
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="Email">Email</label>
+                                    <input type="email" class="form-control" id="Email" name="Email" value"{{ students.PendingEmail }}" placeholder="{{ students.PendingEmail }}">
+                                </div>
+                                <div class="col-md-2">
+                                    <label for="PendingNumber">Mobile no.</label>
+                                    <input type="text" class="form-control" id="PendingNumber" name="PendingNumber" value"{{ students.PendingNumber }}" placeholder="{{ students.PendingNumber }}">
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="Course">Program Level</label>
+                                    <input type="text" class="form-control" id="Course Year" name="Course Year" value"{{ students.PendingCourse }} & {{ students.PendingYear }}" placeholder="{{ students.PendingCourse }} & {{ students.PendingYear }}">
+                                </div>  
+                            </div>
+                            <div class="form-row mt-3">
+                                <div class="col-md-3">
+                                    <label for="PendingAddress">Address</label>
+                                    <input type="text" class="form-control" id="PendingAddress" name="PendingAddress" value"{{ students.PendingAddress }}" placeholder="{{ students.PendingAddress }}">
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="NameOfSupervisor">Name of Supervisor</label>
+                                    <input type="text" class="form-control" id="NameOfSupervisor" name="NameOfSupervisor" value"{{ students.NameOfSupervisor }}" placeholder="{{ students.NameOfSupervisor }}">
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="HTEAddress">Host Training Establishment</label>
+                                    <input type="text" class="form-control" id="HTEAddress" name="HTEAddress" value"{{ students.HTEAddress }}" placeholder="{{ students.HTEAddress }}">
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="ContactNumber">Contact No.</label>
+                                    <input type="text" class="form-control" id="ContactNumber" name="ContactNumber" value"{{ students.ContactNumber }}" placeholder="{{ students.ContactNumber }}">
+                                </div>
+                            </div>
+                            <div class="form-row mt-3">
+                                <div class="col-md-3">
+                                    <label for="Department">Department</label>
+                                    <input type="text" class="form-control" id="Department" name="Department" value"{{ students.Department }}" placeholder="{{ students.Department }}">
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </form>
@@ -301,6 +332,28 @@
                 }
             });
         }
+        document.getElementById('id_image').addEventListener('change', function() {
+            const previewBox = document.getElementById('image-preview');
+            const previewImage = document.getElementById('current-image');
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    if (previewImage) {
+                        previewImage.src = e.target.result;
+                    } else {
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.style.maxWidth = "100%";
+                        img.id = "current-image";
+                        previewBox.appendChild(img);
+                    }
+                    // Add the with-image class to remove the 'Browse Image' text
+                    previewBox.classList.add('with-image');
+                }
+                reader.readAsDataURL(file);
+            }
+        });
     </script>
 </body>
 </html>

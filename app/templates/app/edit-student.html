@@ -11,33 +11,26 @@
     <link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon">
     <title>Coordinator - OJT Management System Dashboard</title>
     <style>
-        .upload-box {
+        .preview-box {
             border: 2px dashed #ccc;
             border-radius: 6px;
             display: flex;
             align-items: center;
             justify-content: center;
-            height: 216px;
+            height: 260px;
+            width: 255px;
             margin-bottom: 20px;
             position: relative;
             cursor: pointer;
             overflow: hidden;
             background-color: #f8f9fa;
         }
-        .upload-box input[type="file"] {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            opacity: 0;
-            cursor: pointer;
-        }
-        .upload-box img {
+        .preview-box img {
             max-width: 100%;
             max-height: 100%;
-            display: none;
         }
-        .upload-box::before {
-            content: 'Choose File';
+        .preview-box::before {
+            content: 'Browse Image';
             color: #888;
             font-size: 16px;
             position: absolute;
@@ -46,6 +39,9 @@
             justify-content: center;
             width: 100%;
             height: 100%;
+        }
+        .preview-box.with-image::before {
+            display: none;
         }
     </style>
 </head>
@@ -158,59 +154,102 @@
                     </ul>
                 </div>
             </nav>
-            <div class="container">
+            <div class="container-fluid">
                 <div class="row mb-4">
                     <div class="col-lg-12">
-                        <h3 class="mt-4 mb-2">Edit Student</h3>
+                        <h3 class="mt-4 mb-3">Edit Student</h3>
                     </div>
                     <form method="post" class="col-md-12">
                         {% csrf_token %}
-                        <div class="form-row">
-                            <div class="form-group col-md-3">
-                                <label for="StudentID">Student Number</label>
-                                <input type="text" class="form-control" id="StudentID" name="StudentID" value="{{ student.StudentID }}" required>
+                        <div class="row">
+                            <!-- Profile Image Section -->
+                            <div class="col-md-3 mt-3" id="browser-image" style="border: 1px; margin-right: -35px;">
+                                <div id="image-preview" class="preview-box with-image">
+                                    {% if student.Image %}
+                                        <img src="{{ student.Image.url }}" alt="Profile Image" style="max-width: 100%;" id="current-image">
+                                    {% endif %}
+                                </div>
                             </div>
-                            <div class="form-group col-md-3">
-                                <label for="Firstname">First Name</label>
-                                <input type="text" class="form-control" id="Firstname" name="Firstname" value="{{ student.Firstname }}" required>
-                            </div>
-                            <div class="form-group col-md-3">
-                                <label for="Middlename">Middle Name</label>
-                                <input type="text" class="form-control" id="Middlename" name="Middlename" value="{{ student.Middlename }}" required>
-                            </div>
-                            <div class="form-group col-md-3">
-                                <label for="Lastname">Last Name</label>
-                                <input type="text" class="form-control" id="Lastname" name="Lastname" value="{{ student.Lastname }}" required>
-                            </div>
+                            <div class="col-md-9">
+                                <!-- First Row: Student Info -->
+                                <div class="form-row">
+                                    <div class="form-group col-md-3">
+                                        <label for="StudentID">Student Number</label>
+                                        <input type="text" class="form-control" id="StudentID" name="StudentID" value="{{ student.StudentID }}" required>
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label for="Firstname">First Name</label>
+                                        <input type="text" class="form-control" id="Firstname" name="Firstname" value="{{ student.Firstname }}" required>
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label for="Middlename">Middle Name</label>
+                                        <input type="text" class="form-control" id="Middlename" name="Middlename" value="{{ student.Middlename }}" required>
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label for="Lastname">Last Name</label>
+                                        <input type="text" class="form-control" id="Lastname" name="Lastname" value="{{ student.Lastname }}" required>
+                                    </div>
+                                </div>
+                                <!-- Second Row: Email, Extension, Mobile No., Course -->
+                                <div class="form-row">
+                                    <div class="form-group col-md-3">
+                                        <label for="Email">Extension</label>
+                                        {{ form.Prefix }}
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label for="Email">Email</label>
+                                        <input type="email" class="form-control" id="Email" name="Email" value="{{ student.Email }}" required>
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label for="Number">Mobile No.</label>
+                                        <input type="text" class="form-control" id="Number" name="Number" value="{{ student.Number }}" required>
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label for="Course">Program</label>
+                                        <input type="text" class="form-control" id="Course" name="Course" value="{{ student.Course }}" required>
+                                    </div>
+                                </div>
+                                <!-- Third Row: Year, Address, Name of Supervisor -->
+                                <div class="form-row">
+                                    <div class="form-group col-md-3">
+                                        <label for="Year">Year</label>
+                                        <input type="text" class="form-control" id="Year" name="Year" value="{{ student.Year }}" required>
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label for="Address">Address</label>
+                                        {{ form.Address }}
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label for="NameOfSupervisor">Name of Supervisor</label>
+                                        {{ form.NameOfSupervisor }}
+                                    </div>
+                                </div>
+                                <!-- Fourth Row: HTE Address, Contact No., Department -->
+                                <div class="form-row">
+                                    <div class="form-group col-md-6">
+                                        <label for="HTEAddress">Host Training Establishment</label>
+                                        {{ form.HTEAddress }}
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label for="ContactNumber">Contact No.</label>
+                                        {{ form.ContactNumber }}
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label for="Department">Department</label>
+                                        {{ form.Department }}
+                                    </div>
+                                </div>
+                            </div> 
                         </div>
-                        <!-- Second Row -->
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label for="Email">Email</label>
-                                <input type="email" class="form-control" id="Email" name="Email" value="{{ student.Email }}" required>
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label for="Number">Mobile No.</label>
-                                <input type="text" class="form-control" id="Number" name="Number" value="{{ student.Number }}" required>
-                            </div>
+                        <!-- Button Section -->
+                        <div class="mt-3 d-flex justify-content-end" style="margin-right: 35px;">
+                            <a href="{% url 'setSchedule' student.id %}" class="btn btn-success mb-3 mr-2">Add Schedule</a>
+                            <button type="submit" class="btn btn-info mb-3 mr-2">Update Profile</button>
+                            <a href="{% url 'dashboard' %}" class="btn btn-primary mb-3">Back</a>
                         </div>
-                        <!-- Third Row -->
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label for="Course">Course</label>
-                                <input type="text" class="form-control" id="Course" name="Course" value="{{ student.Course }}" required>
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label for="Year">Year</label>
-                                <input type="text" class="form-control" id="Year" name="Year" value="{{ student.Year }}" required>
-                            </div>
-                        </div>
-                        <a href="{% url 'setSchedule' student.id %}" class="btn btn-success mb-3">Add Schedule</a>
-                        <button type="submit" class="btn btn-info mb-3">Update Profile</button>
-                        <a href="{% url 'dashboard' %}" class="btn btn-primary mb-3">Back</a>
                     </form>
                 </div>
-            </div>      
+            </div>
         </div>
     </div>
     <!-- Scripts -->
@@ -228,25 +267,28 @@
             $("#wrapper").toggleClass("toggled");
         });
         document.getElementById('id_image').addEventListener('change', function() {
-            if (this.files && this.files[0]) {
-                document.getElementById('timeInBtn').disabled = false;
-                document.getElementById('timeOutBtn').disabled = false;
-            }
-        });
-        // 
-        function previewImage(event) {
-            var preview = document.getElementById('preview');
-            var file = document.getElementById('id_image').files[0];
-            var reader = new FileReader();
-            reader.onload = function() {
-                preview.src = reader.result;
-                preview.style.display = 'block';
-            }
+            const previewBox = document.getElementById('image-preview');
+            const previewImage = document.getElementById('current-image');
+            const file = this.files[0];
             if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    if (previewImage) {
+                        previewImage.src = e.target.result;
+                    } else {
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.style.maxWidth = "100%";
+                        img.id = "current-image";
+                        previewBox.appendChild(img);
+                    }
+                    // Add the with-image class to remove the 'Browse Image' text
+                    previewBox.classList.add('with-image');
+                }
                 reader.readAsDataURL(file);
             }
-        }
-        document.getElementById('id_image').addEventListener('change', previewImage);
+        });
+
     </script>
 </body>
 </html>

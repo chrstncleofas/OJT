@@ -484,7 +484,7 @@ def ClockInAndOut(request):
     remaining_hours_seconds = max(0, required_hours_seconds - adjusted_total_work_time_seconds)
     # Convert remaining time to hours and minutes
     remaining_hours, remaining_minutes = divmod(int(remaining_hours_seconds), 3600)
-    remaining_minutes = (remaining_minutes // 60) % 60  # Correctly convert to minutes
+    remaining_minutes = (remaining_minutes // 60) % 60
     remaining_hours_display = f"{remaining_hours} hours, {remaining_minutes} minutes"
     paired_logs = []
     for i in range(0, len(time_logs), 2):
@@ -493,11 +493,11 @@ def ClockInAndOut(request):
         else:
             paired_logs.append((time_logs[i], None))
     return render(request, 'students/timeIn-timeOut.html', {
-        'required_hours_seconds': required_hours_seconds,  # Placeholder, adjust as needed
-        'remaining_hours_seconds': remaining_hours_seconds,  # Placeholder, adjust as needed
-        'total_work_time': total_work_time_display,  # Display total work time
-        'required_hours_time': f"{required_hours_seconds // 3600} hours",  # Adjust as needed
-        'remaining_hours_time': remaining_hours_display,  # Display remaining hours
+        'required_hours_seconds': required_hours_seconds,
+        'remaining_hours_seconds': remaining_hours_seconds,
+        'total_work_time': total_work_time_display,
+        'required_hours_time': f"{required_hours_seconds // 3600} hours",
+        'remaining_hours_time': remaining_hours_display,
         'firstName': student.Firstname,
         'lastName': student.Lastname,
         'time_logs': paired_logs,
@@ -509,8 +509,8 @@ def ClockInAndOut(request):
         'requirements_submitted': requirements_submitted,
         'notifications': notifications,
         'unread_notifications_count': unread_notifications_count,
-        'last_action': last_action,  # Pass last action to the template
-        'message': message if not requirements_submitted else None,  # Message for unapproved documents
+        'last_action': last_action,
+        'message': message if not requirements_submitted else None,
     })
 
 @never_cache
@@ -526,7 +526,7 @@ def studentProfile(request):
         if form.is_valid():
             form.save()
             messages.success(request, 'Profile updated successfully.')
-            return redirect('students:dashboard')
+            return redirect('students:profile')
     else:
         form = StudentProfileForm(instance=student)
     return render(request, 'students/student-profile.html', {

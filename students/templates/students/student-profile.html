@@ -14,6 +14,12 @@
     <link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon">
     <title>Student - OJT Management System Dashboard</title>
     <style>
+        #browser-image #id_Image{
+            width: 252px;
+            padding-top: 5px;
+            padding-bottom: 5px;
+            height: 40px;
+        }
         .preview-box {
             border: 2px dashed #ccc;
             border-radius: 6px;
@@ -173,21 +179,26 @@
             <div class="container-fluid">
                 <div class="row mb-4">
                     <div class="col-lg-12">
-                        <p class="mt-3 mb-1">Home / Student Profile</p>
-                        <h4 class="mt-2 mb-3">Profile</h4>
+                        <h4 class="mt-3 mb-3">Student Profile</h4>
                         <form method="post" enctype="multipart/form-data">
                             {% csrf_token %}
+                            <!-- Submit Button -->
+                            <div class="d-flex justify-content-end" style="margin-right: 35px;">
+                                <button type="submit" class="btn btn-primary mb-2">Update Profile</button>
+                            </div>
+                            <hr class="mt-1 mb-3"/>
                             <div class="row">
-                                <div class="col-md-3 mt-3">
+                                <!-- Profile Image Section -->
+                                <div class="col-md-3 mt-3" id="browser-image" style="margin-right: -35px;">
                                     <div id="image-preview" class="preview-box">
                                         {% if student.Image %}
-                                        <img src="{{ student.Image.url }}" alt="Profile Image" style="max-width: 100%;"
-                                            id="current-image">
+                                            <img src="{{ student.Image.url }}" alt="Profile Image" style="max-width: 100%;" id="current-image">
                                         {% endif %}
                                     </div>
                                     {{ form.Image }}
                                 </div>
-                                <div class="col-md-8 ml-3">
+                                <!-- Form Fields Section -->
+                                <div class="col-md-9">
                                     {% if messages %}
                                         {% for message in messages %}
                                             <div class="alert alert-primary" role="alert">
@@ -195,38 +206,82 @@
                                             </div>
                                         {% endfor %}
                                     {% endif %}
-                                    <div class="form-group">
-                                        <label for="first_name">First Name</label>
-                                        <input type="text" class="form-control" id="Firstname" name="Firstname"
-                                            value="{{ firstName }}" required>
+                                    <!-- Row 1: Firstname, Middlename, Lastname -->
+                                    <div class="form-row">
+                                        <div class="form-group col-md-2">
+                                            <label for="Firstname">Student ID</label>
+                                            {{ form.StudentID }}
+                                        </div>
+                                        <div class="form-group col-md-3">
+                                            <label for="Firstname">First Name</label>
+                                            <input type="text" class="form-control" id="Firstname" name="Firstname" value="{{ firstName }}" required>
+                                        </div>
+                                        <div class="form-group col-md-2">
+                                            <label for="Middlename">Middle Name</label>
+                                            {{ form.Middlename }}
+                                        </div>
+                                        <div class="form-group col-md-3">
+                                            <label for="Lastname">Last Name</label>
+                                            <input type="text" class="form-control" id="Lastname" name="Lastname" value="{{ lastName }}" required>
+                                        </div>
+                                        <div class="form-group col-md-2">
+                                            <label for="Lastname">Extension name</label>
+                                            {{ form.Prefix }}
+                                        </div>
                                     </div>
-                                    <div class="form-group">
-                                        <label for="last_name">Last Name</label>
-                                        <input type="text" class="form-control" id="Lastname" name="Lastname"
-                                            value="{{ lastName }}" required>
+                                    <!-- Row 2: Email, Mobile no., Course -->
+                                    <div class="form-row">
+                                        <div class="form-group col-md-4">
+                                            <label for="Email">Email</label>
+                                            <input type="email" class="form-control" id="Email" name="Email" value="{{ email }}" required>
+                                        </div>
+                                        <div class="form-group col-md-4">
+                                            <label for="Number">Mobile no.</label>
+                                            {{ form.Number }}
+                                        </div>
+                                        <div class="form-group col-md-4">
+                                            <label for="Course">Course</label>
+                                            <input type="text" class="form-control" id="Course" name="Course" value="{{ course }}" required>
+                                        </div>
                                     </div>
-                                    <div class="form-group">
-                                        <label for="email">Email</label>
-                                        <input type="email" class="form-control" id="Email" name="Email" value="{{ email }}"
-                                            required>
+            
+                                    <!-- Row 3: Year, Name of Supervisor, HTEAddress -->
+                                    <div class="form-row">
+                                        <div class="form-group col-md-4">
+                                            <label for="Year">Year</label>
+                                            <input type="text" class="form-control" id="Year" name="Year" value="{{ year }}" required>
+                                        </div>
+                                        <div class="form-group col-md-4">
+                                            <label for="Year">Address</label>
+                                            {{ form.Address }}
+                                        </div>
+                                        <div class="form-group col-md-4">
+                                            <label for="NameOfSupervisor">Name of Supervisor</label>
+                                            {{ form.NameOfSupervisor }}
+                                        </div>
                                     </div>
-                                    <div class="form-group">
-                                        <label for="Course">Course</label>
-                                        <input type="text" class="form-control" id="Course" name="Course" value="{{ course }}"
-                                            required>
+            
+                                    <!-- Row 4: Contact Number, Department -->
+                                    <div class="form-row">
+                                        <div class="form-group col-md-4">
+                                            <label for="HTEAddress">Host Training Establishment</label>
+                                            {{ form.HTEAddress }}
+                                        </div>
+                                        <div class="form-group col-md-4">
+                                            <label for="ContactNumber">Contact no.</label>
+                                            {{ form.ContactNumber }}
+                                        </div>
+                                        <div class="form-group col-md-4">
+                                            <label for="Department">Department</label>
+                                            {{ form.Department }}
+                                        </div>
                                     </div>
-                                    <div class="form-group">
-                                        <label for="Year">Year</label>
-                                        <input type="text" class="form-control" id="Year" name="Year" value="{{ year }}"
-                                            required>
-                                    </div>
-                                    <button type="submit" class="btn btn-primary mb-2">Update Profile</button>
                                 </div>
                             </div>
                         </form>
                     </div>
                 </div>
-            </div>
+            </div>  
         </div>
     </div>
     <!-- Scripts -->
