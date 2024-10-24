@@ -181,7 +181,8 @@
                             Name of student:<span style="text-transform: uppercase; font-weight: 400;"> {{ studentFirstname }} {{ studentLastname }}</span>
                         </h6>
                     </div>
-                    <div class="col-md-12">
+                    <div class="col-md-8">
+                        <!-- First Column: Pending Requirements -->
                         <h6 class="mt-4 ml-1 mb-3">Pending Requirements</h6>
                         <table class="table table-striped">
                             <thead>
@@ -206,7 +207,7 @@
                                                     <button type="button" class="btn btn-success" onclick="approveDocument({{ docs.id }})">
                                                         <i class="fas fa-check"></i>
                                                     </button>
-                                                    <!-- Modal -->
+                                                    <!-- Modal for Approval Notification -->
                                                     <div class="modal fade" id="approvalModal" tabindex="-1" role="dialog" aria-labelledby="approvalModalLabel" aria-hidden="true">
                                                         <div class="modal-dialog" role="document">
                                                             <div class="modal-content">
@@ -230,7 +231,7 @@
                                                 <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#returnRevisionModal{{ docs.id }}">
                                                     <i class="fas fa-times"></i>
                                                 </button>
-                                                <!-- Return to Revision Modal -->
+                                                <!-- Modal for Return to Revision -->
                                                 <div class="modal fade" id="returnRevisionModal{{ docs.id }}" tabindex="-1" role="dialog" aria-labelledby="returnRevisionModalLabel" aria-hidden="true">
                                                     <div class="modal-dialog" role="document">
                                                         <div class="modal-content">
@@ -253,7 +254,6 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                
                                             </td>
                                         </tr>
                                     {% endfor %}
@@ -264,6 +264,9 @@
                                 {% endif %}
                             </tbody>
                         </table>
+                    </div>              
+                    <div class="col-md-4">
+                        <!-- Second Column: Progress Report -->
                         <h6 class="mt-4 ml-1 mb-3">Progress Report</h6>
                         <table class="table table-striped">
                             <thead>

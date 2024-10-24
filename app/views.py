@@ -352,6 +352,32 @@ def informationTechnologyStudents(request):
     return render(request, 'app/bs-it-list.html', context)
 
 @login_required
+def showStudentDetails(request, id):
+    user = request.user
+    try:
+        students = DataTableStudents.objects.get(id=id)
+    except DataTableStudents.DoesNotExist:
+        return redirect('studentManagement')
+
+    admin = get_object_or_404(CustomUser, id=user.id)
+    firstName = admin.first_name
+    lastName = admin.last_name
+
+    return render(
+        request,
+        'app/view-details-it-student.html',
+        {
+            'students': students,
+            'firstName': firstName,
+            'lastName': lastName
+        }
+    )
+
+@login_required
+def viewDetailStudentBSCS(request, id):
+    pass
+
+@login_required
 def computerScienceStudents(request):
     user = request.user
     admin = get_object_or_404(CustomUser, id=user.id)

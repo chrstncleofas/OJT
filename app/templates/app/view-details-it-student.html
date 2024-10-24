@@ -1,0 +1,292 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static 'css/main-dashboard.css' %}">
+    <link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon">
+    <title>Coordinator - OJT Management System Dashboard</title>
+    <style>
+        .preview-box {
+            border: 2px dashed #ccc;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 260px;
+            width: 255px;
+            margin-bottom: 20px;
+            position: relative;
+            cursor: pointer;
+            overflow: hidden;
+            background-color: #f8f9fa;
+        }
+        .preview-box img {
+            max-width: 100%;
+            max-height: 100%;
+        }
+        .preview-box::before {
+            content: 'Browse Image';
+            color: #888;
+            font-size: 16px;
+            position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+        }
+        .preview-box.with-image::before {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="d-flex" id="wrapper">
+        <!-- Sidebar -->
+        <div class="bg-light border-right vh-100" id="sidebar-wrapper">
+            <a href="{% url 'dashboard' %}" style="text-decoration: none !important; color: black !important;" class="text-center">
+                <div class="sidebar-heading" style="display: flex; align-items: center; justify-content: flex-start;">
+                    <img src="{% static 'img/Logo.png' %}" alt="Logo" style="width: 50px; height: 50px; margin-right: 2px;">
+                    <div style="display: flex; flex-direction: column; line-height: 1; margin-top: 2px;">
+                        <span style="font-size: 18px; font-weight: 500; margin-bottom: 0;" class="text-left mb-1">On the Job</span>
+                        <span style="font-size: 15px;">Management System</span>
+                    </div>
+                </div>
+            </a>
+            <div class="list-group list-group-flush">
+                <a href="{% url 'dashboard' %}" class="list-group-item list-group-item-action bg-light">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+                <a href="{% url 'listOfAnnouncement' %}" class="list-group-item list-group-item-action bg-light">
+                    <i class="fas fa-bullhorn"></i> Announcement
+                </a>
+                <a href="{% url 'all-content' %}" class="list-group-item list-group-item-action bg-light">
+                    <i class="fa-solid fa-cube"></i> Content
+                </a>
+                <a href="{% url 'submission' %}" class="list-group-item list-group-item-action bg-light">
+                    <i class="fa fa-upload"></i> Submissions
+                </a>
+                <a href="{% url 'student-list' %}" class="list-group-item list-group-item-action bg-light">
+                    <i class="fa-sharp-duotone fa-solid fa-list"></i> Student List
+                </a>
+                <a href="{% url 'grading' %}" class="list-group-item list-group-item-action bg-light">
+                    <i class="fa-solid fa-ranking-star"></i> Grading
+                </a>
+                <a href="{% url 'set_rendering_hours' %}" class="list-group-item list-group-item-action bg-light">
+                    <i class="fas fa-cogs"></i> Settings
+                </a>
+                <a data-toggle="modal" data-target="#logout" class="list-group-item list-group-item-action bg-light">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+        </div>
+        <div class="modal fade" id="logout" tabindex="-1" role="dialog" aria-labelledby="loginModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="loginModalLabel">Logout</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Are you sure do want to leave this page</p>
+                    </div>
+                    <div class="modal-footer">
+                        <form>
+                            <a href="javascript:void(0);" onclick="logout()" class="btn btn-primary">Logout</a>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav ml-auto mt-2 mt-lg-0">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-user mr-2"></i>{{ firstName }} {{ lastName }}
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                <a class="dropdown-item" href="{% url 'profile' %}">Profile</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="{% url 'changePass' %}">Change Password</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" data-toggle="modal" data-target="#logout">Logout</a>
+                            </div>
+                        </li>
+                        <li class="nav-item dropdown mt-1">
+                            <a class="nav-link d-flex align-items-center" href="#" id="notificationDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-bell mr-2"></i>
+                                {% if unread_notifications_count > 0 %}
+                                    <span class="badge badge-danger">{{ unread_notifications_count }}</span>
+                                {% endif %}
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="notificationDropdown">
+                                <h6 class="dropdown-header">Notifications</h6>
+                                {% if notifications %}
+                                    {% for notification in notifications %}
+                                        <form action="{% url 'students:mark_notification_as_read' notification.id %}" method="POST" style="display:inline;">
+                                            {% csrf_token %}
+                                            <button type="submit" class="dropdown-item" title="{{ notification.message }}">
+                                                {{ notification.message }}
+                                            </button>
+                                        </form>
+                                        <!-- Add a separator line -->
+                                        <div class="dropdown-divider"></div> <!-- Bootstrap separator -->
+                                    {% endfor %}
+                                {% else %}
+                                    <a class="dropdown-item" href="#">No new notifications</a>
+                                {% endif %}
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+            <div class="container-fluid">
+                <div class="row mb-4">
+                    <div class="col-lg-12">
+                        <h3 class="mt-4 mb-3">Student Details</h3>
+                    </div>
+                    <form method="post" class="col-md-12">
+                        {% csrf_token %}
+                        <div class="row">
+                            <!-- Profile Image Section -->
+                            <div class="col-md-3 mt-3" id="browser-image" style="border: 1px; margin-right: -35px;">
+                                <div id="image-preview" class="preview-box with-image">
+                                    {% if students.Image %}
+                                        <img src="{{ students.Image.url }}" alt="Profile Image" style="max-width: 100%;" id="current-image">
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-9">
+                                <!-- First Row: Student Info -->
+                                <div class="form-row">
+                                    <div class="form-group col-md-3">
+                                        <label for="StudentID">Student Number</label>
+                                        <input type="text" class="form-control" id="StudentID" name="StudentID" value="{{ students.StudentID }}" readonly>
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label for="Firstname">First Name</label>
+                                        <input type="text" class="form-control" id="Firstname" name="Firstname" value="{{ students.Firstname }}" readonly>
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label for="Middlename">Middle Name</label>
+                                        <input type="text" class="form-control" id="Middlename" name="Middlename" value="{{ students.Middlename }}" readonly>
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label for="Lastname">Last Name</label>
+                                        <input type="text" class="form-control" id="Lastname" name="Lastname" value="{{ students.Lastname }}" readonly>
+                                    </div>
+                                </div>
+                                <!-- Second Row: Email, Extension, Mobile No., Course -->
+                                <div class="form-row">
+                                    <div class="form-group col-md-3">
+                                        <label for="Prefix">Extension</label>
+                                        <input type="text" class="form-control" id="Prefix" name="Prefix" value="{{ students.Prefix }}" readonly>
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label for="Email">Email</label>
+                                        <input type="email" class="form-control" id="Email" name="Email" value="{{ students.Email }}" readonly>
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label for="Number">Mobile No.</label>
+                                        <input type="text" class="form-control" id="Number" name="Number" value="{{ students.Number }}" readonly>
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label for="Course">Program</label>
+                                        <input type="text" class="form-control" id="Course" name="Course" value="{{ students.Course }}" readonly>
+                                    </div>
+                                </div>
+                                <!-- Third Row: Year, Address, Name of Supervisor -->
+                                <div class="form-row">
+                                    <div class="form-group col-md-3">
+                                        <label for="Year">Year</label>
+                                        <input type="text" class="form-control" id="Year" name="Year" value="{{ students.Year }}" readonly>
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label for="Address">Address</label>
+                                        <input type="text" class="form-control" id="Address" name="Address" value="{{ students.Address }}" readonly>
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label for="NameOfSupervisor">Name of Supervisor</label>
+                                        <input type="text" class="form-control" id="NameOfSupervisor" name="NameOfSupervisor" value="{{ students.NameOfSupervisor }}" readonly>
+                                    </div>
+                                </div>
+                                <!-- Fourth Row: HTE Address, Contact No., Department -->
+                                <div class="form-row">
+                                    <div class="form-group col-md-6">
+                                        <label for="HTEAddress">Host Training Establishment</label>
+                                        <input type="text" class="form-control" id="HTEAddress" name="HTEAddress" value="{{ students.HTEAddress }}" readonly>
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label for="ContactNumber">Contact No.</label>
+                                        <input type="text" class="form-control" id="ContactNumber" name="ContactNumber" value="{{ students.ContactNumber }}" readonly>
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label for="Department">Department</label>
+                                        <input type="text" class="form-control" id="Department" name="Department" value="{{ students.Department }}" readonly>
+                                    </div>
+                                </div>
+                            </div> 
+                        </div>
+                        <!-- Button Section -->
+                        <div class="mt-3 d-flex justify-content-end" style="margin-right: 35px;">
+                            <a href="{% url 'information-technology-list' %}" class="btn btn-primary mb-3">Back</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script> 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function logout() {
+            localStorage.removeItem('is_coordinator_logged_in');
+            window.location.href = '{% url 'logout' %}';
+        }
+        $(".navbar-toggler").click(function(e) {
+            e.preventDefault();
+            $("#wrapper").toggleClass("toggled");
+        });
+        document.getElementById('id_image').addEventListener('change', function() {
+            const previewBox = document.getElementById('image-preview');
+            const previewImage = document.getElementById('current-image');
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    if (previewImage) {
+                        previewImage.src = e.target.result;
+                    } else {
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.style.maxWidth = "100%";
+                        img.id = "current-image";
+                        previewBox.appendChild(img);
+                    }
+                    // Add the with-image class to remove the 'Browse Image' text
+                    previewBox.classList.add('with-image');
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+    </script>
+</body>
+</html>

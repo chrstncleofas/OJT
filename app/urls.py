@@ -32,6 +32,7 @@ urlpatterns = [
     path('unArchivedStudent/<int:id>/', views.unArchivedStudent, name='unArchivedStudent'),
     # 
     path('viewPendingApplication/<int:id>/', views.viewPendingApplication, name='viewPendingApplication'),
+    path('view-student-details/<int:id>/', views.showStudentDetails, name='view-student-details'),
     path('setSchedule/<int:id>/', views.setSchedule, name='setSchedule'),
     # 
     path('announcement', views.postAnnouncement, name='announcement'),

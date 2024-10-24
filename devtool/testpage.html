@@ -1,0 +1,124 @@
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-lg-12">
+            <h3 class="mt-4 mb-3">Manage Submissions</h3>
+        </div>
+        <div class="col-md-6">
+            <!-- First Column: Pending Requirements -->
+            <h6 class="mt-4 ml-1 mb-3">Pending Requirements</h6>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Filename</th>
+                        <th>Date Submitted</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if requirements %}
+                        {% for docs in requirements %}
+                            <tr>
+                                <td>{{ docs.nameOfDocs }}</td>
+                                <td>{{ docs.submission_date }}</td>
+                                <td>
+                                    <a href="{{ docs.submitted_file.url }}" class="btn btn-primary" target="_blank">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <form action="{% url 'approve_document' docs.id %}" method="POST" style="display:inline;">
+                                        {% csrf_token %}
+                                        <button type="button" class="btn btn-success" onclick="approveDocument({{ docs.id }})">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                        <!-- Modal for Approval Notification -->
+                                        <div class="modal fade" id="approvalModal" tabindex="-1" role="dialog" aria-labelledby="approvalModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog" role="document">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="approvalModalLabel">Notification</h5>
+                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                            <span aria-hidden="true">&times;</span>
+                                                        </button>
+                                                    </div>
+                                                    <div class="modal-body" id="modalMessage">
+                                                        Document approved successfully!
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                        <button type="button" class="btn btn-primary" id="modalReloadButton">Okay</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
+                                    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#returnRevisionModal{{ docs.id }}">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                    <!-- Modal for Return to Revision -->
+                                    <div class="modal fade" id="returnRevisionModal{{ docs.id }}" tabindex="-1" role="dialog" aria-labelledby="returnRevisionModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="returnRevisionModalLabel">Return Document for Revision</h5>
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <div class="form-group">
+                                                        <label for="revisionReason">Reason for Revision:</label>
+                                                        <textarea class="form-control" id="revisionReason{{ docs.id }}" rows="3" required></textarea>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                    <button type="button" class="btn btn-primary" onclick="submitReturnToRevision({{ docs.id }})">Send for Revision</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="4" class="text-center">No requirements submitted.</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="col-md-6">
+            <!-- Second Column: Progress Report -->
+            <h6 class="mt-4 ml-1 mb-3">Progress Report</h6>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Filename</th>
+                        <th>Date Submitted</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if cleaned_reports %}
+                        {% for report, cleaned_filename in cleaned_reports %}
+                            <tr>
+                                <td>{{ report.report_file.name|slice:"8:" }}</td>
+                                <td>{{ report.date_submitted|slice:"0:-5"}}</td>
+                                <td>
+                                    <a href="{{ report.report_file.url }}" class="btn btn-primary" target="_blank">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="4" class="text-center">No progress report submitted.</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
