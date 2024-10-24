@@ -1,0 +1,370 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <title>Coordinator - OJT Management System Dashboard</title>
+    <style>
+        #wrapper {
+            display: flex;
+            width: 100%;
+            align-items: stretch;
+        }
+
+        #sidebar-wrapper {
+            min-width: 250px;
+            max-width: 250px;
+            background-color: #f8f9fa;
+            border-right: 1px solid #dee2e6;
+        }
+
+        #page-content-wrapper {
+            width: 100%;
+        }
+
+        .sidebar-heading {
+            padding: 1rem;
+            font-size: 1.2rem;
+            text-align: center;
+        }
+
+        .list-group-item {
+            padding: 1rem;
+        }
+
+        .navbar {
+            margin-bottom: 0;
+        }
+
+        @media (max-width: 768px) {
+            #sidebar-wrapper {
+                display: none;
+            }
+
+            #wrapper.toggled #sidebar-wrapper {
+                display: block;
+                position: absolute;
+                z-index: 1000;
+                width: 100%;
+            }
+
+            .navbar-toggler {
+                display: block;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="d-flex" id="wrapper">
+        <!-- Sidebar -->
+        <div class="bg-light border-right" id="sidebar-wrapper">
+            <a href="{% url 'dashboard' %}" style="text-decoration: none !important; color: black !important;" class="text-center">
+                <div class="sidebar-heading" style="display: flex; align-items: center; justify-content: flex-start;">
+                    <img src="{% static 'img/Logo.png' %}" alt="Logo" style="width: 50px; height: 50px; margin-right: 2px;">
+                    <div style="display: flex; flex-direction: column; line-height: 1; margin-top: 2px;">
+                        <span style="font-size: 18px; font-weight: 500; margin-bottom: 0;" class="text-left mb-1">On the Job</span>
+                        <span style="font-size: 15px;">Management System</span>
+                    </div>
+                </div>
+            </a>
+            <div class="list-group list-group-flush">
+                <a href="{% url 'dashboard' %}" class="list-group-item list-group-item-action bg-light">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+                <a href="{% url 'listOfAnnouncement' %}" class="list-group-item list-group-item-action bg-light">
+                    <i class="fas fa-bullhorn"></i> Announcement
+                </a>
+                <a href="{% url 'all-content' %}" class="list-group-item list-group-item-action bg-light">
+                    <i class="fa-solid fa-cube"></i> Content
+                </a>
+                <a href="{% url 'submission' %}" class="list-group-item list-group-item-action bg-light">
+                    <i class="fa fa-upload"></i> Submissions
+                </a>
+                <a href="{% url 'student-list' %}" class="list-group-item list-group-item-action bg-light">
+                    <i class="fa-sharp-duotone fa-solid fa-list"></i> Student List
+                </a>
+                <a href="{% url 'grading' %}" class="list-group-item list-group-item-action bg-light">
+                    <i class="fa-solid fa-ranking-star"></i> Grading
+                </a>
+                <a href="{% url 'set_rendering_hours' %}" class="list-group-item list-group-item-action bg-light">
+                    <i class="fas fa-cogs"></i> Settings
+                </a>
+                <a data-toggle="modal" data-target="#logout" class="list-group-item list-group-item-action bg-light">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+        </div>
+        <div class="modal fade" id="logout" tabindex="-1" role="dialog" aria-labelledby="loginModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="loginModalLabel">Logout</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Are you sure do want to leave this page</p>
+                    </div>
+                    <div class="modal-footer">
+                        <form>
+                            <a href="javascript:void(0);" onclick="logout()" class="btn btn-primary">Logout</a>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
+                <button class="navbar-toggler" type="button" data-toggle="collapse"
+                    data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+                    aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav ml-auto mt-2 mt-lg-0">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdown"
+                                role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-user mr-2"></i>{{ firstName }} {{ lastName }}
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                <a class="dropdown-item" href="{% url 'profile' %}">Profile</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="{% url 'changePass' %}">Change Password</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" data-toggle="modal" data-target="#logout">Logout</a>
+                            </div>
+                        </li>
+                        <li class="nav-item dropdown mt-1">
+                            <a class="nav-link d-flex align-items-center" href="#" id="notificationDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-bell mr-2"></i>
+                                {% if unread_notifications_count > 0 %}
+                                    <span class="badge badge-danger">{{ unread_notifications_count }}</span>
+                                {% endif %}
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="notificationDropdown">
+                                <h6 class="dropdown-header">Notifications</h6>
+                                {% if notifications %}
+                                    {% for notification in notifications %}
+                                        <form action="{% url 'students:mark_notification_as_read' notification.id %}" method="POST" style="display:inline;">
+                                            {% csrf_token %}
+                                            <button type="submit" class="dropdown-item" title="{{ notification.message }}">
+                                                {{ notification.message }}
+                                            </button>
+                                        </form>
+                                        <!-- Add a separator line -->
+                                        <div class="dropdown-divider"></div> <!-- Bootstrap separator -->
+                                    {% endfor %}
+                                {% else %}
+                                    <a class="dropdown-item" href="#">No new notifications</a>
+                                {% endif %}
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+            <div class="container-fluid">
+                <div class="row p-2">
+                    <div class="col-lg-12">
+                        <h5 class="mt-3 mb-2" style="font-size: 19px;">List of document submitted</h5>
+                        <h6 class="mt-4">
+                            Name of student:<span style="text-transform: uppercase; font-weight: 400;"> {{ studentFirstname }} {{ studentLastname }}</span>
+                        </h6>
+                    </div>
+                    <div class="col-md-12">
+                        <h6 class="mt-4 ml-1 mb-3">Pending Requirements</h6>
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Filename</th>
+                                    <th>Date Submitted</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if requirements %}
+                                    {% for docs in requirements %}
+                                        <tr>
+                                            <td>{{ docs.nameOfDocs }}</td>
+                                            <td>{{ docs.submission_date }}</td>
+                                            <td>
+                                                <a href="{{ docs.submitted_file.url }}" class="btn btn-primary" target="_blank">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <form action="{% url 'approve_document' docs.id %}" method="POST" style="display:inline;">
+                                                    {% csrf_token %}
+                                                    <button type="button" class="btn btn-success" onclick="approveDocument({{ docs.id }})">
+                                                        <i class="fas fa-check"></i>
+                                                    </button>
+                                                    <!-- Modal -->
+                                                    <div class="modal fade" id="approvalModal" tabindex="-1" role="dialog" aria-labelledby="approvalModalLabel" aria-hidden="true">
+                                                        <div class="modal-dialog" role="document">
+                                                            <div class="modal-content">
+                                                                <div class="modal-header">
+                                                                    <h5 class="modal-title" id="approvalModalLabel">Notification</h5>
+                                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                        <span aria-hidden="true">&times;</span>
+                                                                    </button>
+                                                                </div>
+                                                                <div class="modal-body" id="modalMessage">
+                                                                    Document approved successfully!
+                                                                </div>
+                                                                <div class="modal-footer">
+                                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                                    <button type="button" class="btn btn-primary" id="modalReloadButton">Okay</button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </form>
+                                                <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#returnRevisionModal{{ docs.id }}">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                                <!-- Return to Revision Modal -->
+                                                <div class="modal fade" id="returnRevisionModal{{ docs.id }}" tabindex="-1" role="dialog" aria-labelledby="returnRevisionModalLabel" aria-hidden="true">
+                                                    <div class="modal-dialog" role="document">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <h5 class="modal-title" id="returnRevisionModalLabel">Return Document for Revision</h5>
+                                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                    <span aria-hidden="true">&times;</span>
+                                                                </button>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                                <div class="form-group">
+                                                                    <label for="revisionReason">Reason for Revision:</label>
+                                                                    <textarea class="form-control" id="revisionReason{{ docs.id }}" rows="3" required></textarea>
+                                                                </div>
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                                <button type="button" class="btn btn-primary" onclick="submitReturnToRevision({{ docs.id }})">Send for Revision</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="4" class="text-center">No requirements submitted.</td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                        <h6 class="mt-4 ml-1 mb-3">Progress Report</h6>
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Filename</th>
+                                    <th>Date Submitted</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if cleaned_reports %}
+                                    {% for report, cleaned_filename in cleaned_reports %}
+                                        <tr>
+                                            <td>{{ report.report_file.name|slice:"8:" }}</td>
+                                            <td>{{ report.date_submitted|slice:"0:-5"}}</td>
+                                            <td>
+                                                <a href="{{ report.report_file.url }}" class="btn btn-primary" target="_blank">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="4" class="text-center">No progress report submitted.</td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>      
+        </div>
+    </div>
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        const csrfToken = "{{ csrf_token }}";
+        function logout() {
+            localStorage.removeItem('is_coordinator_logged_in');
+            window.location.href = '{% url 'logout' %}';
+        }
+        function submitReturnToRevision(docsID) {
+            const reason = document.getElementById(`revisionReason${docsID}`).value;
+            if (reason.trim() === "") {
+                alert("Please provide a reason for revision.");
+                return;
+            }
+            const url = "{% url 'return_to_revision' 0 %}".replace('/0/', '/' + docsID + '/');
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ reason: reason })
+            }).then(response => {
+                if (response.ok) {
+                    window.location.reload();
+                } else {
+                    return response.json().then(data => {
+                        alert('Failed to return document for revision: ' + (data.message || 'Unknown error.'));
+                    });
+                }
+            }).catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while sending the revision request.');
+            });
+        }
+        function approveDocument(docsID) {
+            const url = "{% url 'approve_document' 0 %}".replace('/0/', '/' + docsID + '/');      
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken,
+                    'Content-Type': 'application/json'
+                },
+            }).then(response => response.json()).then(data => {
+                const modalMessage = document.getElementById('modalMessage');
+                const modal = new bootstrap.Modal(document.getElementById('approvalModal'));
+                
+                if (data.status === 'success') {
+                    modalMessage.innerText = 'On-the Job Training Management System says: Document approved successfully!';
+                    document.getElementById('modalReloadButton').onclick = function() {
+                        window.location.reload();
+                    };
+                    modal.show();
+                } else {
+                    modalMessage.innerText = 'Error: ' + data.message;
+                    modal.show();
+                }
+            }).catch(error => {
+                console.error('Error:', error);
+                const modalMessage = document.getElementById('modalMessage');
+                modalMessage.innerText = 'An error occurred while approving the document.';
+                const modal = new bootstrap.Modal(document.getElementById('approvalModal'));
+                modal.show();
+            });
+        }
+    </script>
+</body>
+</html>

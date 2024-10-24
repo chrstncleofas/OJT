@@ -178,21 +178,38 @@
                             </div>
                             <input type="hidden" name="tab" value="approved-students"> <!-- Preserve the active tab -->
                         </form>
+                        <!-- Right-aligned course filter dropdown -->
+                        <div class="d-flex align-items-center">
+                            <label for="courseFilter" class="form-label mr-2 mb-0">Filter by Course:</label>
+                            <select id="courseFilter" class="form-control w-auto">
+                                <option value="all">All</option>
+                                <option value="BS Information Technology">BS Information Technology</option>
+                                <option value="BS Computer Science">BS Computer Science</option>
+                            </select>
+                        </div>
                     </div>
                     <table class="table">
                         <thead>
                             <tr>
                                 <th>Student ID</th>
                                 <th>Firstname</th>
+                                <th>Middlename</th>
                                 <th>Lastname</th>
+                                <th>Program</th>
+                                <th>Year</th>
+                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody id="studentTableBody">
                             {% for student in students %}
-                            <tr>
+                            <tr data-course="{{ student.Course }}">
                                 <td>{{ student.StudentID }}</td> <!-- Assuming StudentID is the correct field -->
                                 <td style="text-transform: uppercase;">{{ student.Firstname }}</td>
+                                <td style="text-transform: uppercase;">{{ student.Middlename }}</td>
                                 <td style="text-transform: uppercase;">{{ student.Lastname }}</td>
+                                <td style="text-transform: uppercase;">{{ student.Course }}</td>
+                                <td style="text-transform: uppercase;">{{ student.Year }}</td>
+                                <td><a href="{% url 'view-document' student.id %}" class="btn btn-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="View"><i class="fas fa-eye"></i></a></td>
                             </tr>
                             {% empty %}
                             <tr>
@@ -289,13 +306,11 @@
     {% comment %}  {% endcomment %}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <script>
+        const csrfToken = "{{ csrf_token }}"; // Global variable for CSRF token
+        document.addEventListener('DOMContentLoaded', () => {
+            setupLogout();
+        });
         document.addEventListener('DOMContentLoaded', function () {
-            const csrfToken = "{{ csrf_token }}"; // Global variable for CSRF token
-            // Function to handle logout
-            function logout() {
-                localStorage.removeItem('is_coordinator_logged_in');
-                window.location.href = '{% url 'logout' %}';
-            }
             // Initialize tooltips
             var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
             tooltipTriggerList.map(function (tooltipTriggerEl) {
@@ -347,6 +362,19 @@
                 console.error('Element with ID "search-input" not found.');
             }  
         });
+        // Sets up the logout functionality
+        function setupLogout() {
+            const logoutButton = document.querySelector('#logoutButton'); // Assuming you have a logout button in the DOM
+    
+            if (logoutButton) {
+                logoutButton.addEventListener('click', logout);
+            }
+        }
+        // Clears local storage and redirects to the logout URL
+        function logout() {
+            localStorage.removeItem('is_coordinator_logged_in');
+            window.location.href = '{% url 'logout' %}';
+        }
     </script>
 </body>
 </html>

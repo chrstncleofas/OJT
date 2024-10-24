@@ -857,6 +857,34 @@ def submittedRequirementOfStudents(request, id):
 
     return render(request, 'app/view-submitted-requirement.html', context)
 
+
+def submittedRequirementsOfStudents(request, id):
+    user = request.user
+    admin = get_object_or_404(CustomUser, id=user.id)
+    student = get_object_or_404(DataTableStudents, id=id)
+    firstName = admin.first_name
+    lastName = admin.last_name
+
+    studentFirstname = student.Firstname
+    studentLastname = student.Lastname
+
+    progress_reports = TableSubmittedReport.objects.filter(student=student).order_by('-date_submitted', 'id')
+    requirements = TableSubmittedRequirement.objects.filter(student=student).order_by('id')
+    approve_document = ApprovedDocument.objects.filter(student=student).order_by('id')
+    cleaned_reports = [(report, clean_filename(report.report_file.name)) for report in progress_reports]
+
+    context = {
+        'firstName': firstName,
+        'lastName': lastName,
+        'studentFirstname': studentFirstname,
+        'studentLastname': studentLastname,
+        'cleaned_reports': cleaned_reports,
+        'requirements': requirements,
+        'approve_document': approve_document
+    }
+
+    return render(request, 'app/view-student-docs-submitted.html', context)
+
 @login_required
 def getTheSubmitRequirements(request):
     user = request.user

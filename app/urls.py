@@ -53,6 +53,7 @@ urlpatterns = [
     path('approve_document/<int:id>/', views.approve_document, name='approve_document'),
     path('update_document_score/<int:id>/', views.update_document_score, name='update_document_score'),
     path('view-requirements/<int:id>/', views.submittedRequirementOfStudents, name='view-requirements'),
+    path('view-document/<int:id>/', views.submittedRequirementsOfStudents, name='view-document'),
 ]
 
 if settings.DEBUG:
