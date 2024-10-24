@@ -201,7 +201,7 @@
                         </thead>
                         <tbody id="studentTableBody">
                             {% for pendingStudent in students %}
-                            <tr data-course="{{ student.Course }}">
+                            <tr data-course="{{ pendingStudent.PendingCourse }}">
                                 <td>{{ pendingStudent.PendingStudentID }}</td>
                                 <td>{{ pendingStudent.PendingFirstname }}</td>
                                 <td>{{ pendingStudent.PendingMiddlename }}</td>
@@ -350,7 +350,7 @@
             tooltipTriggerList.map(function (tooltipTriggerEl) {
                 return new bootstrap.Tooltip(tooltipTriggerEl);
             });
-            
+            // Course filter functionality
             const courseFilter = document.getElementById('courseFilter');
             if (courseFilter) {
                 courseFilter.addEventListener('change', function() {
