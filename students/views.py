@@ -677,7 +677,7 @@ def studentRegister(request):
 @never_cache
 @login_required
 @csrf_exempt
-def requirements(request):
+def getTheRequirement(request):
     user = request.user
     student = get_object_or_404(DataTableStudents, user=user)
     notifications = Notification.objects.filter(student=student, is_read=False)
@@ -703,7 +703,7 @@ def requirements(request):
         id__in=ApprovedDocument.objects.filter(student=student).values_list('id', flat=True)
     ).values_list('nameOfDocs', flat=True)
 
-    submittedDoc = TableSubmittedRequirement.objects.all().order_by('id')
+    submittedDoc = TableSubmittedRequirement.objects.filter(student=student).order_by('id')
     requirements = TableRequirements.objects.all().order_by('id')
     approved_docs = ApprovedDocument.objects.filter(student=student).values_list('nameOfDocs', flat=True)
     remaining_docs = [doc for doc in required_docs if doc not in submitted_docs and doc not in approved_docs]
