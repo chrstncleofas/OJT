@@ -323,6 +323,12 @@
     {% comment %}  {% endcomment %}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <script>
+        function updatePerPage(perPageValue) {
+            console.log('Per page changed to:', perPageValue);
+            const urlParams = new URLSearchParams(window.location.search);
+            urlParams.set('per_page', perPageValue);
+            window.location.search = urlParams.toString();
+        }   
         document.addEventListener('DOMContentLoaded', function () {
             const csrfToken = "{{ csrf_token }}"; // Global variable for CSRF token
             // Function to handle logout
